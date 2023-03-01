@@ -1,10 +1,12 @@
-﻿using Sirenix.OdinInspector;
+﻿using System;
 using System.Collections.Generic;
+using Sirenix.OdinInspector;
 using UnityEngine;
+
 namespace JKFrame
 {
     /// <summary>
-    /// 所有游戏中（非框架）配置，游戏运行时只有一个
+    /// 所有游戏中（非框架）配置，游戏运行时只有一个<br/>
     /// 包含所有的配置文件
     /// </summary>
     [CreateAssetMenu(fileName = "ConfigSetting", menuName = "JKFrame/ConfigSetting")]
@@ -12,7 +14,7 @@ namespace JKFrame
     {
         /// <summary>
         /// 所有配置的容器
-        /// <配置类型的名称，<id,具体配置>>
+        /// (配置类型的名称，(id，具体配置))
         /// </summary>
         [DictionaryDrawerSettings(KeyLabel = "类型", ValueLabel = "列表")]
         public Dictionary<string, Dictionary<int, ConfigBase>> configDic;
@@ -28,13 +30,15 @@ namespace JKFrame
             // 检查类型
             if (!configDic.ContainsKey(configTypeName))
             {
-                throw new System.Exception("JK:配置设置中不包含这个Key:" + configTypeName);
+                throw new Exception("JK:配置设置中不包含这个Key:" + configTypeName);
             }
+
             // 检查ID
             if (!configDic[configTypeName].ContainsKey(id))
             {
-                throw new System.Exception($"JK:配置设置中{configTypeName}不包含这个ID:{id}");
+                throw new Exception($"JK:配置设置中{configTypeName}不包含这个ID:{id}");
             }
+
             // 说明一切正常
             return configDic[configTypeName][id] as T;
         }

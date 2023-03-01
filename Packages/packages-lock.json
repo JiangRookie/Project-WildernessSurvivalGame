@@ -5,7 +5,7 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "551d9e2f92c68a509d61f35a46d566f82e0f2afc"
+      "hash": "c07a4d412293a954f893da5932c0eab29fc828d4"
     },
     "com.unity.editorcoroutines": {
       "version": "1.0.0",
@@ -65,6 +65,15 @@
       "depth": 1,
       "source": "registry",
       "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.postprocessing": {
+      "version": "3.2.2",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.physics": "1.0.0"
+      },
       "url": "https://packages.unity.com"
     },
     "com.unity.settings-manager": {

@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
+
 namespace JKFrame
 {
     public class ConfigManager : ManagerBase<ConfigManager>
     {
-        [SerializeField]
-        private ConfigSetting configSetting;
+        [SerializeField] ConfigSetting ConfigSetting;
 
         /// <summary>
         /// 获取配置
@@ -14,7 +14,7 @@ namespace JKFrame
         /// <param name="id">id</param>
         public T GetConfig<T>(string configTypeName, int id = 0) where T : ConfigBase
         {
-            return configSetting.GetConfig<T>(configTypeName, id);
+            return ConfigSetting.GetConfig<T>(configTypeName, id);
         }
     }
 }
