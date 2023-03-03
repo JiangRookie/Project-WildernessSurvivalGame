@@ -6,8 +6,8 @@ using UnityEngine;
 /// <summary>
 /// 地图物品的生成配置
 /// </summary>
-[CreateAssetMenu(fileName = "场景物品生成配置", menuName = "Config/场景物品")]
-public class MapObjectSpawnConfig : ConfigBase
+[CreateAssetMenu(fileName = "地图配置", menuName = "Config/地图配置")]
+public class MapConfig : ConfigBase
 {
     public Dictionary<MapVertexType, List<MapObjectSpawnConfigModel>> SpawnConfigDic = new();
 }

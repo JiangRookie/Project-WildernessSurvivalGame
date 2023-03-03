@@ -6,6 +6,9 @@ using UnityEngine;
 /// </summary>
 public class MapGrid
 {
+    /// <summary>
+    /// 生成网格数据
+    /// </summary>
     /// <param name="mapWidth">宽</param>
     /// <param name="mapHeight">高</param>
     /// <param name="cellSize">格子尺寸</param>
@@ -15,7 +18,6 @@ public class MapGrid
         MapWidth = mapWidth;
         CellSize = cellSize;
 
-        // 生成顶点数据 VertexDic
         // 从 1 开始的原因是：地图的四周（边界四个角）不算顶点
         for (int x = 1; x < mapWidth; x++)
         {
@@ -26,29 +28,8 @@ public class MapGrid
             }
         }
 
-        // 给格子增加一行一列
-        for (int x = 1; x <= mapWidth; x++) AddCell(x, mapHeight);
-
-        // 不取等号的原因是行列有一个是重叠的
-        for (int z = 1; z < mapWidth; z++) AddCell(mapWidth, z);
-
-        #region Test
-
-        // foreach (var vertex in VertexDic.Values)
-        // {
-        //     var sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        //     sphere.transform.position = vertex.Position;
-        //     sphere.transform.localScale = Vector3.one * 0.25f;
-        // }
-        //
-        // foreach (var cell in CellDic.Values)
-        // {
-        //     var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        //     cube.transform.position = cell.Position - new Vector3(0f, 0.49f, 0f);
-        //     cube.transform.localScale = new Vector3(cellSize, 1, cellSize);
-        // }
-
-        #endregion
+        for (int x = 1; x <= mapWidth; x++) AddCell(x, mapHeight); // 给格子增加一行一列
+        for (int z = 1; z < mapWidth; z++) AddCell(mapWidth, z);   // 不取等号的原因是行列有一个是重叠的
     }
 
     public int MapHeight { get; private set; }
@@ -56,37 +37,24 @@ public class MapGrid
     public float CellSize { get; private set; }
 
     /// <summary>
-    /// 计算格子贴图的索引数字
+    /// 计算地图顶点类型
     /// </summary>
-    /// <param name="noiseMap"></param>
-    /// <param name="limit"></param>
-    /// <returns></returns>
-    public int[,] CalculateCellTextureIndex(float[,] noiseMap, float limit)
+    /// <param name="noiseMap">噪声图</param>
+    /// <param name="marshLimit">沼泽边界，大于该值则为沼泽</param>
+    public void CalculateMapVertexType(float[,] noiseMap, float marshLimit)
     {
         int width = noiseMap.GetLength(0);
         int height = noiseMap.GetLength(1);
 
         // 遍历的是格子所以要加上 “=” 号
-        for (int x = 1; x < width; x++)
+        for (int x = 1; x <= width; x++)
         {
-            for (int z = 1; z < height; z++)
+            for (int z = 1; z <= height; z++)
             {
-                // 基于噪声中的值确定这个顶点的类型
-                // 数组要从0开始
-                SetVertexType(x, z, noiseMap[x - 1, z - 1] >= limit ? MapVertexType.Marsh : MapVertexType.Forest);
+                // 基于噪声中的值确定这个顶点的类型；减1是因为数组要从0开始。
+                SetVertexType(x, z, noiseMap[x - 1, z - 1] >= marshLimit ? MapVertexType.Marsh : MapVertexType.Forest);
             }
         }
-
-        int[,] cellTextureIndex = new int[width, height];
-        for (int x = 0; x < width; x++)
-        {
-            for (int z = 0; z < height; z++)
-            {
-                cellTextureIndex[x, z] = GetCell(x + 1, z + 1).TextureIndex;
-            }
-        }
-
-        return cellTextureIndex;
     }
 
     #region Vertex
@@ -124,33 +92,28 @@ public class MapGrid
         return GetVertex(x, z);
     }
 
-    void SetVertexType(Vector2Int vertexIndex, MapVertexType mapVertexType)
+    void SetVertexType(Vector2Int vertexIndex, MapVertexType vertexType)
     {
-        var vertex = GetVertex(vertexIndex);
-        if (vertex.VertexType != mapVertexType)
-        {
-            vertex.VertexType = mapVertexType;
+        MapVertex vertex = GetVertex(vertexIndex);
+        if (vertex.VertexType == vertexType) return; // FIXME:反转了if，可能会出错
+        vertex.VertexType = vertexType;
 
-            // 只有沼泽需要计算
-            if (vertex.VertexType == MapVertexType.Marsh)
-            {
-                // 计算附近的贴图权重
-                MapCell cell = GetLBMapCell(vertexIndex);
-                if (cell != null) cell.TextureIndex += 1;
-                cell = GetRBMapCell(vertexIndex);
-                if (cell != null) cell.TextureIndex += 2;
-                cell = GetLTMapCell(vertexIndex);
-                if (cell != null) cell.TextureIndex += 4;
-                cell = GetRTMapCell(vertexIndex);
-                if (cell != null) cell.TextureIndex += 8;
-            }
-        }
+        // 只有沼泽需要计算
+        if (vertex.VertexType != MapVertexType.Marsh) return; // FIXME:反转了if，可能会出错
+
+        // 计算附近的贴图权重
+        MapCell cell = GetLBMapCell(vertexIndex);
+        if (cell != null) cell.TextureIndex += 1;
+        cell = GetRBMapCell(vertexIndex);
+        if (cell != null) cell.TextureIndex += 2;
+        cell = GetLTMapCell(vertexIndex);
+        if (cell != null) cell.TextureIndex += 4;
+        cell = GetRTMapCell(vertexIndex);
+        if (cell != null) cell.TextureIndex += 8;
     }
 
     void SetVertexType(int x, int y, MapVertexType mapVertexType)
-    {
-        SetVertexType(new Vector2Int(x, y), mapVertexType);
-    }
+        => SetVertexType(new Vector2Int(x, y), mapVertexType);
 
     #endregion
 
@@ -162,13 +125,13 @@ public class MapGrid
     /// </summary>
     public readonly Dictionary<Vector2Int, MapCell> CellDic = new();
 
-    void AddCell(int x, int z)
+    void AddCell(int x, int y)
     {
         float offset = CellSize / 2;
         CellDic.Add
         (
-            new Vector2Int(x, z)
-          , new MapCell { Position = new Vector3(x * CellSize - offset, 0, z * CellSize - offset) }
+            new Vector2Int(x, y)
+          , new MapCell { Position = new Vector3(x * CellSize - offset, 0, y * CellSize - offset) }
         );
     }
 
@@ -206,10 +169,7 @@ public class MapGrid
     #endregion
 }
 
-public enum MapVertexType
-{
-    Forest, Marsh
-}
+public enum MapVertexType { Forest, Marsh }
 
 /// <summary>
 /// 地图顶点
@@ -225,6 +185,10 @@ public class MapVertex
 /// </summary>
 public class MapCell
 {
-    public Vector3 Position;
-    public int TextureIndex; // 贴图权重 左下1 右下2 左上4 右上8
+    public Vector3 Position; // 格子中心点位置
+
+    /// <summary>
+    /// 贴图索引（贴图权重），森林权重为0，沼泽权重（左下1、右下2、左上4、右上8）。
+    /// </summary>
+    public int TextureIndex;
 }

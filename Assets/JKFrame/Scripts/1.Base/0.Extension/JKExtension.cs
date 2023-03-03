@@ -13,6 +13,7 @@ namespace JKFrame
     public static class JKExtension
     {
         #region 通用
+
         /// <summary>
         /// 获取特性
         /// </summary>
@@ -20,6 +21,7 @@ namespace JKFrame
         {
             return obj.GetType().GetCustomAttribute<T>();
         }
+
         /// <summary>
         /// 获取特性
         /// </summary>
@@ -39,6 +41,7 @@ namespace JKFrame
             {
                 return false;
             }
+
             if (objs.Length == other.Length)
             {
                 for (int i = 0; i < objs.Length; i++)
@@ -53,11 +56,14 @@ namespace JKFrame
             {
                 return false;
             }
+
             return true;
         }
 
         #endregion
+
         #region 资源管理
+
         /// <summary>
         /// GameObject放入对象池
         /// </summary>
@@ -82,8 +88,11 @@ namespace JKFrame
         {
             PoolManager.Instance.PushObject(obj);
         }
+
         #endregion
+
         #region 本地化
+
         /// <summary>
         /// 从本地化系统中修改内容
         /// </summary>
@@ -93,6 +102,7 @@ namespace JKFrame
         {
             text.text = LocalizationManager.Instance.GetContent<L_Text>(packName, contentKey).content;
         }
+
         /// <summary>
         /// 从本地化系统中修改内容
         /// </summary>
@@ -102,6 +112,7 @@ namespace JKFrame
         {
             image.sprite = LocalizationManager.Instance.GetContent<L_Image>(packName, contentKey).content;
         }
+
         /// <summary>
         /// 从本地化系统中修改内容
         /// </summary>
@@ -111,6 +122,7 @@ namespace JKFrame
         {
             audioSource.clip = LocalizationManager.Instance.GetContent<L_Audio>(packName, contentKey).content;
         }
+
         /// <summary>
         /// 从本地化系统中修改内容
         /// </summary>
@@ -120,7 +132,9 @@ namespace JKFrame
         {
             videoPlayer.clip = LocalizationManager.Instance.GetContent<L_Video>(packName, contentKey).content;
         }
+
         #endregion
+
         #region Mono
 
         /// <summary>
@@ -130,6 +144,7 @@ namespace JKFrame
         {
             MonoManager.Instance.AddUpdateListener(action);
         }
+
         /// <summary>
         /// 移除Update监听
         /// </summary>
@@ -145,6 +160,7 @@ namespace JKFrame
         {
             MonoManager.Instance.AddLateUpdateListener(action);
         }
+
         /// <summary>
         /// 移除LateUpdate监听
         /// </summary>
@@ -160,6 +176,7 @@ namespace JKFrame
         {
             MonoManager.Instance.AddFixedUpdateListener(action);
         }
+
         /// <summary>
         /// 移除Update监听
         /// </summary>
@@ -177,6 +194,7 @@ namespace JKFrame
         {
             MonoManager.Instance.StopCoroutine(routine);
         }
+
         public static void StopAllCoroutines(this object obj)
         {
             MonoManager.Instance.StopAllCoroutines();
@@ -184,5 +202,4 @@ namespace JKFrame
 
         #endregion
     }
-
 }
