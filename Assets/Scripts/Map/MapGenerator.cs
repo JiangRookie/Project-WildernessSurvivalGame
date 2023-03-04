@@ -20,6 +20,7 @@ public class MapGenerator
     Material m_MarshMaterial;
     MapConfig m_MapConfig;
     MapGrid m_MapGrid; // 地图（逻辑层面）网格、顶点数据
+    Mesh m_ChunkMesh;
 
     [Tooltip("一行/列地图块数量")] int m_MapSize;       //  m_MapSize -> m_MapChunkNum
     [Tooltip("一个地图块的格子数量")] int m_MapChunkSize; //  m_MapChunkSize -> m_CellNum
@@ -69,6 +70,7 @@ public class MapGenerator
         // 实例化一个沼泽材质
         m_MarshMaterial = new Material(m_MapMaterial);
         m_MarshMaterial.SetTextureScale(s_MainTex, Vector2.one);
+        m_ChunkMesh = GenerateMapMesh(m_MapChunkSize, m_MapChunkSize, m_CellSize);
     }
 
     /// <summary>
@@ -84,7 +86,10 @@ public class MapGenerator
         var mapChunk = mapChunkGameObj.AddComponent<MapChunkController>();
 
         // 为地图块生成 Mesh
-        mapChunkGameObj.AddComponent<MeshFilter>().mesh = GenerateMapMesh(m_MapChunkSize, m_MapChunkSize, m_CellSize);
+        mapChunkGameObj.AddComponent<MeshFilter>().mesh = m_ChunkMesh;
+
+        // 添加碰撞体 
+        mapChunkGameObj.AddComponent<MeshCollider>();
 
         //生成地图块的贴图
         Texture2D mapTexture;
