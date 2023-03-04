@@ -6,6 +6,10 @@ namespace JKFrame
     {
         public virtual void Init() { }
     }
+
+    /// <summary>
+    /// 基于 MonoBehaviour 的泛型单例基类，非主动激活单例
+    /// </summary>
     public abstract class ManagerBase<T> : ManagerBase where T : ManagerBase<T>
     {
         public static T Instance;
@@ -19,5 +23,3 @@ namespace JKFrame
         }
     }
 }
-
-

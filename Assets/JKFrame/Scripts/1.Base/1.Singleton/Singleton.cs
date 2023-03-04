@@ -1,23 +1,23 @@
 ﻿namespace JKFrame
 {
     /// <summary>
-    /// 单例模式的基类
+    /// 普通 C# 类单例模式基类
     /// </summary>
     public abstract class Singleton<T> where T : Singleton<T>, new()
     {
-        private static T instance;
+        static T s_Instance;
 
         public static T Instance
         {
             get
             {
-                if (instance == null)
+                if (s_Instance == null)
                 {
-                    instance = new T();
+                    s_Instance = new T();
                 }
-                return instance;
+
+                return s_Instance;
             }
         }
     }
-
 }

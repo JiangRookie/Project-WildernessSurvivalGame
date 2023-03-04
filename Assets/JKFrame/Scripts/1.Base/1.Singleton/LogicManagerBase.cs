@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace JKFrame
+﻿namespace JKFrame
 {
     /// <summary>
     /// 逻辑管理器基类
@@ -13,6 +9,7 @@ namespace JKFrame
         /// 注册事件的监听
         /// </summary>
         protected abstract void RegisterEventListener();
+
         /// <summary>
         /// 取消事件的监听
         /// </summary>
