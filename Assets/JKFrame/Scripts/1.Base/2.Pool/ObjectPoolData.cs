@@ -7,12 +7,14 @@ namespace JKFrame
     /// </summary>
     public class ObjectPoolData
     {
+        // 对象容器
+        public Queue<object> poolQueue = new Queue<object>();
+
         public ObjectPoolData(object obj)
         {
             PushObj(obj);
         }
-        // 对象容器
-        public Queue<object> poolQueue = new Queue<object>();
+
         /// <summary>
         /// 将对象放进对象池
         /// </summary>

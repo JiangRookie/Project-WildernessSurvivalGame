@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using JKFrame;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -16,6 +17,7 @@ public class MapGenerator
     Texture2D m_ForestTexture;
     Texture2D[] m_MarshTextures;
     Material m_MapMaterial;
+    Material m_MarshMaterial;
     MapConfig m_MapConfig;
     MapGrid m_MapGrid; // 地图（逻辑层面）网格、顶点数据
 
@@ -26,8 +28,29 @@ public class MapGenerator
     int m_MapGenerationSeed;
     int m_MapRandomObjectSpawnSeed;
     float m_MarshLimit;
+    static readonly int s_MainTex = Shader.PropertyToID("_MainTex");
 
     #endregion
+
+    public MapGenerator
+    (
+        Texture2D forestTexture, Texture2D[] marshTextures, Material mapMaterial, MapConfig mapConfig, int mapSize
+      , int mapChunkSize, float cellSize, float noiseLacunarity, int mapGenerationSeed, int mapRandomObjectSpawnSeed
+      , float marshLimit
+    )
+    {
+        m_ForestTexture = forestTexture;
+        m_MarshTextures = marshTextures;
+        m_MapMaterial = mapMaterial;
+        m_MapConfig = mapConfig;
+        m_MapSize = mapSize;
+        m_MapChunkSize = mapChunkSize;
+        m_CellSize = cellSize;
+        m_NoiseLacunarity = noiseLacunarity;
+        m_MapGenerationSeed = mapGenerationSeed;
+        m_MapRandomObjectSpawnSeed = mapRandomObjectSpawnSeed;
+        m_MarshLimit = marshLimit;
+    }
 
     /// <summary>
     /// 生成地图数据，主要是所有地图块都通用的数据
@@ -38,6 +61,14 @@ public class MapGenerator
         float[,] noiseMap = GenerateNoiseMap(rowTotalCellNum, rowTotalCellNum, m_NoiseLacunarity, m_MapGenerationSeed);
         m_MapGrid = new MapGrid(rowTotalCellNum, rowTotalCellNum, m_CellSize);
         m_MapGrid.CalculateMapVertexType(noiseMap, m_MarshLimit);
+
+        // 初始化默认材质的尺寸
+        m_MapMaterial.mainTexture = m_ForestTexture;
+        m_MapMaterial.SetTextureScale(s_MainTex, new Vector2(m_CellSize * m_MapChunkSize, m_CellSize * m_MapChunkSize));
+
+        // 实例化一个沼泽材质
+        m_MarshMaterial = new Material(m_MapMaterial);
+        m_MarshMaterial.SetTextureScale(s_MainTex, Vector2.one);
     }
 
     /// <summary>
@@ -71,7 +102,9 @@ public class MapGenerator
                     else
                     {
                         mapTexture = texture;
-                        Material material = new Material(m_MapMaterial);
+                        Material material = new Material(m_MarshMaterial);
+                        material.mainTexture = texture;
+                        mapChunkGameObj.AddComponent<MeshRenderer>().material = material;
                     }
                 }
             )
@@ -81,26 +114,18 @@ public class MapGenerator
         var chunkLength = m_MapChunkSize * m_CellSize;
 
         // 确定坐标
-        var position = new Vector3
-        (
-            chunkIndex.x * chunkLength
-          , 0
-          , chunkIndex.x * chunkLength
-        );
+        var position = new Vector3(chunkIndex.x * chunkLength, 0, chunkIndex.y * chunkLength);
         mapChunk.transform.position = position;
         mapChunkGameObj.transform.SetParent(parent);
-        mapChunk.InitCenter
-        (
-            position + new Vector3
-            (
-                chunkLength / 2
-              , 0
-              , chunkLength / 2
-            )
-        );
 
         // 生成场景物体
-        SpawnMapObject(m_MapGrid, m_MapConfig, m_MapRandomObjectSpawnSeed);
+        List<MapChunkMapObjectModel> mapObjectModelList = SpawnMapObject(chunkIndex);
+        mapChunk.InitCenter
+        (
+            chunkIndex
+          , position + new Vector3(chunkLength / 2, 0, chunkLength / 2)
+          , mapObjectModelList
+        );
         return mapChunk;
     }
 
@@ -262,28 +287,26 @@ public class MapGenerator
     /// <summary>
     /// 生成地图上的游戏物体
     /// </summary>
-    /// <param name="mapGrid">用于获取地图的宽度和高度</param>
-    /// <param name="spawnConfig">用于获取生成的物体及其概率配置信息</param>
-    /// <param name="spawnSeed">用于随机生成物体</param>
     /// <remarks>遍历地图顶点，根据spawnConfig中的配置信息及其概率进行随机生成，并在对应位置实例化物体</remarks>
-    void SpawnMapObject(MapGrid mapGrid, MapConfig spawnConfig, int spawnSeed)
+    List<MapChunkMapObjectModel> SpawnMapObject(Vector2Int chunkIndex)
     {
         // 使用种子进行随机生成
-        Random.InitState(spawnSeed);
-        var mapWidth = mapGrid.MapWidth;
-        var mapHeight = mapGrid.MapHeight;
-        var cellSize = mapGrid.CellSize;
+        Random.InitState(m_MapRandomObjectSpawnSeed);
+        List<MapChunkMapObjectModel> mapChunkMapObjectList = new List<MapChunkMapObjectModel>();
+        var cellSize = m_MapGrid.CellSize;
+        var offsetX = chunkIndex.x * m_MapChunkSize;
+        var offsetZ = chunkIndex.y * m_MapChunkSize;
 
         // 遍历地图顶点
-        for (int x = 1; x < mapWidth; x++)
+        for (int x = 1; x < m_MapChunkSize; x++)
         {
-            for (int z = 1; z < mapHeight; z++)
+            for (int z = 1; z < m_MapChunkSize; z++)
             {
-                var mapVertex = mapGrid.GetVertex(x, z);
+                var mapVertex = m_MapGrid.GetVertex(x + offsetX, z + offsetZ);
 
                 // 根据概率配置随机
                 // 根据顶点的顶点类型获取对应的列表
-                var spawnConfigModelList = spawnConfig.SpawnConfigDic[mapVertex.VertexType];
+                var spawnConfigModelList = m_MapConfig.SpawnConfigDic[mapVertex.VertexType];
 
                 // 确保整个配置概率值和为 100
                 int randomValue = Random.Range(1, 101);
@@ -301,24 +324,19 @@ public class MapGenerator
 
                 var spawnModel = spawnConfigModelList[spawnConfigIndex];
                 if (spawnModel.IsEmpty) continue;
-
-                // 实例化物品
-                var offset = new Vector3
+                var position = mapVertex.Position + new Vector3
                 (
                     Random.Range(-cellSize / 2, cellSize / 2)
                   , 0
                   , Random.Range(-cellSize / 2, cellSize / 2)
                 );
-
-                // var gameObj = Instantiate
-                // (
-                //     original: spawnModel.Prefab
-                //   , position: mapVertex.Position + offset
-                //   , rotation: Quaternion.identity
-                //   , parent: transform
-                // );
-                // MapObjectList.Add(gameObj);
+                mapChunkMapObjectList.Add
+                (
+                    new MapChunkMapObjectModel { Prefab = spawnModel.Prefab, Position = position }
+                );
             }
         }
+
+        return mapChunkMapObjectList;
     }
 }

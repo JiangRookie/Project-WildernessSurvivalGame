@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+
 namespace JKFrame
 {
     public interface IStateMachineOwner { }
@@ -9,17 +10,17 @@ namespace JKFrame
     [Pool]
     public class StateMachine
     {
-        // 当前状态
-        public int CurrStateType { get; private set; } = -1;
-
         // 当前生效中的状态
-        private StateBase currStateObj;
+        StateBase currStateObj;
 
         // 宿主
-        private IStateMachineOwner owner;
+        IStateMachineOwner owner;
 
         // 所有的状态 Key:状态枚举的值 Value:具体的状态
-        private Dictionary<int, StateBase> stateDic = new Dictionary<int, StateBase>();
+        Dictionary<int, StateBase> stateDic = new Dictionary<int, StateBase>();
+
+        // 当前状态
+        public int CurrStateType { get; private set; } = -1;
 
         /// <summary>
         /// 初始化
@@ -50,6 +51,7 @@ namespace JKFrame
                 currStateObj.RemoveLateUpdate(currStateObj.LateUpdate);
                 currStateObj.RemoveFixedUpdate(currStateObj.FixedUpdate);
             }
+
             // 进入新状态
             currStateObj = GetState<T>(newStateType);
             CurrStateType = newStateType;
@@ -57,17 +59,15 @@ namespace JKFrame
             currStateObj.OnUpdate(currStateObj.Update);
             currStateObj.OnLateUpdate(currStateObj.LateUpdate);
             currStateObj.OnFixedUpdate(currStateObj.FixedUpdate);
-
             return true;
         }
 
         /// <summary>
         /// 从对象池获取一个状态
         /// </summary>
-        private StateBase GetState<T>(int stateType) where T : StateBase, new()
+        StateBase GetState<T>(int stateType) where T : StateBase, new()
         {
             if (stateDic.ContainsKey(stateType)) return stateDic[stateType];
-
             StateBase state = ResManager.Load<T>();
             state.Init(owner, stateType, this);
             stateDic.Add(stateType, state);
@@ -87,22 +87,25 @@ namespace JKFrame
             currStateObj.RemoveFixedUpdate(currStateObj.FixedUpdate);
             CurrStateType = -1;
             currStateObj = null;
+
             // 处理缓存中所有状态的逻辑
             var enumerator = stateDic.GetEnumerator();
             while (enumerator.MoveNext())
             {
                 enumerator.Current.Value.UnInit();
             }
+
             stateDic.Clear();
         }
 
         /// <summary>
-        /// 销毁，宿主应该释放掉StateMachin的引用
+        /// 销毁，宿主应该释放掉StateMachine的引用
         /// </summary>
-        public void Destory()
+        public void Destroy()
         {
             // 处理所有状态
             Stop();
+
             // 放弃所有资源的引用
             owner = null;
 
