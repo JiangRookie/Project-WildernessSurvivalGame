@@ -18,7 +18,6 @@ public class MapGenerator
     Texture2D[] m_MarshTextures;
     Material m_MapMaterial;
     Material m_MarshMaterial;
-    MapConfig m_MapConfig;
     MapGrid m_MapGrid; // 地图（逻辑层面）网格、顶点数据
     Mesh m_ChunkMesh;
 
@@ -30,20 +29,24 @@ public class MapGenerator
     int m_MapRandomObjectSpawnSeed;
     float m_MarshLimit;
     static readonly int s_MainTex = Shader.PropertyToID("_MainTex");
+    Dictionary<MapVertexType, List<int>> m_SpawnConfigDict;
+
+    int m_ForestSpawnWeightTotal;
+    int m_MarshSpawnWeightTotal;
 
     #endregion
 
     public MapGenerator
     (
-        Texture2D forestTexture, Texture2D[] marshTextures, Material mapMaterial, MapConfig mapConfig, int mapSize
-      , int mapChunkSize, float cellSize, float noiseLacunarity, int mapGenerationSeed, int mapRandomObjectSpawnSeed
-      , float marshLimit
+        Texture2D forestTexture, Texture2D[] marshTextures, Material mapMaterial
+      , Dictionary<MapVertexType, List<int>> spawnConfigDict, int mapSize, int mapChunkSize, float cellSize
+      , float noiseLacunarity, int mapGenerationSeed, int mapRandomObjectSpawnSeed, float marshLimit
     )
     {
         m_ForestTexture = forestTexture;
         m_MarshTextures = marshTextures;
         m_MapMaterial = mapMaterial;
-        m_MapConfig = mapConfig;
+        m_SpawnConfigDict = spawnConfigDict;
         m_MapSize = mapSize;
         m_MapChunkSize = mapChunkSize;
         m_CellSize = cellSize;
@@ -58,8 +61,10 @@ public class MapGenerator
     /// </summary>
     public void GenerateMapData()
     {
+        // 应用地图随机生成种子
+        Random.InitState(m_MapGenerationSeed);
         int rowTotalCellNum = m_MapSize * m_MapChunkSize; // 行/列总格子数
-        float[,] noiseMap = GenerateNoiseMap(rowTotalCellNum, rowTotalCellNum, m_NoiseLacunarity, m_MapGenerationSeed);
+        float[,] noiseMap = GenerateNoiseMap(rowTotalCellNum, rowTotalCellNum, m_NoiseLacunarity);
         m_MapGrid = new MapGrid(rowTotalCellNum, rowTotalCellNum, m_CellSize);
         m_MapGrid.CalculateMapVertexType(noiseMap, m_MarshLimit);
 
@@ -71,6 +76,19 @@ public class MapGenerator
         m_MarshMaterial = new Material(m_MapMaterial);
         m_MarshMaterial.SetTextureScale(s_MainTex, Vector2.one);
         m_ChunkMesh = GenerateMapMesh(m_MapChunkSize, m_MapChunkSize, m_CellSize);
+
+        // 应用地图随机对象（花草树木）生成种子
+        Random.InitState(m_MapRandomObjectSpawnSeed);
+
+        List<int> temps = m_SpawnConfigDict[MapVertexType.Forest];
+        foreach (int id in temps)
+            m_ForestSpawnWeightTotal
+                += ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, id).Probability;
+        temps = m_SpawnConfigDict[MapVertexType.Marsh];
+
+        foreach (int id in temps)
+            m_MarshSpawnWeightTotal
+                += ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, id).Probability;
     }
 
     /// <summary>
@@ -183,15 +201,15 @@ public class MapGenerator
     /// <param name="lacunarity">间隙，影响平滑度</param>
     /// <param name="seed">随机种子</param>
     /// <returns></returns>
-    static float[,] GenerateNoiseMap(int width, int height, float lacunarity, int seed)
+    static float[,] GenerateNoiseMap(int width, int height, float lacunarity)
     {
-        Random.InitState(seed);
         lacunarity += 0.1f;
 
         // 这里的噪声图是为了顶点服务的，而顶点是不包含地图四周的边界的，所以要在原有宽高的基础上 -1
         float[,] noiseMap = new float[width - 1, height - 1];
         float offsetX = Random.Range(-10000f, 10000f);
         float offsetZ = Random.Range(-10000f, 10000f);
+
         for (int x = 0; x < width - 1; x++)
         {
             for (int z = 0; z < height - 1; z++)
@@ -200,7 +218,6 @@ public class MapGenerator
                     Mathf.PerlinNoise(x * lacunarity + offsetX, z * lacunarity + offsetZ);
             }
         }
-
         return noiseMap;
     }
 
@@ -221,18 +238,22 @@ public class MapGenerator
         for (int z = 0; z < m_MapChunkSize; z++)
         {
             if (isAllForest == false) break;
+
             for (int x = 0; x < m_MapChunkSize; x++)
             {
                 var cell = m_MapGrid.GetCell(x + cellOffsetX, z + cellOffsetZ);
+
                 if (cell != null && cell.TextureIndex != 0)
                 {
                     isAllForest = false;
+
                     break;
                 }
             }
         }
 
         Texture2D mapTexture = null;
+
         if (isAllForest == false) // 如果是沼泽
         {
             var textureCellSize = m_ForestTexture.width;           // 贴图都是正方形
@@ -243,7 +264,9 @@ public class MapGenerator
             for (int chunkZ = 0; chunkZ < m_MapChunkSize; chunkZ++)
             {
                 yield return null; // 一帧只绘制一列像素
+
                 int pixelOffsetZ = chunkZ * textureCellSize;
+
                 for (int chunkX = 0; chunkX < m_MapChunkSize; chunkX++)
                 {
                     int pixelOffsetX = chunkX * textureCellSize;
@@ -261,6 +284,7 @@ public class MapGenerator
                             // 确定是森林还是沼泽
                             // 这个地方是森林 || 这个地方是沼泽但是是透明的（这种情况需要绘制 groundTexture 同位置的像素颜色）
                             Color color;
+
                             if (textureIndex < 0) // <0 是森林
                             {
                                 color = m_ForestTexture.GetPixel(cellX, cellZ);
@@ -268,7 +292,8 @@ public class MapGenerator
                             else
                             {
                                 color = m_MarshTextures[textureIndex].GetPixel(cellX, cellZ);
-                                if (color.a == 0)
+
+                                if (color.a < 1f)
                                 {
                                     color = m_ForestTexture.GetPixel(cellX, cellZ);
                                 }
@@ -295,8 +320,6 @@ public class MapGenerator
     /// <remarks>遍历地图顶点，根据spawnConfig中的配置信息及其概率进行随机生成，并在对应位置实例化物体</remarks>
     List<MapChunkMapObjectModel> SpawnMapObject(Vector2Int chunkIndex)
     {
-        // 使用种子进行随机生成
-        Random.InitState(m_MapRandomObjectSpawnSeed);
         List<MapChunkMapObjectModel> mapChunkMapObjectList = new List<MapChunkMapObjectModel>();
         var cellSize = m_MapGrid.CellSize;
         var offsetX = chunkIndex.x * m_MapChunkSize;
@@ -311,24 +334,34 @@ public class MapGenerator
 
                 // 根据概率配置随机
                 // 根据顶点的顶点类型获取对应的列表
-                var spawnConfigModelList = m_MapConfig.SpawnConfigDic[mapVertex.VertexType];
+                var spawnConfigIdList = m_SpawnConfigDict[mapVertex.VertexType];
 
-                // 确保整个配置概率值和为 100
-                int randomValue = Random.Range(1, 101);
+                // 确定权重的总和
+                int weightTotal = mapVertex.VertexType == MapVertexType.Forest
+                    ? m_ForestSpawnWeightTotal
+                    : m_MarshSpawnWeightTotal;
+
+                int randomValue = Random.Range(1, weightTotal + 1);
                 float probabilitySum = 0; // 概率和
                 int spawnConfigIndex = 0; // 最终要生成的物品的索引
-                for (int i = 0; i < spawnConfigModelList.Count; i++)
+
+                for (int i = 0; i < spawnConfigIdList.Count; i++)
                 {
-                    probabilitySum += spawnConfigModelList[i].Probability;
+                    probabilitySum += ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject,
+                        spawnConfigIdList[i]).Probability;
+
                     if (randomValue < probabilitySum) // 命中
                     {
                         spawnConfigIndex = i;
                         break;
                     }
                 }
+                int configID = spawnConfigIdList[spawnConfigIndex];
+                MapObjectConfig spawnModel =
+                    ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, configID);
 
-                var spawnModel = spawnConfigModelList[spawnConfigIndex];
                 if (spawnModel.IsEmpty) continue;
+
                 var position = mapVertex.Position + new Vector3
                 (
                     Random.Range(-cellSize / 2, cellSize / 2)
@@ -341,7 +374,6 @@ public class MapGenerator
                 );
             }
         }
-
         return mapChunkMapObjectList;
     }
 }

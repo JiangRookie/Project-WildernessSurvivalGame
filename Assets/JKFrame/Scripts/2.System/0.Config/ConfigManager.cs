@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace JKFrame
 {
@@ -15,6 +16,11 @@ namespace JKFrame
         public T GetConfig<T>(string configTypeName, int id = 0) where T : ConfigBase
         {
             return ConfigSetting.GetConfig<T>(configTypeName, id);
+        }
+
+        public Dictionary<int, ConfigBase> GetConfigs(string configTypeName)
+        {
+            return ConfigSetting.GetConfigs(configTypeName);
         }
     }
 }

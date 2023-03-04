@@ -17,7 +17,21 @@ namespace JKFrame
         /// (配置类型的名称，(id，具体配置))
         /// </summary>
         [DictionaryDrawerSettings(KeyLabel = "类型", ValueLabel = "列表")]
-        public Dictionary<string, Dictionary<int, ConfigBase>> configDic;
+        public Dictionary<string, Dictionary<int, ConfigBase>> ConfigDic;
+
+        /// <summary>
+        /// 获取<paramref name="configTypeName"/>下的所有配置
+        /// </summary>
+        /// <param name="configTypeName">配置类型名称</param>
+        /// <returns></returns>
+        public Dictionary<int, ConfigBase> GetConfigs(string configTypeName)
+        {
+            if (!ConfigDic.TryGetValue(configTypeName, out Dictionary<int, ConfigBase> configBaseDict))
+            {
+                throw new Exception("JK:配置设置中不包含这个Key:" + configTypeName);
+            }
+            return configBaseDict;
+        }
 
         /// <summary>
         /// 获取配置
@@ -28,19 +42,19 @@ namespace JKFrame
         public T GetConfig<T>(string configTypeName, int id) where T : ConfigBase
         {
             // 检查类型
-            if (!configDic.ContainsKey(configTypeName))
+            if (!ConfigDic.TryGetValue(configTypeName, out Dictionary<int, ConfigBase> configBaseDict))
             {
                 throw new Exception("JK:配置设置中不包含这个Key:" + configTypeName);
             }
 
             // 检查ID
-            if (!configDic[configTypeName].ContainsKey(id))
+            if (!configBaseDict.TryGetValue(id, out ConfigBase configBase))
             {
                 throw new Exception($"JK:配置设置中{configTypeName}不包含这个ID:{id}");
             }
 
             // 说明一切正常
-            return configDic[configTypeName][id] as T;
+            return configBase as T;
         }
     }
 }

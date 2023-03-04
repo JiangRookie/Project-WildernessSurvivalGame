@@ -190,6 +190,7 @@ GameObject:
   m_Component:
   - component: {fileID: 127479095}
   - component: {fileID: 127479096}
+  - component: {fileID: 127479097}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -225,34 +226,50 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MainLight: {fileID: 705507994}
-  SunIntensity: 0
   TimeStateDatas:
-  - DurationTime: 150
+  - PhaseDurationTime: 150
     SunIntensity: 0.5
     SunColor: {r: 0.96470594, g: 0.6156863, b: 0.3019608, a: 1}
     SunRotation: {x: 30, y: 15, z: 0}
     SunQuaternion: {x: 0.25660482, y: 0.12607862, z: -0.033782665, w: 0.9576622}
-  - DurationTime: 200
+  - PhaseDurationTime: 200
     SunIntensity: 1.2
     SunColor: {r: 0.98823535, g: 0.9607844, b: 0.8431373, a: 1}
     SunRotation: {x: 60, y: 0, z: 0}
     SunQuaternion: {x: 0.5, y: 0, z: 0, w: 0.8660254}
-  - DurationTime: 150
+  - PhaseDurationTime: 150
     SunIntensity: 0.3
     SunColor: {r: 1, g: 0.53333336, b: 0.14117648, a: 1}
     SunRotation: {x: 180, y: 90, z: 0}
     SunQuaternion: {x: 0.70710677, y: -0.00000003090862, z: -0.70710677, w: -0.00000003090862}
-  - DurationTime: 60
+  - PhaseDurationTime: 60
     SunIntensity: 0
     SunColor: {r: 0, g: 0, b: 0, a: 1}
     SunRotation: {x: 180, y: 90, z: 0}
     SunQuaternion: {x: 0.70710677, y: -0.00000003090862, z: -0.70710677, w: -0.00000003090862}
-  - DurationTime: 30
+  - PhaseDurationTime: 30
     SunIntensity: 0
     SunColor: {r: 0, g: 0, b: 0, a: 0}
     SunRotation: {x: 180, y: 90, z: 0}
     SunQuaternion: {x: 0.70710677, y: -0.00000003090862, z: -0.70710677, w: -0.00000003090862}
   TimeScale: 10
+--- !u!114 &127479097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 127479094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b9a305e18de0c04dbd257a21cd47087, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sharedProfile: {fileID: 11400000, guid: 9c767b7c199820b4a82a450186478c48, type: 2}
+  isGlobal: 1
+  blendDistance: 0
+  weight: 1
+  priority: 0
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -438,6 +455,7 @@ GameObject:
   - component: {fileID: 963194228}
   - component: {fileID: 963194227}
   - component: {fileID: 963194226}
+  - component: {fileID: 963194229}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -511,6 +529,66 @@ Transform:
   m_Father: {fileID: 861974442}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 50, y: 0, z: 0}
+--- !u!114 &963194229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963194225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 948f4100a11a5c24981795d21301da5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  volumeTrigger: {fileID: 963194228}
+  volumeLayer:
+    serializedVersion: 2
+    m_Bits: 1
+  stopNaNPropagation: 1
+  finalBlitToCameraTarget: 0
+  antialiasingMode: 2
+  temporalAntialiasing:
+    jitterSpread: 0.75
+    sharpness: 0.25
+    stationaryBlending: 0.95
+    motionBlending: 0.85
+  subpixelMorphologicalAntialiasing:
+    quality: 2
+  fastApproximateAntialiasing:
+    fastMode: 0
+    keepAlpha: 0
+  fog:
+    enabled: 1
+    excludeSkybox: 1
+  debugLayer:
+    lightMeter:
+      width: 512
+      height: 256
+      showCurves: 1
+    histogram:
+      width: 512
+      height: 256
+      channel: 3
+    waveform:
+      exposure: 0.12
+      height: 256
+    vectorscope:
+      size: 256
+      exposure: 0.12
+    overlaySettings:
+      linearDepth: 0
+      motionColorIntensity: 4
+      motionGridSize: 64
+      colorBlindnessType: 0
+      colorBlindnessStrength: 1
+  m_Resources: {fileID: 11400000, guid: d82512f9c8e5d4a4d938b575d47f88d4, type: 2}
+  m_ShowToolkit: 0
+  m_ShowCustomSorter: 0
+  breakBeforeColorGrading: 0
+  m_BeforeTransparentBundles: []
+  m_BeforeStackBundles: []
+  m_AfterStackBundles: []
 --- !u!1 &1848916778
 GameObject:
   m_ObjectHideFlags: 0

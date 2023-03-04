@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using JKFrame;
 using UnityEngine;
 
 public class MapManager : MonoBehaviour
@@ -43,25 +44,29 @@ public class MapManager : MonoBehaviour
 
     List<MapChunkController> m_FinallyDisplayChunkList = new(); // 最终显示出来的地图块
 
+    // 某个类型可以生成哪些配置的ID
+    Dictionary<MapVertexType, List<int>> m_SpawnConfigDict;
+
     #endregion
 
     void Start()
     {
+        // 确定配置
+        Dictionary<int, ConfigBase> mapConfigDict = ConfigManager.Instance.GetConfigs(ConfigName.MapObject);
+        m_SpawnConfigDict = new Dictionary<MapVertexType, List<int>>();
+        m_SpawnConfigDict.Add(MapVertexType.Forest, new List<int>());
+        m_SpawnConfigDict.Add(MapVertexType.Marsh, new List<int>());
+
+        foreach ((int id, ConfigBase configBase) in mapConfigDict)
+        {
+            MapVertexType mapVertexType = ((MapObjectConfig)configBase).MapVertexType;
+            m_SpawnConfigDict[mapVertexType].Add(id);
+        }
+
         // 初始化地图生成器
-        m_MapGenerator = new MapGenerator
-        (
-            ForestTexture
-          , MarshTextures
-          , MapMaterial
-          , MapConfig
-          , MapSize
-          , MapChunkSize
-          , CellSize
-          , NoiseLacunarity
-          , MapGenerationSeed
-          , MapRandomObjectSpawnSeed
-          , MarshLimit
-        );
+        m_MapGenerator = new MapGenerator(ForestTexture, MarshTextures, MapMaterial, m_SpawnConfigDict, MapSize
+                                        , MapChunkSize, CellSize, NoiseLacunarity, MapGenerationSeed
+                                        , MapRandomObjectSpawnSeed, MarshLimit);
         m_MapGenerator.GenerateMapData();
         MapChunkDict = new Dictionary<Vector2Int, MapChunkController>();
         m_ChunkLengthOnWorld = MapChunkSize * CellSize;
@@ -88,6 +93,7 @@ public class MapManager : MonoBehaviour
         for (int i = m_FinallyDisplayChunkList.Count - 1; i >= 0; i--)
         {
             var chunkIndex = m_FinallyDisplayChunkList[i].ChunkIndex;
+
             if (Mathf.Abs(chunkIndex.x - currChunkIndex.x) > VisualDistance
              || Mathf.Abs(chunkIndex.y - currChunkIndex.y) > VisualDistance)
             {
@@ -123,6 +129,7 @@ public class MapManager : MonoBehaviour
                 else
                 {
                     chunk = GenerateMapChunk(chunkIndex);
+
                     if (chunk != null)
                     {
                         chunk.SetActive(true);
@@ -154,6 +161,7 @@ public class MapManager : MonoBehaviour
         // 检查坐标的合法性
         if (index.x > MapSize - 1 || index.y > MapSize - 1) return null;
         if (index.x < 0 || index.y < 0) return null;
+
         MapChunkController chunk = m_MapGenerator.GenerateMapChunk(index, transform);
         MapChunkDict.Add(index, chunk);
         return chunk;

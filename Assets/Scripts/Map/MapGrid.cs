@@ -95,7 +95,9 @@ public class MapGrid
     void SetVertexType(Vector2Int vertexIndex, MapVertexType vertexType)
     {
         MapVertex vertex = GetVertex(vertexIndex);
+
         if (vertex.VertexType == vertexType) return; // FIXME:反转了if，可能会出错
+
         vertex.VertexType = vertexType;
 
         // 只有沼泽需要计算

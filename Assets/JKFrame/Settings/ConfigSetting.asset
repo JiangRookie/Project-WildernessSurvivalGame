@@ -16,17 +16,33 @@ MonoBehaviour:
     SerializedFormat: 2
     SerializedBytes: 
     ReferencedUnityObjects:
-    - {fileID: 11400000, guid: d5e0e03213cd31e41957b67d5bbc0c5b, type: 2}
-    - {fileID: 11400000, guid: 048ecc873b357124bb05df6d137104e6, type: 2}
+    - {fileID: 11400000, guid: 1ed4331ad420fed47899dc3f6c6d05b2, type: 2}
+    - {fileID: 11400000, guid: c679d64d48ac10f41b6849ca4d4dedab, type: 2}
+    - {fileID: 11400000, guid: 74ac6f7714817254bb0a18b6d9734e9c, type: 2}
+    - {fileID: 11400000, guid: 6747629c9cea6c849a555d68908b7af6, type: 2}
+    - {fileID: 11400000, guid: c9cca4ab2450c5b409ef18144768fee9, type: 2}
+    - {fileID: 11400000, guid: 62593862bab021148b41dac26b533856, type: 2}
+    - {fileID: 11400000, guid: ad123a02877fe5c44b56e46ac25e5fd3, type: 2}
+    - {fileID: 11400000, guid: 4abb38f030a2baf448b8ca13d8bea80a, type: 2}
+    - {fileID: 11400000, guid: 12cec10c56f573d4193d001a03f33d8e, type: 2}
+    - {fileID: 11400000, guid: 59e279315868cd9498d08949bf7507b0, type: 2}
+    - {fileID: 11400000, guid: f77caeaff606e944ea5851e4f8705cd7, type: 2}
+    - {fileID: 11400000, guid: 6eb89656e8677d94392743fdfafef152, type: 2}
+    - {fileID: 11400000, guid: b3c6bf462284fdd428fb42577f7cf3d1, type: 2}
+    - {fileID: 11400000, guid: c62364bdd13c7fc41b2bf9e6054d874d, type: 2}
+    - {fileID: 11400000, guid: 7fab102d24dab42489e6be2605c88afc, type: 2}
+    - {fileID: 11400000, guid: ab82bfb2301c92d40b4acb8ed960cb14, type: 2}
+    - {fileID: 11400000, guid: 9a30bb3f135b22344a5560c1039a9a2f, type: 2}
+    - {fileID: 11400000, guid: 975aa3cc575a5ae46b263df81f09c89d, type: 2}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes:
-    - Name: configDic
+    - Name: ConfigDic
       Entry: 7
       Data: 0|System.Collections.Generic.Dictionary`2[[System.String, mscorlib],[System.Collections.Generic.Dictionary`2[[System.Int32,
-        mscorlib],[JKFrame.ConfigBase, Assembly-CSharp]], mscorlib]], mscorlib
+        mscorlib],[JKFrame.ConfigBase, Framework]], mscorlib]], mscorlib
     - Name: comparer
       Entry: 7
       Data: 1|System.Collections.Generic.GenericEqualityComparer`1[[System.String,
@@ -36,17 +52,17 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 12
-      Data: 2
+      Data: 1
     - Name: 
       Entry: 7
       Data: 
     - Name: $k
       Entry: 1
-      Data: Player
+      Data: MapObject
     - Name: $v
       Entry: 7
       Data: 2|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[JKFrame.ConfigBase,
-        Assembly-CSharp]], mscorlib
+        Framework]], mscorlib
     - Name: comparer
       Entry: 7
       Data: 3|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
@@ -56,7 +72,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 12
-      Data: 1
+      Data: 18
     - Name: 
       Entry: 7
       Data: 
@@ -70,43 +86,206 @@ MonoBehaviour:
       Entry: 8
       Data: 
     - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
       Entry: 7
       Data: 
     - Name: $k
-      Entry: 1
-      Data: LV
+      Entry: 3
+      Data: 1
     - Name: $v
-      Entry: 7
-      Data: 4|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[JKFrame.ConfigBase,
-        Assembly-CSharp]], mscorlib
-    - Name: comparer
-      Entry: 7
-      Data: 5|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
-        mscorlib]], mscorlib
+      Entry: 10
+      Data: 1
     - Name: 
       Entry: 8
       Data: 
-    - Name: 
-      Entry: 12
-      Data: 1
     - Name: 
       Entry: 7
       Data: 
     - Name: $k
       Entry: 3
-      Data: 0
+      Data: 2
     - Name: $v
       Entry: 10
-      Data: 1
+      Data: 2
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 3
+    - Name: $v
+      Entry: 10
+      Data: 3
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 4
+    - Name: $v
+      Entry: 10
+      Data: 4
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 5
+    - Name: $v
+      Entry: 10
+      Data: 5
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 6
+    - Name: $v
+      Entry: 10
+      Data: 6
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 7
+    - Name: $v
+      Entry: 10
+      Data: 7
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 8
+    - Name: $v
+      Entry: 10
+      Data: 8
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 9
+    - Name: $v
+      Entry: 10
+      Data: 9
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 10
+    - Name: $v
+      Entry: 10
+      Data: 10
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 11
+    - Name: $v
+      Entry: 10
+      Data: 11
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 12
+    - Name: $v
+      Entry: 10
+      Data: 12
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 13
+    - Name: $v
+      Entry: 10
+      Data: 13
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 14
+    - Name: $v
+      Entry: 10
+      Data: 14
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 15
+    - Name: $v
+      Entry: 10
+      Data: 15
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 16
+    - Name: $v
+      Entry: 10
+      Data: 16
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 17
+    - Name: $v
+      Entry: 10
+      Data: 17
     - Name: 
       Entry: 8
       Data: 

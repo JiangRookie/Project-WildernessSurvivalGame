@@ -10,7 +10,11 @@ using UnityEngine;
 [Serializable]
 public class TimeStateData
 {
-    public float DurationTime;
+    /// <summary>
+    /// 某一个阶段的持续时间（如早上的持续时间、中午的持续时间等）
+    /// </summary>
+    public float PhaseDurationTime;
+
     public float SunIntensity;
     public Color SunColor;
     [OnValueChanged(nameof(SetRotation))] public Vector3 SunRotation;
@@ -21,32 +25,34 @@ public class TimeStateData
     /// <summary>
     /// 检查并计算时间
     /// </summary>
-    /// <param name="currentTime">当前的时间(？剩余时间)</param>
-    /// <param name="nextState">下一个阶段是什么</param>
+    /// <param name="currPhaseRemainingTime">当前阶段剩余时间</param>
+    /// <param name="nextPhase">下一个阶段</param>
     /// <param name="rotation">阳光的旋转</param>
     /// <param name="color">最终应用的颜色</param>
     /// <param name="sunIntensity">阳光强度</param>
     /// <returns>是否还在当前状态</returns>
     public bool CheckAndCalculateTime
-        (float currentTime, TimeStateData nextState, out Quaternion rotation, out Color color, out float sunIntensity)
+    (
+        float currPhaseRemainingTime, TimeStateData nextPhase, out Quaternion rotation, out Color color
+      , out float sunIntensity
+    )
     {
-        float ratio = 1f - currentTime / DurationTime;
-        rotation = Quaternion.Slerp(this.SunQuaternion, nextState.SunQuaternion, ratio);
-        color = Color.Lerp(this.SunColor, nextState.SunColor, ratio);
-        sunIntensity = Mathf.Lerp(this.SunIntensity, nextState.SunIntensity, ratio);
-        return currentTime > 0;
+        var ratio = 1f - currPhaseRemainingTime / PhaseDurationTime;
+        rotation = Quaternion.Slerp(SunQuaternion, nextPhase.SunQuaternion, ratio);
+        color = Color.Lerp(SunColor, nextPhase.SunColor, ratio);
+        sunIntensity = Mathf.Lerp(SunIntensity, nextPhase.SunIntensity, ratio);
+        return currPhaseRemainingTime > 0;
     }
 }
 
 public class TimeManager : LogicManagerBase<TimeManager>
 {
     [SerializeField] Light MainLight;                // 主灯光
-    [SerializeField] float SunIntensity;             // 当前太阳强度
     [SerializeField] TimeStateData[] TimeStateDatas; // 时间配置
-    int m_CurrentStateIndex = 0;
-    float m_CurrentTime = 0;
-    int m_DayNum;
     [SerializeField, Range(0f, 30f)] float TimeScale = 1f;
+    int m_CurrStateIndex;
+    float m_CurrPhaseRemainingTime = 0;
+    int m_DayNum;
 
     protected override void RegisterEventListener() { }
 
@@ -59,27 +65,28 @@ public class TimeManager : LogicManagerBase<TimeManager>
 
     IEnumerator UpdateTime()
     {
-        m_CurrentStateIndex = 0; // 默认是早上
-        var nextIndex = m_CurrentStateIndex + 1;
-        m_CurrentTime = TimeStateDatas[m_CurrentStateIndex].DurationTime;
+        m_CurrStateIndex = 0; // 第一个阶段默认是早上
+        var nextStateIndex = m_CurrStateIndex + 1;
+        m_CurrPhaseRemainingTime = TimeStateDatas[m_CurrStateIndex].PhaseDurationTime;
         m_DayNum = 0;
         while (true)
         {
             yield return null;
-            m_CurrentTime -= Time.deltaTime * TimeScale;
-            if (TimeStateDatas[m_CurrentStateIndex].CheckAndCalculateTime(m_CurrentTime, TimeStateDatas[nextIndex]
-                                                                        , out var rotation, out var color
-                                                                        , out var intensity) == false)
+
+            m_CurrPhaseRemainingTime -= Time.deltaTime * TimeScale; // 时间流逝
+            if (TimeStateDatas[m_CurrStateIndex].CheckAndCalculateTime(m_CurrPhaseRemainingTime
+                                                                     , TimeStateDatas[nextStateIndex]
+                                                                     , out var rotation
+                                                                     , out var color
+                                                                     , out var intensity) == false)
             {
                 // 切换下一个状态
-                m_CurrentStateIndex = nextIndex;
+                m_CurrStateIndex = nextStateIndex;
 
                 // 检查边界，超过就从0开始
-                nextIndex = m_CurrentStateIndex + 1 >= TimeStateDatas.Length ? 0 : m_CurrentStateIndex + 1;
-
-                // 如果现在是早上，也就是 m_CurrentStateIndex == 0，那么意味着天数 + 1
-                if (m_CurrentStateIndex == 0) m_DayNum++;
-                m_CurrentTime = TimeStateDatas[m_CurrentStateIndex].DurationTime;
+                nextStateIndex = m_CurrStateIndex + 1 >= TimeStateDatas.Length ? 0 : m_CurrStateIndex + 1;
+                if (m_CurrStateIndex == 0) m_DayNum++; // m_CurrStateIndex == 0 意味着新的一天开始了
+                m_CurrPhaseRemainingTime = TimeStateDatas[m_CurrStateIndex].PhaseDurationTime;
             }
 
             MainLight.transform.rotation = rotation;
