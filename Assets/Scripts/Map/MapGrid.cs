@@ -7,10 +7,10 @@ using UnityEngine;
 public class MapGrid
 {
     /// <summary>
-    /// 生成网格数据
+    /// Generating grid data.
     /// </summary>
-    /// <param name="mapWidth">宽</param>
-    /// <param name="mapHeight">高</param>
+    /// <param name="mapWidth">宽（地图行总格子数）</param>
+    /// <param name="mapHeight">高（地图列总格子数）</param>
     /// <param name="cellSize">格子尺寸</param>
     public MapGrid(int mapWidth, int mapHeight, float cellSize)
     {
@@ -18,7 +18,7 @@ public class MapGrid
         MapWidth = mapWidth;
         CellSize = cellSize;
 
-        // 从 1 开始的原因是：地图的四周（边界四个角）不算顶点
+        // 从 1 开始的原因是：地图的四边不算顶点
         for (int x = 1; x < mapWidth; x++)
         {
             for (int z = 1; z < mapHeight; z++)
@@ -67,11 +67,7 @@ public class MapGrid
 
     void AddVertex(int x, int z)
     {
-        VertexDic.Add
-        (
-            new Vector2Int(x, z)
-          , new MapVertex { Position = new Vector3(x * CellSize, 0, z * CellSize) }
-        );
+        VertexDic.Add(new Vector2Int(x, z), new MapVertex { Position = new Vector3(x * CellSize, 0, z * CellSize) });
     }
 
     public MapVertex GetVertex(Vector2Int index)
@@ -80,10 +76,7 @@ public class MapGrid
         return vertex;
     }
 
-    public MapVertex GetVertex(int x, int y)
-    {
-        return GetVertex(new Vector2Int(x, y));
-    }
+    public MapVertex GetVertex(int x, int y) => GetVertex(new Vector2Int(x, y));
 
     public MapVertex GetVertex(Vector3 worldPosition)
     {
@@ -92,30 +85,27 @@ public class MapGrid
         return GetVertex(x, z);
     }
 
-    void SetVertexType(Vector2Int vertexIndex, MapVertexType vertexType)
+    void SetVertexType(Vector2Int vertexPos, MapVertexType vertexType)
     {
-        MapVertex vertex = GetVertex(vertexIndex);
-
+        var vertex = GetVertex(vertexPos);
         if (vertex.VertexType == vertexType) return; // FIXME:反转了if，可能会出错
-
         vertex.VertexType = vertexType;
 
         // 只有沼泽需要计算
         if (vertex.VertexType != MapVertexType.Marsh) return; // FIXME:反转了if，可能会出错
 
         // 计算附近的贴图权重
-        MapCell cell = GetLBMapCell(vertexIndex);
+        MapCell cell = GetLBMapCell(vertexPos);
         if (cell != null) cell.TextureIndex += 1;
-        cell = GetRBMapCell(vertexIndex);
+        cell = GetRBMapCell(vertexPos);
         if (cell != null) cell.TextureIndex += 2;
-        cell = GetLTMapCell(vertexIndex);
+        cell = GetLTMapCell(vertexPos);
         if (cell != null) cell.TextureIndex += 4;
-        cell = GetRTMapCell(vertexIndex);
+        cell = GetRTMapCell(vertexPos);
         if (cell != null) cell.TextureIndex += 8;
     }
 
-    void SetVertexType(int x, int y, MapVertexType mapVertexType)
-        => SetVertexType(new Vector2Int(x, y), mapVertexType);
+    void SetVertexType(int x, int y, MapVertexType mapVertexType) => SetVertexType(new Vector2Int(x, y), mapVertexType);
 
     #endregion
 
@@ -129,44 +119,22 @@ public class MapGrid
 
     void AddCell(int x, int y)
     {
-        float offset = CellSize / 2;
-        CellDic.Add
-        (
-            new Vector2Int(x, y)
-          , new MapCell { Position = new Vector3(x * CellSize - offset, 0, y * CellSize - offset) }
-        );
+        var offset = CellSize / 2;
+        CellDic.Add(new Vector2Int(x, y)
+                  , new MapCell { Position = new Vector3(x * CellSize - offset, 0, y * CellSize - offset) });
     }
 
-    public MapCell GetCell(Vector2Int index)
+    public MapCell GetCell(Vector2Int pos)
     {
-        CellDic.TryGetValue(index, out MapCell cell);
+        CellDic.TryGetValue(pos, out MapCell cell);
         return cell;
     }
 
-    public MapCell GetCell(int x, int y)
-    {
-        return GetCell(new Vector2Int(x, y));
-    }
-
-    public MapCell GetLBMapCell(Vector2Int vertexIndex)
-    {
-        return GetCell(vertexIndex);
-    }
-
-    public MapCell GetRBMapCell(Vector2Int vertexIndex)
-    {
-        return GetCell(vertexIndex.x + 1, vertexIndex.y);
-    }
-
-    public MapCell GetLTMapCell(Vector2Int vertexIndex)
-    {
-        return GetCell(vertexIndex.x, vertexIndex.y + 1);
-    }
-
-    public MapCell GetRTMapCell(Vector2Int vertexIndex)
-    {
-        return GetCell(vertexIndex.x + 1, vertexIndex.y + 1);
-    }
+    public MapCell GetCell(int x, int y) => GetCell(new Vector2Int(x, y));
+    public MapCell GetLBMapCell(Vector2Int pos) => GetCell(pos);
+    public MapCell GetRBMapCell(Vector2Int pos) => GetCell(pos.x + 1, pos.y);
+    public MapCell GetLTMapCell(Vector2Int pos) => GetCell(pos.x, pos.y + 1);
+    public MapCell GetRTMapCell(Vector2Int pos) => GetCell(pos.x + 1, pos.y + 1);
 
     #endregion
 }

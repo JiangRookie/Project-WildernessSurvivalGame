@@ -10,15 +10,13 @@ using Random = UnityEngine.Random;
 /// </summary>
 public class MapGenerator
 {
-    // 规定：整个地图都是方的，包括地图块、格子、贴图都是正方形
-
     #region Field
 
     Texture2D m_ForestTexture;
     Texture2D[] m_MarshTextures;
-    Material m_MapMaterial;
+    Material m_MapMaterial; // TODO: m_MapMaterial -> m_ForestMaterial
     Material m_MarshMaterial;
-    MapGrid m_MapGrid; // 地图（逻辑层面）网格、顶点数据
+    MapGrid m_MapGrid;
     Mesh m_ChunkMesh;
 
     [Tooltip("一行/列地图块数量")] int m_MapSize;       //  m_MapSize -> m_MapChunkNum
@@ -28,11 +26,11 @@ public class MapGenerator
     int m_MapGenerationSeed;
     int m_MapRandomObjectSpawnSeed;
     float m_MarshLimit;
-    static readonly int s_MainTex = Shader.PropertyToID("_MainTex");
-    Dictionary<MapVertexType, List<int>> m_SpawnConfigDict;
 
-    int m_ForestSpawnWeightTotal;
-    int m_MarshSpawnWeightTotal;
+    Dictionary<MapVertexType, List<int>> m_SpawnConfigDict; // 某个类型可以生成哪些地图对象配置的ID
+    int m_ForestSpawnWeightTotal;                           // 森林生成物品的权重总和
+    int m_MarshSpawnWeightTotal;                            // 沼泽生成物品的权重总和
+    static readonly int s_MainTex = Shader.PropertyToID("_MainTex");
 
     #endregion
 
@@ -63,30 +61,31 @@ public class MapGenerator
     {
         // 应用地图随机生成种子
         Random.InitState(m_MapGenerationSeed);
-        int rowTotalCellNum = m_MapSize * m_MapChunkSize; // 行/列总格子数
-        float[,] noiseMap = GenerateNoiseMap(rowTotalCellNum, rowTotalCellNum, m_NoiseLacunarity);
-        m_MapGrid = new MapGrid(rowTotalCellNum, rowTotalCellNum, m_CellSize);
+        var mapLength = m_MapSize * m_MapChunkSize; // 行/列总格子数
+        var mapChunkLength = m_MapChunkSize * m_CellSize;
+        var noiseMap = GenerateNoiseMap(mapLength, mapLength, m_NoiseLacunarity);
+        m_MapGrid = new MapGrid(mapLength, mapLength, m_CellSize);
         m_MapGrid.CalculateMapVertexType(noiseMap, m_MarshLimit);
 
         // 初始化默认材质的尺寸
         m_MapMaterial.mainTexture = m_ForestTexture;
-        m_MapMaterial.SetTextureScale(s_MainTex, new Vector2(m_CellSize * m_MapChunkSize, m_CellSize * m_MapChunkSize));
+        m_MapMaterial.SetTextureScale(s_MainTex, new Vector2(mapChunkLength, mapChunkLength));
 
         // 实例化一个沼泽材质
         m_MarshMaterial = new Material(m_MapMaterial);
         m_MarshMaterial.SetTextureScale(s_MainTex, Vector2.one);
-        m_ChunkMesh = GenerateMapMesh(m_MapChunkSize, m_MapChunkSize, m_CellSize);
+        m_ChunkMesh = GenerateMapChunkMesh(m_MapChunkSize, m_MapChunkSize, m_CellSize);
 
         // 应用地图随机对象（花草树木）生成种子
         Random.InitState(m_MapRandomObjectSpawnSeed);
 
-        List<int> temps = m_SpawnConfigDict[MapVertexType.Forest];
-        foreach (int id in temps)
+        var configList = m_SpawnConfigDict[MapVertexType.Forest];
+        foreach (int id in configList)
             m_ForestSpawnWeightTotal
                 += ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, id).Probability;
-        temps = m_SpawnConfigDict[MapVertexType.Marsh];
 
-        foreach (int id in temps)
+        configList = m_SpawnConfigDict[MapVertexType.Marsh];
+        foreach (int id in configList)
             m_MarshSpawnWeightTotal
                 += ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, id).Probability;
     }
@@ -100,7 +99,7 @@ public class MapGenerator
     public MapChunkController GenerateMapChunk(Vector2Int chunkIndex, Transform parent)
     {
         // 生成地图块物体
-        var mapChunkGameObj = new GameObject("Chunk_" + chunkIndex.ToString());
+        var mapChunkGameObj = new GameObject("Chunk_" + chunkIndex);
         var mapChunk = mapChunkGameObj.AddComponent<MapChunkController>();
 
         // 为地图块生成 Mesh
@@ -143,7 +142,7 @@ public class MapGenerator
 
         // 生成场景物体
         List<MapChunkMapObjectModel> mapObjectModelList = SpawnMapObject(chunkIndex);
-        mapChunk.InitCenter
+        mapChunk.Init
         (
             chunkIndex
           , position + new Vector3(chunkLength / 2, 0, chunkLength / 2)
@@ -153,13 +152,13 @@ public class MapGenerator
     }
 
     /// <summary>
-    /// 生成地图 Mesh
+    /// 生成地图块 Mesh
     /// </summary>
     /// <param name="width">地图 Mesh 的宽</param>
     /// <param name="height">地图 Mesh 的高</param>
     /// <param name="cellSize">格子尺寸</param>
     /// <returns></returns>
-    static Mesh GenerateMapMesh(int width, int height, float cellSize)
+    static Mesh GenerateMapChunkMesh(int width, int height, float cellSize)
     {
         Mesh mesh = new Mesh();
 
@@ -347,8 +346,9 @@ public class MapGenerator
 
                 for (int i = 0; i < spawnConfigIdList.Count; i++)
                 {
-                    probabilitySum += ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject,
-                        spawnConfigIdList[i]).Probability;
+                    probabilitySum += ConfigManager
+                                     .Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, spawnConfigIdList[i])
+                                     .Probability;
 
                     if (randomValue < probabilitySum) // 命中
                     {
@@ -357,8 +357,7 @@ public class MapGenerator
                     }
                 }
                 int configID = spawnConfigIdList[spawnConfigIndex];
-                MapObjectConfig spawnModel =
-                    ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, configID);
+                var spawnModel = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, configID);
 
                 if (spawnModel.IsEmpty) continue;
 

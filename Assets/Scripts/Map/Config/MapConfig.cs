@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using JKFrame;
-using UnityEngine;
 
 /// <summary>
 /// 地图物品的生成配置

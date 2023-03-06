@@ -2,6 +2,10 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 
+/// <summary>
+/// Map item generation configuration.<br/>
+/// 地图物品生成配置。
+/// </summary>
 [CreateAssetMenu(fileName = "地图物品配置", menuName = "Config/地图物品配置")]
 public class MapObjectConfig : ConfigBase
 {

@@ -18,6 +18,11 @@ namespace JKFrame
             return ConfigSetting.GetConfig<T>(configTypeName, id);
         }
 
+        /// <summary>
+        /// 获取<paramref name="configTypeName"/>下的所有配置
+        /// </summary>
+        /// <param name="configTypeName">配置类型名称</param>
+        /// <returns></returns>
         public Dictionary<int, ConfigBase> GetConfigs(string configTypeName)
         {
             return ConfigSetting.GetConfigs(configTypeName);
