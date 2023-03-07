@@ -138,7 +138,7 @@ GameObject:
   - component: {fileID: 295300530}
   - component: {fileID: 295300529}
   m_Layer: 5
-  m_Name: Mask (3)
+  m_Name: Mask3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -328,7 +328,7 @@ GameObject:
   - component: {fileID: 687255681}
   - component: {fileID: 687255680}
   m_Layer: 5
-  m_Name: Mask (4)
+  m_Name: Mask4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -472,8 +472,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2f6c17e8707a0d4193ab9331b5599f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  infoText: {fileID: 233649279}
-  animator: {fileID: 778908337}
+  InfoText: {fileID: 233649279}
+  Animator: {fileID: 778908337}
 --- !u!1 &799209265
 GameObject:
   m_ObjectHideFlags: 0
@@ -532,7 +532,7 @@ GameObject:
   - component: {fileID: 877360462}
   - component: {fileID: 877360461}
   m_Layer: 5
-  m_Name: Mask (1)
+  m_Name: Mask1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -685,7 +685,7 @@ GameObject:
   - component: {fileID: 1052248274}
   - component: {fileID: 1052248273}
   m_Layer: 5
-  m_Name: Mask
+  m_Name: Mask0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1087,7 +1087,7 @@ GameObject:
   - component: {fileID: 1935915077}
   - component: {fileID: 1935915076}
   m_Layer: 5
-  m_Name: Mask (2)
+  m_Name: Mask2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1288,16 +1288,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   UILayers:
-  - root: {fileID: 209671190}
-    maskImage: {fileID: 1052248273}
-  - root: {fileID: 799209266}
-    maskImage: {fileID: 877360461}
-  - root: {fileID: 1698360326}
-    maskImage: {fileID: 1935915076}
-  - root: {fileID: 588667062}
-    maskImage: {fileID: 295300529}
-  - root: {fileID: 1808348528}
-    maskImage: {fileID: 687255680}
+  - Root: {fileID: 209671190}
+    MaskImage: {fileID: 1052248273}
+  - Root: {fileID: 799209266}
+    MaskImage: {fileID: 877360461}
+  - Root: {fileID: 1698360326}
+    MaskImage: {fileID: 1935915076}
+  - Root: {fileID: 588667062}
+    MaskImage: {fileID: 295300529}
+  - Root: {fileID: 1808348528}
+    MaskImage: {fileID: 687255680}
   UITips: {fileID: 778908336}
 --- !u!1 &4733484578507733165
 GameObject:

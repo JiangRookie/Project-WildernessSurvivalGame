@@ -1,14 +1,15 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+
 namespace JKFrame
 {
     [UIElement(true, "UI/UI_LoadingWindow", 4)]
-    public class UI_LoadingWindow : UI_WindowBase
+    public class UILoadingWindow : UI_WindowBase
     {
-        [SerializeField]
-        private Text progress_Text;
-        [SerializeField]
-        private Image fill_Image;
+        [SerializeField] Text ProgressText;
+
+        [SerializeField] Image FillImage;
+
         public override void OnShow()
         {
             base.OnShow();
@@ -32,18 +33,15 @@ namespace JKFrame
         /// <summary>
         /// 当场景加载成功
         /// </summary>
-        private void OnLoadSceneSucceed()
-        {
-            Close();
-        }
+        void OnLoadSceneSucceed() => Close();
 
         /// <summary>
         /// 更新进度
         /// </summary>
-        private void UpdateProgress(float progressValue)
+        void UpdateProgress(float progressValue)
         {
-            progress_Text.text = (int)(progressValue * 100) + "%";
-            fill_Image.fillAmount = (int)(progressValue * 100);
+            ProgressText.text = (int)(progressValue * 100) + "%";
+            FillImage.fillAmount = (int)(progressValue * 100);
         }
     }
 }

@@ -80,9 +80,9 @@ namespace JKFrame
                         {
                             UIElementDic.Add(type, new UIElement()
                             {
-                                isCache = attribute.isCache,
-                                prefab = Resources.Load<GameObject>(attribute.resPath),
-                                layerNum = attribute.layerNum
+                                isCache = attribute.IsCache,
+                                prefab = Resources.Load<GameObject>(attribute.ResPath),
+                                layerNum = attribute.LayerNum
                             });
                         }
                     }

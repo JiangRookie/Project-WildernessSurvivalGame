@@ -21,6 +21,7 @@ public class MapManager : MonoBehaviour
     [Tooltip("一个地图块的格子数量")] public int MapChunkSize; //  m_MapChunkSize -> m_CellNum
     public float CellSize;
     float m_ChunkSizeOnWorld; // 在世界中实际的地图块尺寸 MapChunkSize * CellSize
+    float m_MapSizeOnWorld;   //在世界中实际的地图尺寸
 
     #endregion
 
@@ -70,11 +71,21 @@ public class MapManager : MonoBehaviour
         // 初始化地图块字典
         MapChunkDict = new Dictionary<Vector2Int, MapChunkController>();
         m_ChunkSizeOnWorld = MapChunkSize * CellSize;
+        m_MapSizeOnWorld = m_ChunkSizeOnWorld * MapSize;
     }
 
     void Update()
     {
         UpdateVisibleChunk();
+
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            if (m_IsShowingMap)
+                CloseMapUI();
+            else
+                ShowMapUI();
+            m_IsShowingMap = !m_IsShowingMap;
+        }
     }
 
     /// <summary>
@@ -169,4 +180,31 @@ public class MapManager : MonoBehaviour
     }
 
     void ResetCanUpdateChunkFlag() => m_CanUpdateChunk = true;
+
+    #region MapUI
+
+    bool m_IsInitializedMapUI = false;
+    bool m_IsShowingMap = false;
+    List<Vector2Int> m_WaitForUIUpdateMapChunkList = new(); // 等待UI更新的地图块列表
+    UI_MapWindow m_MapUI;
+
+    void ShowMapUI()
+    {
+        m_MapUI = UIManager.Instance.Show<UI_MapWindow>();
+
+        if (m_IsInitializedMapUI == false)
+        {
+            m_MapUI.InitMap(MapSize, m_MapSizeOnWorld, ForestTexture);
+            m_IsInitializedMapUI = true;
+        }
+
+        // 需要更新
+        UpdateMapUI();
+    }
+
+    void UpdateMapUI() { }
+
+    void CloseMapUI() => UIManager.Instance.Close<UI_MapWindow>();
+
+    #endregion
 }

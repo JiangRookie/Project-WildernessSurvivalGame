@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+
 namespace JKFrame
 {
     /// <summary>
@@ -8,40 +9,38 @@ namespace JKFrame
     /// </summary>
     public class UITips : MonoBehaviour
     {
-        [SerializeField]
-        private Text infoText;
-        [SerializeField]
-        private Animator animator;
-        private Queue<string> tipsQue = new Queue<string>();
-        private bool isShow = false;
+        [SerializeField] Text InfoText;
+        [SerializeField] Animator Animator;
+        Queue<string> m_TipsQueue = new Queue<string>();
+        bool m_IsShow = false;
 
         /// <summary>
         /// 添加提示
         /// </summary>
+        /// <param name="info">提示信息</param>
         public void AddTips(string info)
         {
-            tipsQue.Enqueue(info);
+            m_TipsQueue.Enqueue(info);
             ShowTips();
-        }
-        private void ShowTips()
-        {
-            if (tipsQue.Count > 0 && !isShow)
-            {
-                infoText.text = tipsQue.Dequeue();
-                animator.Play("Show", 0, 0);
-            }
-        }
-        #region 动画事件
-        private void StartTips()
-        {
-            isShow = true;
         }
 
-        private void EndTips()
+        void ShowTips()
         {
-            isShow = false;
+            if (m_TipsQueue.Count <= 0 || m_IsShow) return;
+            InfoText.text = m_TipsQueue.Dequeue();
+            Animator.Play("Show", 0, 0);
+        }
+
+        #region 动画事件
+
+        void StartTips() => m_IsShow = true;
+
+        void EndTips()
+        {
+            m_IsShow = false;
             ShowTips();
         }
+
         #endregion
     }
 }

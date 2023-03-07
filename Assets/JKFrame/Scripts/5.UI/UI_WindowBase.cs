@@ -6,12 +6,7 @@ namespace JKFrame
     /// <summary>
     /// 窗口结果
     /// </summary>
-    public enum WindowReslut
-    {
-        None,
-        Yes,
-        No
-    }
+    public enum WindowResult { None, Yes, No }
 
     /// <summary>
     /// 窗口基类
@@ -19,7 +14,7 @@ namespace JKFrame
     public class UI_WindowBase : MonoBehaviour
     {
         // 窗口类型
-        public Type Type { get { return this.GetType(); } }
+        public Type Type => GetType();
 
         /// <summary>
         /// 初始化
@@ -42,6 +37,7 @@ namespace JKFrame
         {
             UIManager.Instance.Close(Type);
         }
+
         /// <summary>
         /// 关闭时额外执行的内容
         /// </summary>
@@ -50,16 +46,13 @@ namespace JKFrame
             CancelEventListener();
         }
 
-
         /// <summary>
         /// 点击 否 / 取消
         /// </summary>
-
         public virtual void OnCloseClick()
         {
             Close();
         }
-
 
         /// <summary>
         /// 点击 是 / 确认
@@ -68,6 +61,7 @@ namespace JKFrame
         {
             Close();
         }
+
         /// <summary>
         /// 注册事件
         /// </summary>
@@ -75,6 +69,7 @@ namespace JKFrame
         {
             EventManager.AddEventListener("UpdateLanguage", OnUpdateLanguage);
         }
+
         /// <summary>
         /// 取消事件
         /// </summary>
@@ -82,7 +77,7 @@ namespace JKFrame
         {
             EventManager.RemoveEventListener("UpdateLanguage", OnUpdateLanguage);
         }
-        protected virtual void OnUpdateLanguage() { }
 
+        protected virtual void OnUpdateLanguage() { }
     }
 }
