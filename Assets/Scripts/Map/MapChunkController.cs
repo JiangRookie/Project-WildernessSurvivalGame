@@ -7,8 +7,8 @@ using UnityEngine;
 /// </summary>
 public class MapChunkMapObjectModel
 {
+    public int ConfigID;
     public Vector3 Position;
-    public GameObject Prefab;
 }
 
 /// <summary>
@@ -25,10 +25,11 @@ public class MapChunkData
 public class MapChunkController : MonoBehaviour
 {
     bool m_IsActive = false;
-    MapChunkData m_MapChunkData;
     List<GameObject> m_MapGameObjList;
-
+    public MapChunkData m_MapChunkData { get; private set; }
+    public bool IsAllForest { get; private set; }
     public Vector2Int ChunkIndex { get; private set; }
+    public bool IsInitializedMapUI { get; private set; } = false;
     public Vector3 MapChunkCenterPos { get; private set; }
 
     /// <summary>
@@ -36,16 +37,21 @@ public class MapChunkController : MonoBehaviour
     /// </summary>
     /// <param name="chunkIndex">初始化地图块索引</param>
     /// <param name="centerPos">初始化地图块中心点</param>
+    /// <param name="isAllForest">地图块是否完全是森林</param>
     /// <param name="mapObjectList">地图块中各种对象组合成的列表</param>
-    public void Init(Vector2Int chunkIndex, Vector3 centerPos, List<MapChunkMapObjectModel> mapObjectList)
+    public void Init
+        (Vector2Int chunkIndex, Vector3 centerPos, bool isAllForest, List<MapChunkMapObjectModel> mapObjectList)
     {
         ChunkIndex = chunkIndex;
         MapChunkCenterPos = centerPos;
+
+        IsAllForest = isAllForest;
 
         m_MapChunkData = new MapChunkData();
         m_MapChunkData.MapObjectList = mapObjectList;
 
         m_MapGameObjList = new List<GameObject>(mapObjectList.Count);
+        IsInitializedMapUI = true;
     }
 
     /// <param name="active">是否激活</param>
@@ -61,7 +67,9 @@ public class MapChunkController : MonoBehaviour
         {
             foreach (var mapObject in mapObjectList)
             {
-                var gameObj = PoolManager.Instance.GetGameObject(mapObject.Prefab, transform);
+                var config = ConfigManager.Instance.GetConfig<MapObjectConfig>
+                    (ConfigName.MapObject, mapObject.ConfigID);
+                var gameObj = PoolManager.Instance.GetGameObject(config.Prefab, transform);
                 gameObj.transform.position = mapObject.Position;
                 m_MapGameObjList.Add(gameObj);
             }

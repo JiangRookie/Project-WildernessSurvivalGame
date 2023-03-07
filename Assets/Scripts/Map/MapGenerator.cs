@@ -95,8 +95,9 @@ public class MapGenerator
     /// </summary>
     /// <param name="chunkIndex">地图块索引</param>
     /// <param name="parent">父物体</param>
+    /// <param name="callBackForMapTexture"></param>
     /// <returns></returns>
-    public MapChunkController GenerateMapChunk(Vector2Int chunkIndex, Transform parent)
+    public MapChunkController GenerateMapChunk(Vector2Int chunkIndex, Transform parent, Action callBackForMapTexture)
     {
         // 生成地图块物体
         var mapChunkGameObj = new GameObject("Chunk_" + chunkIndex);
@@ -128,26 +129,29 @@ public class MapGenerator
                         material.mainTexture = texture;
                         mapChunkGameObj.AddComponent<MeshRenderer>().material = material;
                     }
+                    callBackForMapTexture?.Invoke();
+
+                    // 一个地图块的实际大小
+                    var chunkLength = m_MapChunkSize * m_CellSize;
+
+                    // 确定坐标
+                    var position = new Vector3(chunkIndex.x * chunkLength, 0, chunkIndex.y * chunkLength);
+                    mapChunk.transform.position = position;
+                    mapChunkGameObj.transform.SetParent(parent);
+
+                    // 生成场景物体
+                    List<MapChunkMapObjectModel> mapObjectModelList = SpawnMapObject(chunkIndex);
+                    mapChunk.Init
+                    (
+                        chunkIndex
+                      , position + new Vector3(chunkLength / 2, 0, chunkLength / 2)
+                      , isAllForest
+                      , mapObjectModelList
+                    );
                 }
             )
         );
 
-        // 一个地图块的实际大小
-        var chunkLength = m_MapChunkSize * m_CellSize;
-
-        // 确定坐标
-        var position = new Vector3(chunkIndex.x * chunkLength, 0, chunkIndex.y * chunkLength);
-        mapChunk.transform.position = position;
-        mapChunkGameObj.transform.SetParent(parent);
-
-        // 生成场景物体
-        List<MapChunkMapObjectModel> mapObjectModelList = SpawnMapObject(chunkIndex);
-        mapChunk.Init
-        (
-            chunkIndex
-          , position + new Vector3(chunkLength / 2, 0, chunkLength / 2)
-          , mapObjectModelList
-        );
         return mapChunk;
     }
 
@@ -369,7 +373,7 @@ public class MapGenerator
                 );
                 mapChunkMapObjectList.Add
                 (
-                    new MapChunkMapObjectModel { Prefab = spawnModel.Prefab, Position = position }
+                    new MapChunkMapObjectModel { ConfigID = configID, Position = position }
                 );
             }
         }

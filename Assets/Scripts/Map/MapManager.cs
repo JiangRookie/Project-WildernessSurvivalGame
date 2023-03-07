@@ -86,6 +86,11 @@ public class MapManager : MonoBehaviour
                 ShowMapUI();
             m_IsShowingMap = !m_IsShowingMap;
         }
+
+        if (m_IsShowingMap)
+        {
+            UpdateMapUI();
+        }
     }
 
     /// <summary>
@@ -96,6 +101,9 @@ public class MapManager : MonoBehaviour
         // 如果观察者没有移动过，不需要刷新
         if (Viewer.position == m_LastViewerPos) return;
         m_LastViewerPos = Viewer.position;
+
+        // 更新地图UI
+        if (m_IsShowingMap) m_MapUI.UpdatePivot(Viewer.position);
 
         if (m_CanUpdateChunk == false) return;
 
@@ -128,25 +136,21 @@ public class MapManager : MonoBehaviour
                 Invoke(nameof(ResetCanUpdateChunkFlag), UpdateVisibleChunkTime);
                 var chunkIndex = new Vector2Int(startX + x, startY + y);
 
-                // 之前加载过
-                if (MapChunkDict.TryGetValue(chunkIndex, out MapChunkController chunk))
+                // 在地图字典中，也就是之前加载过，但是不一定加载完成了，因为贴图会在协程中执行，执行完成后才算初始化完毕
+                if (MapChunkDict.TryGetValue(chunkIndex, out MapChunkController chunk) && chunk.IsInitializedMapUI)
                 {
-                    // 这个地图是不是在显示列表
-                    if (m_FinallyDisplayChunkList.Contains(chunk)) continue;
-                    m_FinallyDisplayChunkList.Add(chunk);
-                    chunk.SetActive(true);
+                    // 上一次显示的地图列表中并不包含这个地图块 && 同时它已经完成了初始化
+                    if (m_FinallyDisplayChunkList.Contains(chunk) == false && chunk.IsInitializedMapUI)
+                    {
+                        m_FinallyDisplayChunkList.Add(chunk);
+                        chunk.SetActive(true);
+                    }
                 }
 
                 // 之前未加载过
                 else
                 {
                     chunk = GenerateMapChunk(chunkIndex);
-
-                    if (chunk != null)
-                    {
-                        chunk.SetActive(true);
-                        m_FinallyDisplayChunkList.Add(chunk);
-                    }
                 }
             }
         }
@@ -174,7 +178,11 @@ public class MapManager : MonoBehaviour
         if (index.x > MapSize - 1 || index.y > MapSize - 1) return null;
         if (index.x < 0 || index.y < 0) return null;
 
-        MapChunkController chunk = m_MapGenerator.GenerateMapChunk(index, transform);
+        MapChunkController chunk =
+            m_MapGenerator.GenerateMapChunk(index, transform, () =>
+            {
+                m_WaitForUIUpdateMapChunkList.Add(index);
+            });
         MapChunkDict.Add(index, chunk);
         return chunk;
     }
@@ -194,7 +202,7 @@ public class MapManager : MonoBehaviour
 
         if (m_IsInitializedMapUI == false)
         {
-            m_MapUI.InitMap(MapSize, m_MapSizeOnWorld, ForestTexture);
+            m_MapUI.InitMap(MapSize, MapChunkSize, m_MapSizeOnWorld, ForestTexture);
             m_IsInitializedMapUI = true;
         }
 
@@ -202,7 +210,24 @@ public class MapManager : MonoBehaviour
         UpdateMapUI();
     }
 
-    void UpdateMapUI() { }
+    void UpdateMapUI()
+    {
+        for (int i = 0; i < m_WaitForUIUpdateMapChunkList.Count; i++)
+        {
+            var chunkIndex = m_WaitForUIUpdateMapChunkList[i];
+            Texture2D texture = null;
+            var mapChunk = MapChunkDict[chunkIndex];
+            if (mapChunk.IsAllForest == false)
+            {
+                texture = (Texture2D)mapChunk.GetComponent<MeshRenderer>().material.mainTexture;
+            }
+            m_MapUI.AddMapChunk(chunkIndex, mapChunk.m_MapChunkData.MapObjectList, texture);
+        }
+        m_WaitForUIUpdateMapChunkList.Clear();
+
+        // Content的坐标
+        m_MapUI.UpdatePivot(Viewer.position);
+    }
 
     void CloseMapUI() => UIManager.Instance.Close<UI_MapWindow>();
 
