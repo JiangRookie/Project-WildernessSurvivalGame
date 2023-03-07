@@ -20,11 +20,21 @@ public class UI_MapWindow : UI_WindowBase
     float m_MapSizeOnWorld;                               // 地图在世界中的尺寸
     Sprite m_ForestSprite;                                // 森林地块的精灵
     float m_MinScale;                                     // 最小的放大倍数
-    float m_MaxScale;                                     // 最大的放大倍数
+    float m_MaxScale = 10f;                               // 最大的放大倍数
 
     public override void Init()
     {
         transform.Find("Scroll View").GetComponent<ScrollRect>().onValueChanged.AddListener(UpdatePlayerIconPos);
+    }
+
+    void Update()
+    {
+        var scroll = Input.GetAxis("Mouse ScrollWheel");
+        if (scroll != 0)
+        {
+            float newScale = Mathf.Clamp(Content.localScale.x + scroll, m_MinScale, m_MaxScale);
+            Content.localScale = new Vector3(newScale, newScale, 0);
+        }
     }
 
     /// <summary>
@@ -58,6 +68,7 @@ public class UI_MapWindow : UI_WindowBase
     {
         var x = viewerPos.x / m_MapSizeOnWorld;
         var z = viewerPos.z / m_MapSizeOnWorld;
+
         // 修改 Content 后会触发 Scroll Rect 组件的 OnValueChanged 事件
         Content.pivot = new Vector2(x, z);
     }
@@ -94,6 +105,19 @@ public class UI_MapWindow : UI_WindowBase
         }
 
         // TODO：添加物体的Icon
+        for (int i = 0; i < mapObjectList.Count; i++)
+        {
+            var config = ConfigManager.Instance.GetConfig<MapObjectConfig>
+                (ConfigName.MapObject, mapObjectList[i].ConfigID);
+
+            // TODO: 这个物体它需要放进UI地图，除了Icon可能还有其他信息
+            if (config.MapIconSprite == null) continue;
+            var gameObj = PoolManager.Instance.GetGameObject(MapIconPrefab, Content);
+            gameObj.GetComponent<Image>().sprite = config.MapIconSprite;
+            float x = mapObjectList[i].Position.x * 10; // 因为整个Content的尺寸在初始化的时候 *10.所以Icon也需要乘上同样的系数
+            float z = mapObjectList[i].Position.z * 10;
+            gameObj.GetComponent<RectTransform>().anchoredPosition = new Vector2(x, z);
+        }
 
         // TODO：待重构，因为肯定还需要保存Icon的信息用来后续移除（因为Icon代表的花草树木有可能会消失）
         m_MapImageDict.Add(chunkIndex, mapChunkImage);
