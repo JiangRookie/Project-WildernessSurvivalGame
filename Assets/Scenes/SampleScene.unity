@@ -479,7 +479,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1073189123897863578, guid: 596f14c3356e9234ba867cb0fd11222c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 6
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1073189123897863578, guid: 596f14c3356e9234ba867cb0fd11222c, type: 3}
       propertyPath: m_LocalPosition.y
@@ -765,7 +765,7 @@ MonoBehaviour:
   NoiseLacunarity: 0.02
   MapGenerationSeed: 0
   MapRandomObjectSpawnSeed: 0
-  MarshLimit: 0.68
+  MarshLimit: 0.8
   Viewer: {fileID: 861974442}
   ViewDistance: 1
   UpdateVisibleChunkTime: 1

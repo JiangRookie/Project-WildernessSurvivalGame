@@ -3,144 +3,154 @@ using JKFrame;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// UI地图窗口
-/// </summary>
-[UIElement(true, "UI/UI_MapWindow", 4)]
-public class UI_MapWindow : UI_WindowBase
+namespace Project_WildernessSurvivalGame
 {
-    [SerializeField] RectTransform Content; // 所有地图块、Icon显示的父物体
-    float m_ContentSize;
-    [SerializeField] GameObject MapItemPrefab;            // 单个地图块在UI中的预制体
-    [SerializeField] GameObject MapIconPrefab;            // 单个Icon在UI中的预制体
-    [SerializeField] RectTransform PlayerIcon;            // 玩家所在位置的Icon
-    Dictionary<Vector2Int, Image> m_MapImageDict = new(); // 地图图片字典
-    float m_MapChunkImageSize;                            // UI地图块图片的尺寸
-    int m_MapChunkSize;                                   // 一个地图块的格子数量
-    float m_MapSizeOnWorld;                               // 地图在世界中的尺寸
-    Sprite m_ForestSprite;                                // 森林地块的精灵
-    float m_MinScale;                                     // 最小的放大倍数
-    float m_MaxScale = 10f;                               // 最大的放大倍数
-
-    public override void Init()
-    {
-        transform.Find("Scroll View").GetComponent<ScrollRect>().onValueChanged.AddListener(UpdatePlayerIconPos);
-    }
-
-    void Update()
-    {
-        var scroll = Input.GetAxis("Mouse ScrollWheel");
-        if (scroll != 0)
-        {
-            float newScale = Mathf.Clamp(Content.localScale.x + scroll, m_MinScale, m_MaxScale);
-            Content.localScale = new Vector3(newScale, newScale, 0);
-        }
-    }
-
     /// <summary>
-    /// 初始化地图
+    /// UI地图窗口
     /// </summary>
-    /// <param name="mapSize">地图一行或一列有多少个Image/Chunk</param>
-    /// <param name="mapChunkSize"></param>
-    /// <param name="mapSizeOnWorld">地图在世界中一行或一列有多大</param>
-    /// <param name="forestTexture">森林的贴图</param>
-    public void InitMap(float mapSize, int mapChunkSize, float mapSizeOnWorld, Texture2D forestTexture)
+    [UIElement(true, "UI/UI_MapWindow", 4)]
+    public class UI_MapWindow : UI_WindowBase
     {
-        m_MapSizeOnWorld = mapSizeOnWorld;
-        m_ForestSprite = CreateMapSprite(forestTexture);
+        #region Field
 
-        m_MapChunkSize = mapChunkSize;
+        [SerializeField] RectTransform Content;    // 所有地图块、Icon显示的父物体
+        [SerializeField] GameObject MapItemPrefab; // 单个地图块在UI中的预制体
+        [SerializeField] GameObject MapIconPrefab; // 单个Icon在UI中的预制体
+        [SerializeField] RectTransform PlayerIcon; // 玩家所在位置的Icon
 
-        // 计算内容尺寸
-        m_ContentSize = mapSizeOnWorld * 10;
-        Content.sizeDelta = new Vector2(m_ContentSize, m_ContentSize);
+        int m_MapChunkSize;
+        float m_ContentSize;
+        float m_MapChunkImageSize;
+        float m_MapSizeOnWorld;
+        Sprite m_ForestSprite;
+        Dictionary<Vector2Int, Image> m_MapImageDict = new(); // 地图图片字典
+        float m_ScrollValue;
+        float m_MinScaleFactor;
 
-        // 计算一个UI地图块的尺寸
-        m_MapChunkImageSize = m_ContentSize / mapSize;
-        m_MinScale = 1050f / m_ContentSize; // 1050f 是 Scroll View 的大小
-    }
+        const string MouseScrollWheel = "Mouse ScrollWheel";
+        const string ScrollView = "Scroll View";
+        const float ScrollViewSize = 1050f;
+        const float MaxScaleFactor = 10f;
+        const int ContentScaleFactor = 10;
 
-    /// <summary>
-    /// 更新中心点，为了鼠标缩放的时候，中心点是玩家所处的位置
-    /// </summary>
-    /// <param name="viewerPos">观察者位置</param>
-    public void UpdatePivot(Vector3 viewerPos)
-    {
-        var x = viewerPos.x / m_MapSizeOnWorld;
-        var z = viewerPos.z / m_MapSizeOnWorld;
+        #endregion
 
-        // 修改 Content 后会触发 Scroll Rect 组件的 OnValueChanged 事件
-        Content.pivot = new Vector2(x, z);
-    }
-
-    /// <summary>
-    /// 添加一个地图块
-    /// </summary>
-    public void AddMapChunk(Vector2Int chunkIndex, List<MapChunkMapObjectModel> mapObjectList, Texture2D texture = null)
-    {
-        var mapChunkRect = Instantiate(MapItemPrefab, Content).GetComponent<RectTransform>();
-
-        // 确定地图块的Image的坐标和宽高
-        mapChunkRect.anchoredPosition =
-            new Vector2(chunkIndex.x * m_MapChunkImageSize, chunkIndex.y * m_MapChunkImageSize);
-        mapChunkRect.sizeDelta = new Vector2(m_MapChunkImageSize, m_MapChunkImageSize);
-
-        var mapChunkImage = mapChunkRect.GetComponent<Image>();
-
-        // 森林的情况
-        if (texture == null)
+        void Update()
         {
-            mapChunkImage.type = Image.Type.Tiled;
-
-            // 设置贴瓷砖的比例，要在一个Image中显示这个地图块所包含的格子数量
-            var ratio = m_ForestSprite.texture.width / m_MapChunkImageSize; // 贴图与Image的比例
-
-            // 一个地图块上有多少个格子
-            mapChunkImage.pixelsPerUnitMultiplier = m_MapChunkSize * ratio;
-            mapChunkImage.sprite = m_ForestSprite;
-        }
-        else
-        {
-            mapChunkImage.sprite = CreateMapSprite(texture);
+            m_ScrollValue = Input.GetAxis(MouseScrollWheel); // 这里会一直监听鼠标滑轮事件
+            if (m_ScrollValue != 0)
+            {
+                float newScale = Mathf.Clamp(Content.localScale.x + m_ScrollValue, m_MinScaleFactor, MaxScaleFactor);
+                Content.localScale = new Vector3(newScale, newScale, 0);
+            }
         }
 
-        // TODO：添加物体的Icon
-        for (int i = 0; i < mapObjectList.Count; i++)
+        public override void Init()
         {
-            var config = ConfigManager.Instance.GetConfig<MapObjectConfig>
-                (ConfigName.MapObject, mapObjectList[i].ConfigID);
-
-            // TODO: 这个物体它需要放进UI地图，除了Icon可能还有其他信息
-            if (config.MapIconSprite == null) continue;
-            var gameObj = PoolManager.Instance.GetGameObject(MapIconPrefab, Content);
-            gameObj.GetComponent<Image>().sprite = config.MapIconSprite;
-            float x = mapObjectList[i].Position.x * 10; // 因为整个Content的尺寸在初始化的时候 *10.所以Icon也需要乘上同样的系数
-            float z = mapObjectList[i].Position.z * 10;
-            gameObj.GetComponent<RectTransform>().anchoredPosition = new Vector2(x, z);
+            transform.Find(ScrollView).GetComponent<ScrollRect>().onValueChanged.AddListener(UpdatePlayerIconPos);
         }
 
-        // TODO：待重构，因为肯定还需要保存Icon的信息用来后续移除（因为Icon代表的花草树木有可能会消失）
-        m_MapImageDict.Add(chunkIndex, mapChunkImage);
-    }
+        /// <summary>
+        /// 初始化地图
+        /// </summary>
+        /// <param name="mapSize">地图中一行地图块的数量</param>
+        /// <param name="mapChunkSize">地图块中一行格子的数量</param>
+        /// <param name="mapSizeOnWorld">地图的实际尺寸，地图块尺寸 * 地图块数量</param>
+        /// <param name="forestTexture">森林贴图</param>
+        public void InitMap(float mapSize, int mapChunkSize, float mapSizeOnWorld, Texture2D forestTexture)
+        {
+            m_MapChunkSize = mapChunkSize;
+            m_MapSizeOnWorld = mapSizeOnWorld;
+            m_ForestSprite = CreateSprite(forestTexture);
 
-    /// <summary>
-    /// 生成地图精灵
-    /// </summary>
-    /// <param name="texture">贴图</param>
-    /// <returns>将传入的<paramref name="texture"/>贴图转换为Sprite图片并返回</returns>
-    static Sprite CreateMapSprite(Texture2D texture)
-    {
-        return Sprite.Create
-        (
-            texture: texture
-          , rect: new Rect(0, 0, texture.width, texture.height)
-          , pivot: new Vector2(0.5f, 0.5f)
-        );
-    }
+            m_ContentSize = mapSizeOnWorld * ContentScaleFactor;           // 将 Content 容器的大小设置为地图大小的 10 倍
+            Content.sizeDelta = new Vector2(m_ContentSize, m_ContentSize); // 这个 RectTransform 大小相对于锚点之间的距离。
 
-    public void UpdatePlayerIconPos(Vector2 value)
-    {
-        // 玩家的 Icon 完全放在 Content 的中心点
-        PlayerIcon.anchoredPosition3D = Content.anchoredPosition;
+            m_MapChunkImageSize = m_ContentSize / mapSize; // 计算单个地图块 UI 的尺寸
+            m_MinScaleFactor = ScrollViewSize / m_ContentSize;
+        }
+
+        /// <summary>
+        /// 更新 Content 的中心点，为了鼠标缩放的时候，中心点是玩家所处的位置
+        /// </summary>
+        /// <param name="viewerPos">观察者位置</param>
+        public void UpdatePivot(Vector3 viewerPos)
+        {
+            float x = viewerPos.x / m_MapSizeOnWorld;
+            float z = viewerPos.z / m_MapSizeOnWorld;
+            Content.pivot = new Vector2(x, z); // 修改 Content.pivot 会触发 Scroll Rect 组件的 OnValueChanged 事件
+        }
+
+        /// <summary>
+        /// 添加一个地图块
+        /// </summary>
+        /// <param name="chunkIndex">地图块索引</param>
+        /// <param name="mapObjectList">地图块中的各种地图对象组合成的列表</param>
+        /// <param name="texture">纹理</param>
+        public void AddMapChunk
+            (Vector2Int chunkIndex, List<MapObjectModelInMapChunk> mapObjectList, Texture2D texture = null)
+        {
+            // 获取地图块 UI 的 RectTransform 并设置地图块 UI 的位置和大小
+            var mapChunkRect = Instantiate(MapItemPrefab, Content).GetComponent<RectTransform>();
+            mapChunkRect.anchoredPosition
+                = new Vector2(chunkIndex.x * m_MapChunkImageSize, chunkIndex.y * m_MapChunkImageSize);
+            mapChunkRect.sizeDelta = new Vector2(m_MapChunkImageSize, m_MapChunkImageSize);
+
+            var mapChunkImage = mapChunkRect.GetComponent<Image>();
+            if (texture == null) // 森林的情况
+            {
+                mapChunkImage.type = Image.Type.Tiled; // 将图片类型设置为平铺类型
+
+                // 设置贴瓷砖的比例，要在一个Image中显示这个地图块所包含的格子数量
+                var ratio = m_ForestSprite.texture.width / m_MapChunkImageSize;
+                mapChunkImage.pixelsPerUnitMultiplier = m_MapChunkSize * ratio;
+                mapChunkImage.sprite = m_ForestSprite;
+            }
+            else
+            {
+                mapChunkImage.sprite = CreateSprite(texture);
+            }
+
+            foreach (var mapObject in mapObjectList)
+            {
+                var config = ConfigManager.Instance.GetConfig<MapObjectConfig>(
+                    ConfigName.MapObject, mapObject.ConfigID);
+
+                // TODO: 这个物体它需要放进UI地图，除了Icon可能还有其他信息
+                if (config.MapIconSprite == null) continue;
+
+                // 因为 Content 的尺寸在初始化的时候 * ContentScaleFactor，所以 Icon 也需要乘上同样的系数
+                var gameObj = PoolManager.Instance.GetGameObject(MapIconPrefab, Content);
+                var x = mapObject.Position.x * ContentScaleFactor;
+                var y = mapObject.Position.z * ContentScaleFactor;
+                gameObj.GetComponent<Image>().sprite = config.MapIconSprite;
+                gameObj.GetComponent<RectTransform>().anchoredPosition = new Vector2(x, y);
+            }
+
+            // TODO：待重构，因为肯定还需要保存Icon的信息用来后续移除（因为Icon代表的花草树木有可能会消失）
+            m_MapImageDict.Add(chunkIndex, mapChunkImage);
+        }
+
+        /// <summary>
+        /// 将传入的 <paramref name="texture"/> 转换为 Sprite 图片
+        /// </summary>
+        /// <param name="texture">贴图</param>
+        /// <returns>返回 Sprite 图片</returns>
+        static Sprite CreateSprite(Texture2D texture)
+        {
+            return Sprite.Create
+            (
+                texture: texture
+              , rect: new Rect(0, 0, texture.width, texture.height)
+              , pivot: new Vector2(0.5f, 0.5f)
+            );
+        }
+
+        void UpdatePlayerIconPos(Vector2 value)
+        {
+            // 玩家的 Icon 完全放在 Content 的中心点
+            // anchoredPosition：这个RectTransform的中心点相对于锚点参考点的位置。
+            PlayerIcon.anchoredPosition3D = Content.anchoredPosition;
+        }
     }
 }
