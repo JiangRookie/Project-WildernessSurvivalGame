@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Project_WildernessSurvivalGame
 {
-    public class MapManager : MonoBehaviour
+    public class MapManager : SingletonMono<MapManager>
     {
         #region Field
 
@@ -22,8 +22,8 @@ namespace Project_WildernessSurvivalGame
         [Tooltip("一行/列地图块数量")] public int MapSize;       //  m_MapSize -> m_MapChunkNum
         [Tooltip("一个地图块的格子数量")] public int MapChunkSize; //  m_MapChunkSize -> m_CellNum
         public float CellSize;
-        float m_ChunkSizeOnWorld; // 在世界中实际的地图块尺寸 MapChunkSize * CellSize
-        float m_MapSizeOnWorld;   // 在世界中实际的地图尺寸 m_ChunkSizeOnWorld * MapSize
+        float m_ChunkSizeOnWorld;    // 在世界中实际的地图块尺寸 MapChunkSize * CellSize
+        public float MapSizeOnWorld; // 在世界中实际的地图尺寸 m_ChunkSizeOnWorld * MapSize
 
         #endregion
 
@@ -50,7 +50,13 @@ namespace Project_WildernessSurvivalGame
 
         #endregion
 
-        void Start()
+        protected override void Awake()
+        {
+            base.Awake();
+            Init();
+        }
+
+        void Init()
         {
             // 获取地图物品配置，初始化地图生成对象配置字典
             Dictionary<int, ConfigBase> mapConfigDict = ConfigManager.Instance.GetConfigs(ConfigName.MapObject);
@@ -72,7 +78,7 @@ namespace Project_WildernessSurvivalGame
             // 初始化地图块字典
             m_MapChunkDict = new Dictionary<Vector2Int, MapChunkController>();
             m_ChunkSizeOnWorld = MapChunkSize * CellSize;
-            m_MapSizeOnWorld = m_ChunkSizeOnWorld * MapSize;
+            MapSizeOnWorld = m_ChunkSizeOnWorld * MapSize;
             DoUpdateVisibleChunk();
         }
 
@@ -209,7 +215,7 @@ namespace Project_WildernessSurvivalGame
             m_MapUI = UIManager.Instance.Show<UI_MapWindow>();
             if (m_IsInitializedMapUI == false)
             {
-                m_MapUI.InitMap(MapSize, MapChunkSize, m_MapSizeOnWorld, ForestTexture);
+                m_MapUI.InitMap(MapSize, MapChunkSize, MapSizeOnWorld, ForestTexture);
                 m_IsInitializedMapUI = true;
             }
             UpdateMapUI();

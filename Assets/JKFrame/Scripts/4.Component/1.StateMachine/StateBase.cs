@@ -5,7 +5,8 @@
     /// </summary>
     public abstract class StateBase
     {
-        protected StateMachine stateMachine;
+        protected StateMachine StateMachine;
+
         /// <summary>
         /// 初始化状态
         /// 只在状态第一次创建时执行
@@ -15,7 +16,7 @@
         /// <param name="stateMachine">所属状态机</param>
         public virtual void Init(IStateMachineOwner owner, int stateType, StateMachine stateMachine)
         {
-            this.stateMachine = stateMachine;
+            StateMachine = stateMachine;
         }
 
         /// <summary>
@@ -43,6 +44,5 @@
         public virtual void Update() { }
         public virtual void LateUpdate() { }
         public virtual void FixedUpdate() { }
-
     }
 }
