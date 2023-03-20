@@ -34,25 +34,25 @@ namespace JKFrame
         {
             // T：事件本身的参数（PointerEventData、Collision）
             // object[]:事件的参数
-            public Action<T, object[]> action;
-            public object[] args;
+            public Action<T, object[]> Action;
+            public object[] Args;
 
             public void Init(Action<T, object[]> action, object[] args)
             {
-                this.action = action;
-                this.args = args;
+                Action = action;
+                Args = args;
             }
 
-            public void Destory()
+            public void Destroy()
             {
-                this.action = null;
-                this.args = null;
+                Action = null;
+                Args = null;
                 this.JKObjectPushPool();
             }
 
             public void TriggerEvent(T eventData)
             {
-                action?.Invoke(eventData, args);
+                Action?.Invoke(eventData, Args);
             }
         }
 
@@ -68,7 +68,7 @@ namespace JKFrame
         class JKEventListenerEventInfos<T> : IJKEventListenerEventInfos
         {
             // 所有的事件
-            private List<JKEventListenerEventInfo<T>> eventList = new List<JKEventListenerEventInfo<T>>();
+            List<JKEventListenerEventInfo<T>> m_EventList = new();
 
             /// <summary>
             /// 添加事件
@@ -77,7 +77,7 @@ namespace JKFrame
             {
                 JKEventListenerEventInfo<T> info = PoolManager.Instance.GetObject<JKEventListenerEventInfo<T>>();
                 info.Init(action, args);
-                eventList.Add(info);
+                m_EventList.Add(info);
             }
 
             /// <summary>
@@ -85,28 +85,28 @@ namespace JKFrame
             /// </summary>
             public void RemoveListener(Action<T, object[]> action, bool checkArgs = false, params object[] args)
             {
-                for (int i = 0; i < eventList.Count; i++)
+                for (int i = 0; i < m_EventList.Count; i++)
                 {
                     // 找到这个事件
-                    if (eventList[i].action.Equals(action))
+                    if (m_EventList[i].Action.Equals(action))
                     {
                         // 是否需要检查参数
                         if (checkArgs && args.Length > 0)
                         {
                             // 参数如果相等
-                            if (args.ArraryEquals(eventList[i].args))
+                            if (args.ArraryEquals(m_EventList[i].Args))
                             {
                                 // 移除
-                                eventList[i].Destory();
-                                eventList.RemoveAt(i);
+                                m_EventList[i].Destroy();
+                                m_EventList.RemoveAt(i);
                                 return;
                             }
                         }
                         else
                         {
                             // 移除
-                            eventList[i].Destory();
-                            eventList.RemoveAt(i);
+                            m_EventList[i].Destroy();
+                            m_EventList.RemoveAt(i);
                             return;
                         }
                     }
@@ -118,19 +118,19 @@ namespace JKFrame
             /// </summary>
             public void RemoveAll()
             {
-                for (int i = 0; i < eventList.Count; i++)
+                foreach (var eventInfo in m_EventList)
                 {
-                    eventList[i].Destory();
+                    eventInfo.Destroy();
                 }
-                eventList.Clear();
+                m_EventList.Clear();
                 this.JKObjectPushPool();
             }
 
-            public void TriggerEvent(T evetData)
+            public void TriggerEvent(T eventData)
             {
-                for (int i = 0; i < eventList.Count; i++)
+                foreach (var eventInfo in m_EventList)
                 {
-                    eventList[i].TriggerEvent(evetData);
+                    eventInfo.TriggerEvent(eventData);
                 }
             }
         }
@@ -138,7 +138,7 @@ namespace JKFrame
         /// <summary>
         /// 枚举比较器
         /// </summary>
-        private class JKEventTypeEnumComparer : Singleton<JKEventTypeEnumComparer>, IEqualityComparer<JKEventType>
+        class JKEventTypeEnumComparer : Singleton<JKEventTypeEnumComparer>, IEqualityComparer<JKEventType>
         {
             public bool Equals(JKEventType x, JKEventType y)
             {
@@ -153,8 +153,7 @@ namespace JKFrame
 
         #endregion
 
-        private Dictionary<JKEventType, IJKEventListenerEventInfos> eventInfoDic
-            = new Dictionary<JKEventType, IJKEventListenerEventInfos>(JKEventTypeEnumComparer.Instance);
+        Dictionary<JKEventType, IJKEventListenerEventInfos> m_EventInfoDict = new(JKEventTypeEnumComparer.Instance);
 
         #region 外部的访问
 
@@ -163,15 +162,15 @@ namespace JKFrame
         /// </summary>
         public void AddListener<T>(JKEventType eventType, Action<T, object[]> action, params object[] args)
         {
-            if (eventInfoDic.ContainsKey(eventType))
+            if (m_EventInfoDict.ContainsKey(eventType))
             {
-                (eventInfoDic[eventType] as JKEventListenerEventInfos<T>).AddListener(action, args);
+                ((JKEventListenerEventInfos<T>)m_EventInfoDict[eventType]).AddListener(action, args);
             }
             else
             {
                 JKEventListenerEventInfos<T> infos = PoolManager.Instance.GetObject<JKEventListenerEventInfos<T>>();
                 infos.AddListener(action, args);
-                eventInfoDic.Add(eventType, infos);
+                m_EventInfoDict.Add(eventType, infos);
             }
         }
 
@@ -181,23 +180,22 @@ namespace JKFrame
         public void RemoveListener<T>
             (JKEventType eventType, Action<T, object[]> action, bool checkArgs = false, params object[] args)
         {
-            if (eventInfoDic.ContainsKey(eventType))
+            if (m_EventInfoDict.ContainsKey(eventType))
             {
-                (eventInfoDic[eventType] as JKEventListenerEventInfos<T>).RemoveListener(action, checkArgs, args);
+                ((JKEventListenerEventInfos<T>)m_EventInfoDict[eventType]).RemoveListener(action, checkArgs, args);
             }
         }
 
         /// <summary>
         /// 移除某一个事件类型下的全部事件
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="eventType"></param>
         public void RemoveAllListener(JKEventType eventType)
         {
-            if (eventInfoDic.ContainsKey(eventType))
+            if (m_EventInfoDict.ContainsKey(eventType))
             {
-                eventInfoDic[eventType].RemoveAll();
-                eventInfoDic.Remove(eventType);
+                m_EventInfoDict[eventType].RemoveAll();
+                m_EventInfoDict.Remove(eventType);
             }
         }
 
@@ -206,12 +204,12 @@ namespace JKFrame
         /// </summary>
         public void RemoveAllListener()
         {
-            foreach (IJKEventListenerEventInfos infos in eventInfoDic.Values)
+            foreach (IJKEventListenerEventInfos infos in m_EventInfoDict.Values)
             {
                 infos.RemoveAll();
             }
 
-            eventInfoDic.Clear();
+            m_EventInfoDict.Clear();
         }
 
         #endregion
@@ -219,123 +217,63 @@ namespace JKFrame
         /// <summary>
         /// 触发事件
         /// </summary>
-        private void TriggerAction<T>(JKEventType eventType, T eventData)
+        void TriggerAction<T>(JKEventType eventType, T eventData)
         {
-            if (eventInfoDic.ContainsKey(eventType))
+            if (m_EventInfoDict.ContainsKey(eventType))
             {
-                (eventInfoDic[eventType] as JKEventListenerEventInfos<T>).TriggerEvent(eventData);
+                (m_EventInfoDict[eventType] as JKEventListenerEventInfos<T>)?.TriggerEvent(eventData);
             }
         }
 
         #region 鼠标事件
 
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            TriggerAction(JKEventType.OnMouseEnter, eventData);
-        }
+        public void OnPointerEnter(PointerEventData eventData) => TriggerAction(JKEventType.OnMouseEnter, eventData);
 
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            TriggerAction(JKEventType.OnMouseExit, eventData);
-        }
+        public void OnPointerExit(PointerEventData eventData) => TriggerAction(JKEventType.OnMouseExit, eventData);
 
-        public void OnBeginDrag(PointerEventData eventData)
-        {
-            TriggerAction(JKEventType.OnBeginDrag, eventData);
-        }
+        public void OnBeginDrag(PointerEventData eventData) => TriggerAction(JKEventType.OnBeginDrag, eventData);
 
-        public void OnDrag(PointerEventData eventData)
-        {
-            TriggerAction(JKEventType.OnDrag, eventData);
-        }
+        public void OnDrag(PointerEventData eventData) => TriggerAction(JKEventType.OnDrag, eventData);
 
-        public void OnEndDrag(PointerEventData eventData)
-        {
-            TriggerAction(JKEventType.OnEndDrag, eventData);
-        }
+        public void OnEndDrag(PointerEventData eventData) => TriggerAction(JKEventType.OnEndDrag, eventData);
 
-        public void OnPointerClick(PointerEventData eventData)
-        {
-            TriggerAction(JKEventType.OnClick, eventData);
-        }
+        public void OnPointerUp(PointerEventData eventData) => TriggerAction(JKEventType.OnClickUp, eventData);
 
-        public void OnPointerDown(PointerEventData eventData)
-        {
-            TriggerAction(JKEventType.OnClickDown, eventData);
-        }
+        public void OnPointerDown(PointerEventData eventData) => TriggerAction(JKEventType.OnClickDown, eventData);
 
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            TriggerAction(JKEventType.OnClickUp, eventData);
-        }
+        public void OnPointerClick(PointerEventData eventData) => TriggerAction(JKEventType.OnClick, eventData);
 
         #endregion
 
         #region 碰撞事件
 
-        private void OnCollisionEnter(Collision collision)
-        {
-            TriggerAction(JKEventType.OnCollisionEnter, collision);
-        }
+        void OnCollisionEnter(Collision other) => TriggerAction(JKEventType.OnCollisionEnter, other);
 
-        private void OnCollisionStay(Collision collision)
-        {
-            TriggerAction(JKEventType.OnCollisionStay, collision);
-        }
+        void OnCollisionStay(Collision other) => TriggerAction(JKEventType.OnCollisionStay, other);
 
-        private void OnCollisionExit(Collision collision)
-        {
-            TriggerAction(JKEventType.OnCollisionExit, collision);
-        }
+        void OnCollisionExit(Collision other) => TriggerAction(JKEventType.OnCollisionExit, other);
 
-        private void OnCollisionEnter2D(Collision2D collision)
-        {
-            TriggerAction(JKEventType.OnCollisionEnter2D, collision);
-        }
+        void OnCollisionEnter2D(Collision2D other) => TriggerAction(JKEventType.OnCollisionEnter2D, other);
 
-        private void OnCollisionStay2D(Collision2D collision)
-        {
-            TriggerAction(JKEventType.OnCollisionStay2D, collision);
-        }
+        void OnCollisionStay2D(Collision2D other) => TriggerAction(JKEventType.OnCollisionStay2D, other);
 
-        private void OnCollisionExit2D(Collision2D collision)
-        {
-            TriggerAction(JKEventType.OnCollisionExit2D, collision);
-        }
+        void OnCollisionExit2D(Collision2D other) => TriggerAction(JKEventType.OnCollisionExit2D, other);
 
         #endregion
 
         #region 触发事件
 
-        private void OnTriggerEnter(Collider other)
-        {
-            TriggerAction(JKEventType.OnTriggerEnter, other);
-        }
+        void OnTriggerEnter(Collider other) => TriggerAction(JKEventType.OnTriggerEnter, other);
 
-        private void OnTriggerStay(Collider other)
-        {
-            TriggerAction(JKEventType.OnTriggerStay, other);
-        }
+        void OnTriggerStay(Collider other) => TriggerAction(JKEventType.OnTriggerStay, other);
 
-        private void OnTriggerExit(Collider other)
-        {
-            TriggerAction(JKEventType.OnTriggerExit, other);
-        }
+        void OnTriggerExit(Collider other) => TriggerAction(JKEventType.OnTriggerExit, other);
 
-        private void OnTriggerEnter2D(Collider2D collision)
-        {
-            TriggerAction(JKEventType.OnTriggerEnter2D, collision);
-        }
+        void OnTriggerEnter2D(Collider2D other) => TriggerAction(JKEventType.OnTriggerEnter2D, other);
 
-        private void OnTriggerStay2D(Collider2D collision)
-        {
-            TriggerAction(JKEventType.OnTriggerStay2D, collision);
-        }
+        void OnTriggerStay2D(Collider2D other) => TriggerAction(JKEventType.OnTriggerStay2D, other);
 
-        private void OnTriggerExit2D(Collider2D collision)
-        {
-            TriggerAction(JKEventType.OnTriggerExit2D, collision);
-        }
+        void OnTriggerExit2D(Collider2D other) => TriggerAction(JKEventType.OnTriggerExit2D, other);
 
         #endregion
     }

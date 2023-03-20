@@ -5,6 +5,10 @@ using UnityEngine.EventSystems;
 
 public static class UITool
 {
+    /// <summary>
+    /// Binding mouse effects（Add mouse effects）
+    /// </summary>
+    /// <param name="component">Components that require the use of mouse effects</param>
     public static void BindMouseEffect(this Component component)
     {
         var localScale = component.transform.localScale;
@@ -12,11 +16,19 @@ public static class UITool
         component.OnMouseExit(MouseEffect, component, false, localScale);
     }
 
+    /// <summary>
+    /// Remove mouse effects
+    /// </summary>
+    /// <param name="component">The component that needs to remove the mouse effect</param>
     public static void RemoveMouseEffect(this Component component)
     {
+        // 手动触发一次退出
+        var listener = component.GetComponent<JKEventListener>();
+        if (listener != null) listener.OnPointerExit(null);
+
         component.RemoveMouseEnter(MouseEffect);
         component.RemoveMouseExit(MouseEffect);
-        component.StopAllCoroutines();
+
         GameManager.Instance.SetCursorState(CursorState.Normal);
     }
 
@@ -50,6 +62,7 @@ public static class UITool
             {
                 yield return null;
                 if (component == null) yield break;
+
                 currScale += Time.deltaTime * 2 * Vector3.one;
                 transform.localScale = currScale;
             }
@@ -62,6 +75,7 @@ public static class UITool
             {
                 yield return null;
                 if (component == null) yield break;
+
                 currScale -= Time.deltaTime * 2 * Vector3.one;
                 transform.localScale = currScale;
             }
