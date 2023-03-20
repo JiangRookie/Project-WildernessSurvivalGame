@@ -85,7 +85,6 @@ namespace Project_WildernessSurvivalGame
         void Update()
         {
             UpdateVisibleChunk();
-
             if (Input.GetKeyDown(KeyCode.M))
             {
                 if (m_IsShowingMap)

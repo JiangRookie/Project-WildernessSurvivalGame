@@ -63,10 +63,10 @@ namespace Project_WildernessSurvivalGame
             m_MapSizeOnWorld = mapSizeOnWorld;
             m_ForestSprite = CreateSprite(forestTexture);
 
-            m_ContentSize = mapSizeOnWorld * ContentScaleFactor;           // 将 Content 容器的大小设置为地图大小的 10 倍
-            Content.sizeDelta = new Vector2(m_ContentSize, m_ContentSize); // 这个 RectTransform 大小相对于锚点之间的距离。
-
-            m_MapChunkImageSize = m_ContentSize / mapSize; // 计算单个地图块 UI 的尺寸
+            m_ContentSize = mapSizeOnWorld * ContentScaleFactor;                 // 将 Content 容器的大小设置为地图大小的 10 倍
+            Content.sizeDelta = new Vector2(m_ContentSize, m_ContentSize);       // 这个 RectTransform 大小相对于锚点之间的距离。
+            Content.localScale = new Vector3(MaxScaleFactor, MaxScaleFactor, 1); // 打开默认最大缩放
+            m_MapChunkImageSize = m_ContentSize / mapSize;                       // 计算单个地图块 UI 的尺寸
             m_MinScaleFactor = ScrollViewSize / m_ContentSize;
         }
 

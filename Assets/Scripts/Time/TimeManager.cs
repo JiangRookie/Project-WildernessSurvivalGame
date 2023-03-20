@@ -19,6 +19,8 @@ public class TimeStateData
     public Color SunColor;
     [OnValueChanged(nameof(SetRotation))] public Vector3 SunRotation;
     [HideInInspector] public Quaternion SunQuaternion;
+    public bool Fog;
+    public AudioClip BgAudioClip;
 
     void SetRotation() => SunQuaternion = Quaternion.Euler(SunRotation);
 
@@ -37,10 +39,17 @@ public class TimeStateData
       , out float sunIntensity
     )
     {
+        // ratio 从 0 到 1
         var ratio = 1f - currPhaseRemainingTime / PhaseDurationTime;
         rotation = Quaternion.Slerp(SunQuaternion, nextPhase.SunQuaternion, ratio);
         color = Color.Lerp(SunColor, nextPhase.SunColor, ratio);
         sunIntensity = Mathf.Lerp(SunIntensity, nextPhase.SunIntensity, ratio);
+
+        if (Fog)
+        {
+            RenderSettings.fogDensity = 0.1f * (1 - ratio);
+        }
+
         return currPhaseRemainingTime > 0;
     }
 }
@@ -66,6 +75,11 @@ public class TimeManager : LogicManagerBase<TimeManager>
     IEnumerator UpdateTime()
     {
         m_CurrStateIndex = 0; // 第一个阶段默认是早上
+        RenderSettings.fog = TimeStateDatas[m_CurrStateIndex].Fog;
+        if (TimeStateDatas[m_CurrStateIndex].BgAudioClip != null)
+        {
+            StartCoroutine(ChangeBgAudio(TimeStateDatas[m_CurrStateIndex].BgAudioClip));
+        }
         var nextStateIndex = m_CurrStateIndex + 1;
         m_CurrPhaseRemainingTime = TimeStateDatas[m_CurrStateIndex].PhaseDurationTime;
         m_DayNum = 0;
@@ -87,6 +101,12 @@ public class TimeManager : LogicManagerBase<TimeManager>
                 nextStateIndex = m_CurrStateIndex + 1 >= TimeStateDatas.Length ? 0 : m_CurrStateIndex + 1;
                 if (m_CurrStateIndex == 0) m_DayNum++; // m_CurrStateIndex == 0 意味着新的一天开始了
                 m_CurrPhaseRemainingTime = TimeStateDatas[m_CurrStateIndex].PhaseDurationTime;
+                RenderSettings.fog = TimeStateDatas[m_CurrStateIndex].Fog;
+
+                if (TimeStateDatas[m_CurrStateIndex].BgAudioClip != null)
+                {
+                    StartCoroutine(ChangeBgAudio(TimeStateDatas[m_CurrStateIndex].BgAudioClip));
+                }
             }
 
             MainLight.transform.rotation = rotation;
@@ -101,5 +121,27 @@ public class TimeManager : LogicManagerBase<TimeManager>
 
         // 设置环境光的亮度
         RenderSettings.ambientIntensity = intensity;
+    }
+
+    IEnumerator ChangeBgAudio(AudioClip audioClip)
+    {
+        var oldVolume = AudioManager.Instance.BGVolume;
+        if (oldVolume <= 0) yield break;
+        var currVolume = oldVolume;
+        while (currVolume > 0)
+        {
+            yield return null;
+            currVolume -= Time.deltaTime / 2;
+            AudioManager.Instance.BGVolume = currVolume; // 降低背景音乐音量
+        }
+        AudioManager.Instance.PlayBGAudio(audioClip);
+
+        while (currVolume < oldVolume)
+        {
+            yield return null;
+            currVolume += Time.deltaTime / 2;
+            AudioManager.Instance.BGVolume = currVolume; // 升高背景音乐音量
+        }
+        AudioManager.Instance.BGVolume = oldVolume;
     }
 }

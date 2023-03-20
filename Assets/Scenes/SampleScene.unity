@@ -14,7 +14,7 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 9
-  m_Fog: 0
+  m_Fog: 1
   m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_FogMode: 3
   m_FogDensity: 0.01
@@ -220,7 +220,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 127479094}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6978bb7e94db5df4ba1735629ff584f4, type: 3}
   m_Name: 
@@ -232,26 +232,36 @@ MonoBehaviour:
     SunColor: {r: 0.96470594, g: 0.6156863, b: 0.3019608, a: 1}
     SunRotation: {x: 30, y: 15, z: 0}
     SunQuaternion: {x: 0.25660482, y: 0.12607862, z: -0.033782665, w: 0.9576622}
+    Fog: 1
+    BgAudioClip: {fileID: 8300000, guid: d87b5b3f06f4784468306a3a46b61f1f, type: 3}
   - PhaseDurationTime: 200
     SunIntensity: 1.2
     SunColor: {r: 0.98823535, g: 0.9607844, b: 0.8431373, a: 1}
     SunRotation: {x: 60, y: 0, z: 0}
     SunQuaternion: {x: 0.5, y: 0, z: 0, w: 0.8660254}
+    Fog: 0
+    BgAudioClip: {fileID: 0}
   - PhaseDurationTime: 150
     SunIntensity: 0.3
     SunColor: {r: 1, g: 0.53333336, b: 0.14117648, a: 1}
     SunRotation: {x: 180, y: 90, z: 0}
     SunQuaternion: {x: 0.70710677, y: -0.00000003090862, z: -0.70710677, w: -0.00000003090862}
+    Fog: 0
+    BgAudioClip: {fileID: 8300000, guid: 21538f6160ff48040a8488deb4ed6d5e, type: 3}
   - PhaseDurationTime: 60
     SunIntensity: 0
     SunColor: {r: 0, g: 0, b: 0, a: 1}
     SunRotation: {x: 180, y: 90, z: 0}
     SunQuaternion: {x: 0.70710677, y: -0.00000003090862, z: -0.70710677, w: -0.00000003090862}
+    Fog: 0
+    BgAudioClip: {fileID: 0}
   - PhaseDurationTime: 30
     SunIntensity: 0
     SunColor: {r: 0, g: 0, b: 0, a: 0}
     SunRotation: {x: 180, y: 90, z: 0}
     SunQuaternion: {x: 0.70710677, y: -0.00000003090862, z: -0.70710677, w: -0.00000003090862}
+    Fog: 0
+    BgAudioClip: {fileID: 0}
   TimeScale: 10
 --- !u!114 &127479097
 MonoBehaviour:
@@ -336,6 +346,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Animator: {fileID: 41619144262961730}
   CharacterController: {fileID: 412835111}
+  PlayerModel: {fileID: 130327591116645115}
+  FootStepAudioClips:
+  - {fileID: 8300000, guid: b5a2c539e294a754e9538ff27233f6e3, type: 3}
+  - {fileID: 8300000, guid: 58110cfe635d2324c8bc5aa56c9d8dd7, type: 3}
+  PositionXScope: {x: 0, y: 0}
+  PositionZScope: {x: 0, y: 0}
 --- !u!1 &426879802
 GameObject:
   m_ObjectHideFlags: 0
@@ -569,7 +585,7 @@ Camera:
   m_GameObject: {fileID: 963194225}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 2
+  m_ClearFlags: 1
   m_BackGroundColor: {r: 0.41568628, g: 0.5019608, b: 0.2901961, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
@@ -777,11 +793,28 @@ Animator:
   m_CorrespondingSourceObject: {fileID: 2539860180613121068, guid: e541b8be040af9349a30cbf7adc435ac, type: 3}
   m_PrefabInstance: {fileID: 2570632916320947822}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &127620385950255438 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2479758347299276576, guid: e541b8be040af9349a30cbf7adc435ac, type: 3}
+  m_PrefabInstance: {fileID: 2570632916320947822}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &130327591116645114 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2478032321581427860, guid: e541b8be040af9349a30cbf7adc435ac, type: 3}
   m_PrefabInstance: {fileID: 2570632916320947822}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &130327591116645115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 127620385950255438}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fce96a23fc79634295beb6775e620a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &620707040025849567
 PrefabInstance:
   m_ObjectHideFlags: 0

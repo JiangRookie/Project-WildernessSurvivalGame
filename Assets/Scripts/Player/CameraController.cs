@@ -41,6 +41,6 @@ public class CameraController : SingletonMono<CameraController>
     void InitPositionScope(float mapSizeOnWorld)
     {
         m_PositionXScope = new Vector2(5, mapSizeOnWorld - 5);
-        m_PositionZScope = new Vector2(-1, mapSizeOnWorld - 10);
+        m_PositionZScope = new Vector2(-1, mapSizeOnWorld - 5);
     }
 }

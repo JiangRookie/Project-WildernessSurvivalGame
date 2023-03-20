@@ -6,16 +6,37 @@ using Project_WildernessSurvivalGame;
 /// </summary>
 public class PlayerStateBase : StateBase
 {
-    protected PlayerController PlayerController;
+    protected PlayerController PlayerCtrl;
 
     public override void Init(IStateMachineOwner owner, int stateType, StateMachine stateMachine)
     {
         base.Init(owner, stateType, stateMachine);
-        PlayerController = owner as PlayerController;
+        PlayerCtrl = owner as PlayerController;
     }
 
     protected void PlayerAnimation(string animationName, float fixedTransitionDuration = 0.25f)
     {
-        PlayerController.Animator.CrossFadeInFixedTime(animationName, fixedTransitionDuration);
+        PlayerCtrl.Animator.CrossFadeInFixedTime(animationName, fixedTransitionDuration);
+    }
+
+    protected void ChangeState<T>(PlayerState playerState) where T : PlayerStateBase, new()
+    {
+        StateMachine.ChangeState<T>((int)playerState);
+    }
+
+    protected void ChangeState(PlayerState playerState)
+    {
+        switch (playerState)
+        {
+            case PlayerState.Idle:
+                StateMachine.ChangeState<PlayerIdle>(0);
+                break;
+            case PlayerState.Move:
+                StateMachine.ChangeState<PlayerMove>(1);
+                break;
+            case PlayerState.Attack: break;
+            case PlayerState.BeAttack: break;
+            case PlayerState.Dead: break;
+        }
     }
 }
