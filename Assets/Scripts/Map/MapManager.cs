@@ -212,6 +212,7 @@ namespace Project_WildernessSurvivalGame
         void ShowMapUI()
         {
             m_MapUI = UIManager.Instance.Show<UI_MapWindow>();
+            Debug.Log(m_MapUI);
             if (m_IsInitializedMapUI == false)
             {
                 m_MapUI.InitMap(MapSize, MapChunkSize, MapSizeOnWorld, ForestTexture);

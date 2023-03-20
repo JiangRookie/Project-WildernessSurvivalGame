@@ -10,7 +10,7 @@ namespace JKFrame
     /// <summary>
     /// JKFrame 框架主要的拓展方法
     /// </summary>
-    public static class JKExtension
+    public static class Extension
     {
         #region 通用
 
