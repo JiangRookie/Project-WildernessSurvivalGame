@@ -12,6 +12,7 @@ public class ArchiveManager : Singleton<ArchiveManager>
     public PlayerTransformData PlayerTransformData { get; private set; }
     public MapInitData MapInitData { get; private set; }
     public MapData MapData { get; private set; }
+    public InventoryData InventoryData { get; private set; }
 
     public bool HasArchived { get; private set; }
 
@@ -51,6 +52,9 @@ public class ArchiveManager : Singleton<ArchiveManager>
 
         MapData = new MapData();
         SaveMapData();
+
+        InventoryData = new InventoryData(14);
+        SaveInventoryData();
     }
 
     /// <summary>
@@ -61,6 +65,7 @@ public class ArchiveManager : Singleton<ArchiveManager>
         MapInitData = SaveManager.LoadObject<MapInitData>();
         PlayerTransformData = SaveManager.LoadObject<PlayerTransformData>();
         MapData = SaveManager.LoadObject<MapData>();
+        InventoryData = SaveManager.LoadObject<InventoryData>();
     }
 
     public void SavePlayerTransformData() => SaveManager.SaveObject(PlayerTransformData);
@@ -99,5 +104,10 @@ public class ArchiveManager : Singleton<ArchiveManager>
     public MapChunkData GetMapChunkData(SerializableVector2 chunkIndex)
     {
         return SaveManager.LoadObject<MapChunkData>("Map_" + chunkIndex.ToString());
+    }
+
+    public void SaveInventoryData()
+    {
+        SaveManager.SaveObject(InventoryData);
     }
 }

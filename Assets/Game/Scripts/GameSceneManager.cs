@@ -8,6 +8,12 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
 {
     void Start()
     {
+        #region Test
+
+        ArchiveManager.Instance.CreateNewArchive(10, 1, 1, 0.75f);
+
+        #endregion
+
         UIManager.Instance.CloseAll();
         StartGame();
     }
@@ -35,6 +41,8 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
 
         MapManager.Instance.Init();
         MapManager.Instance.UpdateViewer(PlayerController.Instance.transform);
+
+        UIManager.Instance.Show<UI_InventoryWindow>();
     }
 
     #region 加载进度
