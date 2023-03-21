@@ -91,10 +91,11 @@ namespace Project_WildernessSurvivalGame
         /// </summary>
         /// <param name="chunkIndex">地图块索引</param>
         /// <param name="parent">父物体</param>
+        /// <param name="mapChunkData"></param>
         /// <param name="callBackForMapTexture"></param>
         /// <returns></returns>
         public MapChunkController GenerateMapChunk
-            (Vector2Int chunkIndex, Transform parent, Action callBackForMapTexture)
+            (Vector2Int chunkIndex, Transform parent, MapChunkData mapChunkData, Action callBackForMapTexture)
         {
             // 生成地图块物体
             var mapChunkGameObj = new GameObject("Chunk_" + chunkIndex);
@@ -131,11 +132,20 @@ namespace Project_WildernessSurvivalGame
                 mapChunk.transform.position = position;
                 mapChunkGameObj.transform.SetParent(parent);
 
-                // 生成场景物体
-                var mapObjectModelList = SpawnMapObject(chunkIndex);
-                mapChunk.Init(chunkIndex, isAllForest, mapObjectModelList);
+                // 如果没有指定地图块数据，说明是新建的，需要生成默认数据
+                if (mapChunkData == null)
+                {
+                    mapChunkData = new MapChunkData();
 
-                // mapChunk.Init(chunkIndex, position + new Vector3(chunkSize / 2, 0, chunkSize / 2), isAllForest, mapObjectModelList);
+                    // 生成场景物体数据
+                    mapChunkData.MapObjectList = SpawnMapObject(chunkIndex);
+
+                    // 生成后进行持久化保存
+                    ArchiveManager.Instance.AddAndSaveMapChunkData(chunkIndex, mapChunkData);
+                }
+
+                // 生成场景物体
+                mapChunk.Init(chunkIndex, isAllForest, mapChunkData);
             }
 
             return mapChunk;

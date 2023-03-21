@@ -9,10 +9,7 @@ namespace Project_WildernessSurvivalGame
         public Vector2Int ChunkIndex { get; private set; }
         public MapChunkData MapChunkData { get; private set; }
         public bool IsAllForest { get; private set; }
-
         public bool IsInitializedMapUI { get; private set; } = false;
-
-        // Vector3 CenterPos { get; set; }
 
         bool m_IsActive = false;
         List<GameObject> m_MapObjectList;
@@ -22,24 +19,14 @@ namespace Project_WildernessSurvivalGame
         /// </summary>
         /// <param name="chunkIndex">地图块索引</param>
         /// <param name="isAllForest">地图块是否完全是森林</param>
-        /// <param name="mapObjectList">地图块中的各种地图对象组合成的列表</param>
-        public void Init
-        (
-            Vector2Int chunkIndex
-            /*, Vector3 centerPos*/
-          , bool isAllForest
-          , List<MapChunkMapObjectData> mapObjectList
-        )
+        /// <param name="mapChunkData">地图块中的各种地图对象组合成的列表</param>
+        public void Init(Vector2Int chunkIndex, bool isAllForest, MapChunkData mapChunkData)
         {
             ChunkIndex = chunkIndex;
-
-            // CenterPos = centerPos;
             IsAllForest = isAllForest;
+            MapChunkData = mapChunkData;
 
-            MapChunkData = new MapChunkData();
-            MapChunkData.MapObjectList = mapObjectList;
-
-            m_MapObjectList = new List<GameObject>(mapObjectList.Count);
+            m_MapObjectList = new List<GameObject>(MapChunkData.MapObjectList.Count);
             IsInitializedMapUI = true;
         }
 

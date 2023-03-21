@@ -22,7 +22,7 @@ namespace Project_WildernessSurvivalGame
     [Serializable]
     public class MapData
     {
-        public List<SerializableVector2> MapChunkIndexList; // 当前玩家去过的所有地图块（已经生成过的地图块）
+        public List<SerializableVector2> MapChunkIndexList = new(); // 当前玩家去过的所有地图块（已经生成过的地图块）
     }
 
     /// <summary>

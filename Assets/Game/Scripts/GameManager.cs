@@ -35,11 +35,13 @@ public class GameManager : SingletonMono<GameManager>
     public void CreateNewArchiveEnterGame(int mapSize, int mapSeed, int spawnSeed, float marshLimit)
     {
         ArchiveManager.Instance.CreateNewArchive(mapSize, mapSeed, spawnSeed, marshLimit);
+        SceneManager.LoadScene("Game");
     }
 
     public void UseCurrentArchiveEnterGame()
     {
         ArchiveManager.Instance.LoadCurrentArchive();
+        SceneManager.LoadScene("Game");
     }
 
     #endregion

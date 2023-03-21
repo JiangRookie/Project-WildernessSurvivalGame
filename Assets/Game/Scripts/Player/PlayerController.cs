@@ -12,24 +12,33 @@ namespace Project_WildernessSurvivalGame
     {
         public Animator Animator;
         public CharacterController CharacterController;
-        [SerializeField] PlayerModel PlayerModel;
-        [SerializeField] AudioClip[] FootStepAudioClips;
+        [SerializeField] PlayerModel m_PlayerModel;
+
+        #region 音效资源
+
+        [SerializeField] AudioClip[] m_FootStepAudioClips;
+
+        #endregion
+
         [HideInInspector] public Vector2 PositionXScope;
         [HideInInspector] public Vector2 PositionZScope;
         public Transform PlayerTransform { get; private set; }
-        public float MoveSpeed { get; private set; } = 10;
+        public float MoveSpeed { get; private set; } = 4;
         public float RotateSpeed { get; private set; } = 10;
+
+        #region 存档
+
+        PlayerTransformData m_PlayerTransformData;
+
+        #endregion
 
         StateMachine m_StateMachine;
 
-        void Start()
+        public void Init(float mapSizeOnWorld)
         {
-            Init();
-        }
+            m_PlayerTransformData = ArchiveManager.Instance.PlayerTransformData;
 
-        public void Init()
-        {
-            this.PlayerModel.Init(PlayAudioOnFootStep);
+            m_PlayerModel.Init(PlayAudioOnFootStep);
             PlayerTransform = transform;
 
             m_StateMachine = ResManager.Load<StateMachine>();
@@ -37,7 +46,11 @@ namespace Project_WildernessSurvivalGame
 
             // 设置初始状态为待机状态
             m_StateMachine.ChangeState<PlayerIdle>((int)PlayerState.Idle);
-            InitPositionScope(MapManager.Instance.MapSizeOnWorld);
+            InitPositionScope(mapSizeOnWorld);
+
+            // 初始化存档相关的数据
+            PlayerTransform.localPosition = m_PlayerTransformData.Position;
+            PlayerTransform.localRotation = Quaternion.Euler(m_PlayerTransformData.Rotation);
         }
 
         /// <summary>
@@ -52,7 +65,15 @@ namespace Project_WildernessSurvivalGame
 
         void PlayAudioOnFootStep(int index)
         {
-            AudioManager.Instance.PlayOnShot(FootStepAudioClips[index], PlayerTransform.position, 0.5f);
+            AudioManager.Instance.PlayOnShot(m_FootStepAudioClips[index], PlayerTransform.position, 0.5f);
+        }
+
+        void OnDestroy()
+        {
+            // 把存档数据实际写入磁盘
+            m_PlayerTransformData.Position = PlayerTransform.localPosition;
+            m_PlayerTransformData.Rotation = PlayerTransform.localRotation.eulerAngles;
+            ArchiveManager.Instance.SavePlayerTransformData();
         }
     }
 }

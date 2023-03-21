@@ -42,7 +42,7 @@ public class ArchiveManager : Singleton<ArchiveManager>
 
         MapConfig mapConfig = ConfigManager.Instance.GetConfig<MapConfig>(ConfigName.MAP);
         float mapSizeOnWorld = mapSize * mapConfig.MapChunkSize * mapConfig.CellSize;
-        PlayerTransformData playerTransformData = new PlayerTransformData()
+        PlayerTransformData = new PlayerTransformData
         {
             Position = new Vector3(mapSizeOnWorld / 2, 0, mapSizeOnWorld / 2)
           , Rotation = Vector3.zero
@@ -50,6 +50,7 @@ public class ArchiveManager : Singleton<ArchiveManager>
         SavePlayerTransformData();
 
         MapData = new MapData();
+        Debug.Log(MapData);
         SaveMapData();
     }
 
@@ -74,7 +75,7 @@ public class ArchiveManager : Singleton<ArchiveManager>
     /// <param name="mapChunkData">mapChunkData</param>
     public void AddAndSaveMapChunkData(Vector2Int chunkIndex, MapChunkData mapChunkData)
     {
-        var index = chunkIndex.Convert2SerializableVector2();
+        SerializableVector2 index = chunkIndex.Convert2SerializableVector2();
         MapData.MapChunkIndexList.Add(index);
         SaveMapData();
         SaveManager.SaveObject(mapChunkData, "Map_" + index.ToString());

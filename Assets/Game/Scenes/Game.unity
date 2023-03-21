@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -136,7 +136,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3304632367700951243, guid: 35592af50a118a347aef20848bfd00b8, type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3304632367700951243, guid: 35592af50a118a347aef20848bfd00b8, type: 3}
       propertyPath: m_LocalPosition.x
@@ -189,6 +189,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 127479095}
+  - component: {fileID: 127479098}
   - component: {fileID: 127479096}
   - component: {fileID: 127479097}
   m_Layer: 0
@@ -211,7 +212,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &127479096
 MonoBehaviour:
@@ -280,6 +281,18 @@ MonoBehaviour:
   blendDistance: 0
   weight: 1
   priority: 0
+--- !u!114 &127479098
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 127479094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66dd1bcd758707949b9bf074bf0434db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &412835110
 GameObject:
   m_ObjectHideFlags: 0
@@ -330,7 +343,7 @@ Transform:
   m_Children:
   - {fileID: 130327591116645114}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &412835113
 MonoBehaviour:
@@ -346,8 +359,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Animator: {fileID: 41619144262961730}
   CharacterController: {fileID: 412835111}
-  PlayerModel: {fileID: 130327591116645115}
-  FootStepAudioClips:
+  m_PlayerModel: {fileID: 130327591116645115}
+  m_FootStepAudioClips:
   - {fileID: 8300000, guid: b5a2c539e294a754e9538ff27233f6e3, type: 3}
   - {fileID: 8300000, guid: 58110cfe635d2324c8bc5aa56c9d8dd7, type: 3}
   PositionXScope: {x: 0, y: 0}
@@ -447,7 +460,7 @@ RectTransform:
   - {fileID: 1105008100}
   - {fileID: 620707040025849568}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -706,9 +719,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b1042af434d6db4f89bd9711f7c0d7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TargetTrans: {fileID: 412835112}
-  Offset: {x: 0, y: 5.6, z: -4.3}
-  MoveSpeed: 10
+  m_TargetTrans: {fileID: 412835112}
+  m_Offset: {x: 0, y: 5.6, z: -4.3}
+  m_MoveSpeed: 10
 --- !u!224 &1105008100 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5867046237035180625, guid: dc6df14a0fc94e64f9ca8044ff0b5788, type: 3}
@@ -744,7 +757,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1848916780
 MonoBehaviour:
@@ -758,35 +771,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad1023dade0d1bb42aa72e8d874a34c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ForestTexture: {fileID: 2800000, guid: dba6f76464dba9749bb89b27680278fa, type: 3}
-  MarshTextures:
-  - {fileID: 2800000, guid: a9708c663e4d6254b95a05868b0e0c4d, type: 3}
-  - {fileID: 2800000, guid: 6508db6352c5209448a5447178320295, type: 3}
-  - {fileID: 2800000, guid: a06054dc0b5dbae4f9a99f5d0f78459e, type: 3}
-  - {fileID: 2800000, guid: f8c3eecd426817b4687b4175ccee13dd, type: 3}
-  - {fileID: 2800000, guid: 4dae0076e463de247bbcd2c5419b32de, type: 3}
-  - {fileID: 2800000, guid: 161159043ea09f64893f9823047bdc1f, type: 3}
-  - {fileID: 2800000, guid: 6918b8fea70a71a4ab3d75dfb7de5013, type: 3}
-  - {fileID: 2800000, guid: 0ca1f39000b3b774ca91178b64e3ba47, type: 3}
-  - {fileID: 2800000, guid: d2ae5748901b3754bb6b9f6714dd082b, type: 3}
-  - {fileID: 2800000, guid: 5e5386c57556c9148b5e85389abdb35c, type: 3}
-  - {fileID: 2800000, guid: 55d799a1fb4c0434a9d3fddfe24c2f03, type: 3}
-  - {fileID: 2800000, guid: 49a8b7c328f87c041a79c05f83540b71, type: 3}
-  - {fileID: 2800000, guid: 9ba3c35622b606b40a8fb266fd740048, type: 3}
-  - {fileID: 2800000, guid: f9d133f3d0973964ab985301bddab983, type: 3}
-  - {fileID: 2800000, guid: e123f66cc2c9f60408fd602d46ce54fb, type: 3}
-  MapMaterial: {fileID: 2100000, guid: b97c228123826db44932fa53170b99e5, type: 2}
-  MapConfig: {fileID: 11400000, guid: c597c966f483fa04c98dcdd5080b7cf1, type: 2}
-  MapSize: 5
-  MapChunkSize: 5
-  CellSize: 2
   MapSizeOnWorld: 0
-  NoiseLacunarity: 0.02
-  MapGenerationSeed: 0
-  MapRandomObjectSpawnSeed: 0
-  MarshLimit: 0.8
-  Viewer: {fileID: 412835112}
-  ViewDistance: 1
   UpdateVisibleChunkTime: 1
 --- !u!95 &41619144262961730 stripped
 Animator:

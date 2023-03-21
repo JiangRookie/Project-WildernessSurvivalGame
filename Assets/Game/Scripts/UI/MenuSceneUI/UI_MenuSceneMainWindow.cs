@@ -42,7 +42,11 @@ public class UI_MenuSceneMainWindow : UI_WindowBase
         Close();
     }
 
-    void ContinueGame() { }
+    void ContinueGame()
+    {
+        Close();
+        GameManager.Instance.UseCurrentArchiveEnterGame();
+    }
 
     void QuitGame()
     {
