@@ -88,7 +88,7 @@ namespace Project_WildernessSurvivalGame
         /// <param name="mapObjectList">地图块中的各种地图对象组合成的列表</param>
         /// <param name="texture">纹理</param>
         public void AddMapChunk
-            (Vector2Int chunkIndex, List<MapObjectModelInMapChunk> mapObjectList, Texture2D texture = null)
+            (Vector2Int chunkIndex, List<MapChunkMapObjectData> mapObjectList, Texture2D texture = null)
         {
             // 获取地图块 UI 的 RectTransform 并设置地图块 UI 的位置和大小
             var mapChunkRect = Instantiate(MapItemPrefab, Content).GetComponent<RectTransform>();

@@ -8,19 +8,38 @@ public enum CursorState
 
 public class GameManager : SingletonMono<GameManager>
 {
-    #region 鼠标指针
-
     [SerializeField] Texture2D[] m_CursorTextures;
 
     void Start()
     {
+        Init();
+    }
+
+    void Init()
+    {
         SetCursorState(CursorState.Normal);
     }
+
+    #region 鼠标指针
 
     public void SetCursorState(CursorState state)
     {
         Texture2D texture2D = m_CursorTextures[(int)state];
         Cursor.SetCursor(texture2D, Vector2.zero, CursorMode.Auto);
+    }
+
+    #endregion
+
+    #region 跨场景
+
+    public void CreateNewArchiveEnterGame(int mapSize, int mapSeed, int spawnSeed, float marshLimit)
+    {
+        ArchiveManager.Instance.CreateNewArchive(mapSize, mapSeed, spawnSeed, marshLimit);
+    }
+
+    public void UseCurrentArchiveEnterGame()
+    {
+        ArchiveManager.Instance.LoadCurrentArchive();
     }
 
     #endregion

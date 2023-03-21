@@ -305,9 +305,9 @@ namespace Project_WildernessSurvivalGame
         /// 生成地图上的游戏物体
         /// </summary>
         /// <remarks>遍历地图顶点，根据spawnConfig中的配置信息及其概率进行随机生成，并在对应位置实例化物体</remarks>
-        List<MapObjectModelInMapChunk> SpawnMapObject(Vector2Int chunkIndex)
+        List<MapChunkMapObjectData> SpawnMapObject(Vector2Int chunkIndex)
         {
-            var mapChunkMapObjectList = new List<MapObjectModelInMapChunk>();
+            var mapChunkMapObjectList = new List<MapChunkMapObjectData>();
             var cellSize = m_MapGrid.CellSize;
             var offsetX = chunkIndex.x * m_MapConfig.MapChunkSize;
             var offsetZ = chunkIndex.y * m_MapConfig.MapChunkSize;
@@ -357,7 +357,7 @@ namespace Project_WildernessSurvivalGame
                     );
                     mapChunkMapObjectList.Add
                     (
-                        new MapObjectModelInMapChunk { ConfigID = configID, Position = position }
+                        new MapChunkMapObjectData { ConfigID = configID, Position = position }
                     );
                 }
             }

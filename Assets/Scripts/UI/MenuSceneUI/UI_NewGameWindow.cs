@@ -16,7 +16,7 @@ public class UI_NewGameWindow : UI_WindowBase
     {
         m_BackButton.onClick.AddListener(Close);
         m_StartGameButton.onClick.AddListener(StartGame);
-        
+
         m_BackButton.BindMouseEffect();
         m_StartGameButton.BindMouseEffect();
     }
@@ -40,5 +40,6 @@ public class UI_NewGameWindow : UI_WindowBase
             ? Random.Range(int.MinValue, int.MaxValue)
             : int.Parse(m_SpawnSeedInputField.text);
         UIManager.Instance.CloseAll();
+        GameManager.Instance.CreateNewArchiveEnterGame(mapSize, mapSeed, spawnSeed, marshLimit);
     }
 }

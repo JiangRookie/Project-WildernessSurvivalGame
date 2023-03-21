@@ -32,7 +32,8 @@ public class UI_MenuSceneMainWindow : UI_WindowBase
     {
         base.OnShow();
 
-        // 当前是否需要显示”继续游戏“按钮
+        // 当前是否需要显示”继续游戏“按钮 
+        m_ContinueGameButton.gameObject.SetActive(ArchiveManager.Instance.HasArchived);
     }
 
     void NewGame()

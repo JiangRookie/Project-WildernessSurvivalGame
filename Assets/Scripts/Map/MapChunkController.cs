@@ -4,26 +4,6 @@ using UnityEngine;
 
 namespace Project_WildernessSurvivalGame
 {
-    /// <summary>
-    /// 地图块中的各种地图对象个体
-    /// </summary>
-    public class MapObjectModelInMapChunk
-    {
-        public int ConfigID;
-        public Vector3 Position;
-    }
-
-    /// <summary>
-    /// 地图块数据
-    /// </summary>
-    public class MapChunkData
-    {
-        /// <summary>
-        /// 地图块中的各种地图对象组合成的列表
-        /// </summary>
-        public List<MapObjectModelInMapChunk> MapObjectList = new();
-    }
-
     public class MapChunkController : MonoBehaviour
     {
         public Vector2Int ChunkIndex { get; private set; }
@@ -48,7 +28,7 @@ namespace Project_WildernessSurvivalGame
             Vector2Int chunkIndex
             /*, Vector3 centerPos*/
           , bool isAllForest
-          , List<MapObjectModelInMapChunk> mapObjectList
+          , List<MapChunkMapObjectData> mapObjectList
         )
         {
             ChunkIndex = chunkIndex;
