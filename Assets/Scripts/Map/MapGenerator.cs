@@ -12,53 +12,40 @@ namespace Project_WildernessSurvivalGame
     /// </summary>
     public class MapGenerator
     {
-        #region Field
+        #region 运行时逻辑变量
 
-        Texture2D m_ForestTexture;
-        Texture2D[] m_MarshTextures;
-        Material m_MapMaterial;
-        Material m_MarshMaterial;
         MapGrid m_MapGrid;
+        Material m_MarshMaterial;
         Mesh m_ChunkMesh;
-
-        [Tooltip("一行/列地图块数量")] int m_MapSize;       //  m_MapSize -> m_MapChunkNum
-        [Tooltip("一个地图块的格子数量")] int m_MapChunkSize; //  m_MapChunkSize -> m_CellNum
-        float m_CellSize;
-        float m_NoiseLacunarity;
-        int m_MapGenerationSeed;
-        int m_MapObjectRandomSpawnSeed;
-        float m_MarshLimit;
-
         int m_ForestSpawnWeightTotal; // 森林生成物品的权重总和
         int m_MarshSpawnWeightTotal;  // 沼泽生成物品的权重总和
+        static readonly int s_MainTex = Shader.PropertyToID("_MainTex");
+
+        #endregion
+
+        #region 配置
 
         /// <summary>
         /// Key：顶点类型 Value：可以生成的地图对象配置的ID列表
         /// </summary>
         Dictionary<MapVertexType, List<int>> m_SpawnConfigDict;
 
-        static readonly int s_MainTex = Shader.PropertyToID("_MainTex");
+        MapConfig m_MapConfig;
+
+        #endregion
+
+        #region 存档
+
+        MapInitData m_MapInitData;
 
         #endregion
 
         public MapGenerator
-        (
-            Texture2D forestTexture, Texture2D[] marshTextures, Material mapMaterial
-          , Dictionary<MapVertexType, List<int>> spawnConfigDict, int mapSize, int mapChunkSize, float cellSize
-          , float noiseLacunarity, int mapGenerationSeed, int mapObjectRandomSpawnSeed, float marshLimit
-        )
+            (MapConfig mapConfig, MapInitData mapInitData, Dictionary<MapVertexType, List<int>> spawnConfigDict)
         {
-            m_ForestTexture = forestTexture;
-            m_MarshTextures = marshTextures;
-            m_MapMaterial = mapMaterial;
+            m_MapConfig = mapConfig;
+            m_MapInitData = mapInitData;
             m_SpawnConfigDict = spawnConfigDict;
-            m_MapSize = mapSize;
-            m_MapChunkSize = mapChunkSize;
-            m_CellSize = cellSize;
-            m_NoiseLacunarity = noiseLacunarity;
-            m_MapGenerationSeed = mapGenerationSeed;
-            m_MapObjectRandomSpawnSeed = mapObjectRandomSpawnSeed;
-            m_MarshLimit = marshLimit;
         }
 
         /// <summary>
@@ -67,25 +54,26 @@ namespace Project_WildernessSurvivalGame
         public void GenerateMapData()
         {
             // 应用地图随机生成种子
-            Random.InitState(m_MapGenerationSeed);
+            Random.InitState(m_MapInitData.MapGenerationSeed);
 
-            var rowTotalCellNum = m_MapSize * m_MapChunkSize; // 一行/列总格子数
-            var mapChunkLength = m_MapChunkSize * m_CellSize; // 单个地图块的长度
+            var rowTotalCellNum = m_MapInitData.MapSize * m_MapConfig.MapChunkSize; // 一行/列总格子数
+            var mapChunkLength = m_MapConfig.MapChunkSize * m_MapConfig.CellSize;   // 单个地图块的长度
 
-            var noiseMap = GenerateNoiseMap(rowTotalCellNum, rowTotalCellNum, m_NoiseLacunarity);
+            var noiseMap = GenerateNoiseMap(rowTotalCellNum, rowTotalCellNum, m_MapConfig.NoiseLacunarity);
 
-            m_MapGrid = new MapGrid(rowTotalCellNum, rowTotalCellNum, m_CellSize);
-            m_MapGrid.CalculateMapVertexType(noiseMap, m_MarshLimit);
+            m_MapGrid = new MapGrid(rowTotalCellNum, rowTotalCellNum, m_MapConfig.CellSize);
+            m_MapGrid.CalculateMapVertexType(noiseMap, m_MapInitData.MarshLimit);
 
-            m_MapMaterial.mainTexture = m_ForestTexture; // Set the main texture
-            m_MapMaterial.SetTextureScale(s_MainTex, new Vector2(mapChunkLength, mapChunkLength)); // 设置纹理缩放
-            m_MarshMaterial = new Material(m_MapMaterial); // 通过复制其他材质的所有属性来创建一个沼泽材质
+            m_MapConfig.MapMaterial.mainTexture = m_MapConfig.ForestTexture; // Set the main texture
+            m_MapConfig.MapMaterial.SetTextureScale(s_MainTex, new Vector2(mapChunkLength, mapChunkLength)); // 设置纹理缩放
+            m_MarshMaterial = new Material(m_MapConfig.MapMaterial); // 通过复制其他材质的所有属性来创建一个沼泽材质
             m_MarshMaterial.SetTextureScale(s_MainTex, Vector2.one);
 
-            m_ChunkMesh = GenerateMapChunkMesh(m_MapChunkSize, m_MapChunkSize, m_CellSize);
+            m_ChunkMesh = GenerateMapChunkMesh(m_MapConfig.MapChunkSize, m_MapConfig.MapChunkSize
+                                             , m_MapConfig.CellSize);
 
             // 应用地图随机对象（花草树木）生成种子
-            Random.InitState(m_MapObjectRandomSpawnSeed);
+            Random.InitState(m_MapInitData.MapObjectRandomSpawnSeed);
 
             List<int> idList = m_SpawnConfigDict[MapVertexType.Forest];
             foreach (int id in idList)
@@ -127,7 +115,7 @@ namespace Project_WildernessSurvivalGame
                 // allForest = isAllForest;
                 if (isAllForest)
                 {
-                    mapChunkGameObj.AddComponent<MeshRenderer>().sharedMaterial = m_MapMaterial;
+                    mapChunkGameObj.AddComponent<MeshRenderer>().sharedMaterial = m_MapConfig.MapMaterial;
                 }
                 else
                 {
@@ -138,7 +126,7 @@ namespace Project_WildernessSurvivalGame
                 }
                 callBackForMapTexture?.Invoke();
 
-                var chunkSize = m_MapChunkSize * m_CellSize; // 地图块大小
+                var chunkSize = m_MapConfig.MapChunkSize * m_MapConfig.CellSize; // 地图块大小
                 var position = new Vector3(chunkIndex.x * chunkSize, 0, chunkIndex.y * chunkSize);
                 mapChunk.transform.position = position;
                 mapChunkGameObj.transform.SetParent(parent);
@@ -200,7 +188,6 @@ namespace Project_WildernessSurvivalGame
         /// <param name="width">宽</param>
         /// <param name="height">高</param>
         /// <param name="lacunarity">间隙，影响平滑度</param>
-        /// <param name="seed">随机种子</param>
         /// <returns></returns>
         static float[,] GenerateNoiseMap(int width, int height, float lacunarity)
         {
@@ -231,16 +218,16 @@ namespace Project_WildernessSurvivalGame
         IEnumerator GenerateMapTexture(Vector2Int chunkIndex, Action<Texture2D, bool> callBack)
         {
             // 当前地图块的偏移量 找到这个地图块具体的每一个格子
-            var cellOffsetX = chunkIndex.x * m_MapChunkSize + 1;
-            var cellOffsetZ = chunkIndex.y * m_MapChunkSize + 1;
+            var cellOffsetX = chunkIndex.x * m_MapConfig.MapChunkSize + 1;
+            var cellOffsetZ = chunkIndex.y * m_MapConfig.MapChunkSize + 1;
             bool isAllForest = true; // 是不是一张完整的森林地图块
 
             // 遍历地图快检查是否只有森林类型的格子
-            for (int z = 0; z < m_MapChunkSize; z++)
+            for (int z = 0; z < m_MapConfig.MapChunkSize; z++)
             {
                 if (isAllForest == false) break;
 
-                for (int x = 0; x < m_MapChunkSize; x++)
+                for (int x = 0; x < m_MapConfig.MapChunkSize; x++)
                 {
                     var cell = m_MapGrid.GetCell(x + cellOffsetX, z + cellOffsetZ);
                     if (cell != null && cell.TextureIndex != 0)
@@ -255,18 +242,18 @@ namespace Project_WildernessSurvivalGame
 
             if (isAllForest == false) // 如果是沼泽
             {
-                var textureCellSize = m_ForestTexture.width;           // 贴图都是正方形
-                var mapChunkLength = m_MapChunkSize * textureCellSize; // 整个地图块的边长
+                var textureCellSize = m_MapConfig.ForestTexture.width;           // 贴图都是正方形
+                var mapChunkLength = m_MapConfig.MapChunkSize * textureCellSize; // 整个地图块的边长
                 mapTexture = new Texture2D(mapChunkLength, mapChunkLength, TextureFormat.RGB24, false);
 
                 // 遍历每一个格子
-                for (int chunkZ = 0; chunkZ < m_MapChunkSize; chunkZ++)
+                for (int chunkZ = 0; chunkZ < m_MapConfig.MapChunkSize; chunkZ++)
                 {
                     yield return null; // 一帧只绘制一列像素
 
                     int pixelOffsetZ = chunkZ * textureCellSize;
 
-                    for (int chunkX = 0; chunkX < m_MapChunkSize; chunkX++)
+                    for (int chunkX = 0; chunkX < m_MapConfig.MapChunkSize; chunkX++)
                     {
                         int pixelOffsetX = chunkX * textureCellSize;
 
@@ -287,15 +274,15 @@ namespace Project_WildernessSurvivalGame
 
                                 if (textureIndex < 0) // <0 是森林
                                 {
-                                    color = m_ForestTexture.GetPixel(cellX, cellZ);
+                                    color = m_MapConfig.ForestTexture.GetPixel(cellX, cellZ);
                                 }
                                 else
                                 {
-                                    color = m_MarshTextures[textureIndex].GetPixel(cellX, cellZ);
+                                    color = m_MapConfig.MarshTextures[textureIndex].GetPixel(cellX, cellZ);
 
                                     if (color.a < 1f)
                                     {
-                                        color = m_ForestTexture.GetPixel(cellX, cellZ);
+                                        color = m_MapConfig.ForestTexture.GetPixel(cellX, cellZ);
                                     }
                                 }
 
@@ -322,13 +309,13 @@ namespace Project_WildernessSurvivalGame
         {
             var mapChunkMapObjectList = new List<MapObjectModelInMapChunk>();
             var cellSize = m_MapGrid.CellSize;
-            var offsetX = chunkIndex.x * m_MapChunkSize;
-            var offsetZ = chunkIndex.y * m_MapChunkSize;
+            var offsetX = chunkIndex.x * m_MapConfig.MapChunkSize;
+            var offsetZ = chunkIndex.y * m_MapConfig.MapChunkSize;
 
             // 遍历地图顶点
-            for (int x = 1; x < m_MapChunkSize; x++)
+            for (int x = 1; x < m_MapConfig.MapChunkSize; x++)
             {
-                for (int z = 1; z < m_MapChunkSize; z++)
+                for (int z = 1; z < m_MapConfig.MapChunkSize; z++)
                 {
                     var mapVertex = m_MapGrid.GetVertex(x + offsetX, z + offsetZ);
 

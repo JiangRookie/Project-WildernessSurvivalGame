@@ -6,47 +6,33 @@ namespace Project_WildernessSurvivalGame
 {
     public class MapManager : SingletonMono<MapManager>
     {
-        #region Field
-
-        #region 地图美术资源
-
-        public Texture2D ForestTexture;
-        public Texture2D[] MarshTextures;
-        public Material MapMaterial;
-        public MapConfig MapConfig;
-
-        #endregion
-
-        #region 地图尺寸
-
-        [Tooltip("一行/列地图块数量")] public int MapSize;       //  m_MapSize -> m_MapChunkNum
-        [Tooltip("一个地图块的格子数量")] public int MapChunkSize; //  m_MapChunkSize -> m_CellNum
-        public float CellSize;
-        float m_ChunkSizeOnWorld;    // 在世界中实际的地图块尺寸 MapChunkSize * CellSize
-        public float MapSizeOnWorld; // 在世界中实际的地图尺寸 m_ChunkSizeOnWorld * MapSize
-
-        #endregion
-
-        #region 地图的随机参数
-
-        public float NoiseLacunarity;
-        public int MapGenerationSeed;
-        public int MapRandomObjectSpawnSeed;
-        public float MarshLimit;
-
-        #endregion
+        #region 运行时逻辑变量
 
         MapGenerator m_MapGenerator;
 
-        public Transform Viewer;
-        public int ViewDistance; // 单位：地图块（Chunk）
-        Vector3 m_LastViewerPos = Vector3.one * -1;
+        public float MapSizeOnWorld; // 在世界中实际的地图尺寸 MapSize * m_ChunkSizeOnWorld
+        float m_ChunkSizeOnWorld;    // 在世界中实际的地图块尺寸 MapChunkSize * CellSize
 
+        public Transform Viewer;
         public float UpdateVisibleChunkTime = 1f; // 刷新可视地图块时间间隔
         bool m_CanUpdateChunk = true;
+        Vector3 m_LastViewerPos = Vector3.one * -1;
+
         Dictionary<Vector2Int, MapChunkController> m_MapChunkDict;  // 全部已有的地图块
         List<MapChunkController> m_FinallyDisplayChunkList = new(); // 最终显示出来的地图块
-        Dictionary<MapVertexType, List<int>> m_SpawnConfigDict;     // 某个类型可以生成哪些地图对象配置的ID
+
+        #endregion
+
+        #region 配置
+
+        public MapConfig MapConfig;
+        Dictionary<MapVertexType, List<int>> m_SpawnConfigDict; // 某个类型可以生成哪些地图对象配置的ID
+
+        #endregion
+
+        #region 存档
+
+        public MapInitData MapInitData;
 
         #endregion
 
@@ -58,6 +44,8 @@ namespace Project_WildernessSurvivalGame
 
         void Init()
         {
+            MapConfig = ConfigManager.Instance.GetConfig<MapConfig>(ConfigName.MAP);
+
             // 获取地图物品配置，初始化地图生成对象配置字典
             Dictionary<int, ConfigBase> mapConfigDict = ConfigManager.Instance.GetConfigs(ConfigName.MapObject);
             m_SpawnConfigDict = new Dictionary<MapVertexType, List<int>>();
@@ -70,15 +58,13 @@ namespace Project_WildernessSurvivalGame
             }
 
             // 初始化地图生成器
-            m_MapGenerator = new MapGenerator(ForestTexture, MarshTextures, MapMaterial, m_SpawnConfigDict, MapSize
-                                            , MapChunkSize, CellSize, NoiseLacunarity, MapGenerationSeed
-                                            , MapRandomObjectSpawnSeed, MarshLimit);
+            m_MapGenerator = new MapGenerator(MapConfig, MapInitData, m_SpawnConfigDict);
             m_MapGenerator.GenerateMapData();
 
             // 初始化地图块字典
             m_MapChunkDict = new Dictionary<Vector2Int, MapChunkController>();
-            m_ChunkSizeOnWorld = MapChunkSize * CellSize;
-            MapSizeOnWorld = m_ChunkSizeOnWorld * MapSize;
+            m_ChunkSizeOnWorld = MapConfig.MapChunkSize * MapConfig.CellSize;
+            MapSizeOnWorld = m_ChunkSizeOnWorld * MapInitData.MapSize;
             DoUpdateVisibleChunk();
         }
 
@@ -124,8 +110,8 @@ namespace Project_WildernessSurvivalGame
             {
                 var chunkIndex = m_FinallyDisplayChunkList[i].ChunkIndex;
 
-                if (Mathf.Abs(chunkIndex.x - currChunkIndex.x) > ViewDistance
-                 || Mathf.Abs(chunkIndex.y - currChunkIndex.y) > ViewDistance)
+                if (Mathf.Abs(chunkIndex.x - currChunkIndex.x) > MapConfig.ViewDistance
+                 || Mathf.Abs(chunkIndex.y - currChunkIndex.y) > MapConfig.ViewDistance)
                 {
                     m_FinallyDisplayChunkList[i].SetActive(false);
                     m_FinallyDisplayChunkList.RemoveAt(i);
@@ -139,13 +125,13 @@ namespace Project_WildernessSurvivalGame
             // Debug.Log("开启需要显示的地图块"); // 代码走到了这里
 
             // 从左下角开始遍历地图块
-            int startX = currChunkIndex.x - ViewDistance;
-            int startY = currChunkIndex.y - ViewDistance;
+            int startX = currChunkIndex.x - MapConfig.ViewDistance;
+            int startY = currChunkIndex.y - MapConfig.ViewDistance;
 
             // int count = 2 * ViewDistance + 1;
-            for (int x = 0; x < 2 * ViewDistance + 1; x++)
+            for (int x = 0; x < 2 * MapConfig.ViewDistance + 1; x++)
             {
-                for (int y = 0; y < 2 * ViewDistance + 1; y++)
+                for (int y = 0; y < 2 * MapConfig.ViewDistance + 1; y++)
                 {
                     m_CanUpdateChunk = false;
                     Invoke(nameof(ResetCanUpdateChunkFlag), UpdateVisibleChunkTime);
@@ -178,8 +164,8 @@ namespace Project_WildernessSurvivalGame
         /// <returns>返回地图块的索引</returns>
         Vector2Int GetMapChunkIndex(Vector3 worldPos)
         {
-            int x = Mathf.Clamp(value: Mathf.RoundToInt(worldPos.x / m_ChunkSizeOnWorld), 1, MapSize);
-            int z = Mathf.Clamp(value: Mathf.RoundToInt(worldPos.z / m_ChunkSizeOnWorld), 1, MapSize);
+            int x = Mathf.Clamp(value: Mathf.RoundToInt(worldPos.x / m_ChunkSizeOnWorld), 1, MapInitData.MapSize);
+            int z = Mathf.Clamp(value: Mathf.RoundToInt(worldPos.z / m_ChunkSizeOnWorld), 1, MapInitData.MapSize);
             return new Vector2Int(x, z);
         }
 
@@ -190,7 +176,7 @@ namespace Project_WildernessSurvivalGame
         void GenerateMapChunk(Vector2Int index)
         {
             // 检查坐标的合法性，限制坐标在第一象限
-            if (index.x > MapSize - 1 || index.y > MapSize - 1) return;
+            if (index.x > MapInitData.MapSize - 1 || index.y > MapInitData.MapSize - 1) return;
             if (index.x < 0 || index.y < 0) return;
 
             var chunk = m_MapGenerator.GenerateMapChunk(index, transform, () =>
@@ -215,7 +201,7 @@ namespace Project_WildernessSurvivalGame
             Debug.Log(m_MapUI);
             if (m_IsInitializedMapUI == false)
             {
-                m_MapUI.InitMap(MapSize, MapChunkSize, MapSizeOnWorld, ForestTexture);
+                m_MapUI.InitMap(MapInitData.MapSize, MapConfig.MapChunkSize, MapSizeOnWorld, MapConfig.ForestTexture);
                 m_IsInitializedMapUI = true;
             }
             UpdateMapUI();

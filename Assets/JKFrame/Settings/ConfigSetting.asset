@@ -34,6 +34,7 @@ MonoBehaviour:
     - {fileID: 11400000, guid: ab82bfb2301c92d40b4acb8ed960cb14, type: 2}
     - {fileID: 11400000, guid: 9a30bb3f135b22344a5560c1039a9a2f, type: 2}
     - {fileID: 11400000, guid: 975aa3cc575a5ae46b263df81f09c89d, type: 2}
+    - {fileID: 11400000, guid: c597c966f483fa04c98dcdd5080b7cf1, type: 2}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -52,7 +53,7 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 12
-      Data: 1
+      Data: 2
     - Name: 
       Entry: 7
       Data: 
@@ -286,6 +287,47 @@ MonoBehaviour:
     - Name: $v
       Entry: 10
       Data: 17
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 1
+      Data: Map
+    - Name: $v
+      Entry: 7
+      Data: 4|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[JKFrame.ConfigBase,
+        Framework]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 5|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 0
+    - Name: $v
+      Entry: 10
+      Data: 18
     - Name: 
       Entry: 8
       Data: 
