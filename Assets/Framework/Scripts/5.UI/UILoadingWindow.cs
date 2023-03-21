@@ -6,9 +6,8 @@ namespace JKFrame
     [UIElement(true, "UI/UI_LoadingWindow", 4)]
     public class UILoadingWindow : UI_WindowBase
     {
-        [SerializeField] Text ProgressText;
-
-        [SerializeField] Image FillImage;
+        [SerializeField] Text m_ProgressText;
+        [SerializeField] Image m_FillImage;
 
         public override void OnShow()
         {
@@ -40,8 +39,8 @@ namespace JKFrame
         /// </summary>
         void UpdateProgress(float progressValue)
         {
-            ProgressText.text = (int)(progressValue * 100) + "%";
-            FillImage.fillAmount = (int)(progressValue * 100);
+            m_ProgressText.text = (int)(progressValue * 100) + "%";
+            m_FillImage.fillAmount = (int)(progressValue * 100);
         }
     }
 }

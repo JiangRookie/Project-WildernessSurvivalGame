@@ -6,8 +6,6 @@ using Project_WildernessSurvivalGame;
 /// </summary>
 public class GameSceneManager : LogicManagerBase<GameSceneManager>
 {
-    public bool IsInitialized { get; private set; }
-
     void Start()
     {
         UIManager.Instance.CloseAll();
@@ -23,6 +21,9 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
         IsInitialized = false;
 
         // 加载进度条
+        m_LoadingWindow = UIManager.Instance.Show<UI_GameLoadingWindow>();
+        m_LoadingWindow.UpdateProgress(0);
+
         // 确定地图初始化配置数据
         MapConfig mapConfig = ConfigManager.Instance.GetConfig<MapConfig>(ConfigName.MAP);
         float mapSizeOnWorld
@@ -35,4 +36,33 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
         MapManager.Instance.Init();
         MapManager.Instance.UpdateViewer(PlayerController.Instance.transform);
     }
+
+    #region 加载进度
+
+    UI_GameLoadingWindow m_LoadingWindow;
+    public bool IsInitialized { get; private set; }
+
+    /// <summary>
+    /// 更新进度
+    /// </summary>
+    /// <param name="current"></param>
+    /// <param name="max"></param>
+    public void UpdateMapProgress(int current, int max)
+    {
+        float temp = max;
+        int currentProgress = (int)(100 / temp * current);
+        if (current == max)
+        {
+            m_LoadingWindow.UpdateProgress(100);
+            IsInitialized = true;
+            m_LoadingWindow.Close();
+            m_LoadingWindow = null;
+        }
+        else
+        {
+            m_LoadingWindow.UpdateProgress(currentProgress);
+        }
+    }
+
+    #endregion
 }

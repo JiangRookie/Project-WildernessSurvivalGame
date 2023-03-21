@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using JKFrame;
 using UnityEngine;
@@ -22,6 +23,11 @@ namespace Project_WildernessSurvivalGame
         }
 
         public void Init()
+        {
+            StartCoroutine(DoInit());
+        }
+
+        IEnumerator DoInit()
         {
             // 确定存档
             m_MapInitData = ArchiveManager.Instance.MapInitData;
@@ -50,13 +56,31 @@ namespace Project_WildernessSurvivalGame
             m_ChunkSizeOnWorld = m_MapConfig.MapChunkSize * m_MapConfig.CellSize;
             MapSizeOnWorld = m_ChunkSizeOnWorld * m_MapInitData.MapSize;
 
-            Debug.Log(m_MapData);
-            // 根据存档去恢复整个地图的状态
-            for (int i = 0; i < m_MapData.MapChunkIndexList.Count; i++)
+            int mapChunkCount = m_MapData.MapChunkIndexList.Count;
+            if (mapChunkCount > 0) // 旧存档
             {
-                SerializableVector2 chunkIndex = m_MapData.MapChunkIndexList[i];
-                MapChunkData mapChunkData = ArchiveManager.Instance.GetMapChunkData(chunkIndex);
-                GenerateMapChunk(chunkIndex.Convert2Vector2Int(), mapChunkData);
+                // 根据存档去恢复整个地图的状态
+                for (int i = 0; i < mapChunkCount; i++)
+                {
+                    SerializableVector2 chunkIndex = m_MapData.MapChunkIndexList[i];
+                    MapChunkData mapChunkData = ArchiveManager.Instance.GetMapChunkData(chunkIndex);
+                    GenerateMapChunk(chunkIndex.Convert2Vector2Int(), mapChunkData);
+                }
+
+                // 进度条的时间要跟地图块的数量关联
+                for (int i = 1; i <= mapChunkCount; i++)
+                {
+                    yield return new WaitForSeconds(0.01f);
+                    GameSceneManager.Instance.UpdateMapProgress(i, mapChunkCount);
+                }
+            }
+            else // 新存档
+            {
+                for (int i = 1; i <= 10; i++) // 加载九宫格
+                {
+                    yield return new WaitForSeconds(0.01f);
+                    GameSceneManager.Instance.UpdateMapProgress(i, 10);
+                }
             }
         }
 
@@ -207,7 +231,6 @@ namespace Project_WildernessSurvivalGame
         void ShowMapUI()
         {
             m_MapUI = UIManager.Instance.Show<UI_MapWindow>();
-            Debug.Log(m_MapUI);
             if (m_IsInitializedMapUI == false)
             {
                 m_MapUI.InitMap(m_MapInitData.MapSize, m_MapConfig.MapChunkSize, MapSizeOnWorld

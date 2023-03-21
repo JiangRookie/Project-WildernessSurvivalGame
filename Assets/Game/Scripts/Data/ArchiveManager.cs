@@ -50,7 +50,6 @@ public class ArchiveManager : Singleton<ArchiveManager>
         SavePlayerTransformData();
 
         MapData = new MapData();
-        Debug.Log(MapData);
         SaveMapData();
     }
 
