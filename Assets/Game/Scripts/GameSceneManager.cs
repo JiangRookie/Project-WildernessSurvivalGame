@@ -10,7 +10,8 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
     {
         #region Test
 
-        ArchiveManager.Instance.CreateNewArchive(10, 1, 1, 0.75f);
+        // ArchiveManager.Instance.CreateNewArchive(10, 1, 1, 0.75f);
+        ArchiveManager.Instance.LoadCurrentArchive();
 
         #endregion
 

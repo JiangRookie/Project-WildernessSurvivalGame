@@ -21,7 +21,7 @@ public class ItemData
         switch (itemData.Config.ItemType)
         {
             case ItemType.Weapon:
-                itemData.ItemTypeData = new Item_WeaponData();
+                itemData.ItemTypeData = new Item_WeaponData { Durability = 100 };
                 break;
             case ItemType.Consumable:
                 itemData.ItemTypeData = new Item_ConsumableData { Count = 1 };
@@ -39,7 +39,11 @@ public class ItemData
 /// </summary>
 public interface IItemTypeData { }
 
-[Serializable] public class Item_WeaponData : IItemTypeData { }
+[Serializable]
+public class Item_WeaponData : IItemTypeData
+{
+    public int Durability;
+}
 
 [Serializable]
 public class Item_ConsumableData : IItemTypeData

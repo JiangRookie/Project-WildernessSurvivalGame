@@ -54,6 +54,22 @@ public class ArchiveManager : Singleton<ArchiveManager>
         SaveMapData();
 
         InventoryData = new InventoryData(14);
+
+        #region Test
+
+        InventoryData.ItemDatas[0] = ItemData.CreateItemData(0);
+        ((Item_MaterialData)InventoryData.ItemDatas[0].ItemTypeData).Count = 5;
+
+        InventoryData.ItemDatas[1] = ItemData.CreateItemData(1);
+
+        InventoryData.ItemDatas[2] = ItemData.CreateItemData(2);
+        ((Item_WeaponData)InventoryData.ItemDatas[2].ItemTypeData).Durability = 60;
+
+        InventoryData.ItemDatas[3] = ItemData.CreateItemData(3);
+        ((Item_ConsumableData)InventoryData.ItemDatas[3].ItemTypeData).Count = 10;
+
+        #endregion
+
         SaveInventoryData();
     }
 

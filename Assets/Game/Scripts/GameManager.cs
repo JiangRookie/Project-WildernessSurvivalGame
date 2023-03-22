@@ -22,9 +22,13 @@ public class GameManager : SingletonMono<GameManager>
 
     #region 鼠标指针
 
-    public void SetCursorState(CursorState state)
+    CursorState m_CurrentCursorState;
+
+    public void SetCursorState(CursorState cursorState)
     {
-        Texture2D texture2D = m_CursorTextures[(int)state];
+        if (cursorState == m_CurrentCursorState) return;
+        m_CurrentCursorState = cursorState;
+        Texture2D texture2D = m_CursorTextures[(int)cursorState];
         Cursor.SetCursor(texture2D, Vector2.zero, CursorMode.Auto);
     }
 

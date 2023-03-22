@@ -48,6 +48,8 @@ namespace JKFrame
         [SerializeField] UITips UITips; // 提示窗
         const string TipsLocalizationPackName = "Tips";
 
+        public RectTransform DragLayer;
+
         public void AddTips(string info) => UITips.AddTips(info);
 
         public void AddTipsByLocalization(string tipsKeyName)
