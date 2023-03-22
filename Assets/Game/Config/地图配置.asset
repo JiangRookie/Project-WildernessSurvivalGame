@@ -42,4 +42,4 @@ MonoBehaviour:
   - {fileID: 2800000, guid: f9d133f3d0973964ab985301bddab983, type: 3}
   - {fileID: 2800000, guid: e123f66cc2c9f60408fd602d46ce54fb, type: 3}
   MapMaterial: {fileID: 2100000, guid: b97c228123826db44932fa53170b99e5, type: 2}
-  ViewDistance: 2
+  ViewDistance: 1

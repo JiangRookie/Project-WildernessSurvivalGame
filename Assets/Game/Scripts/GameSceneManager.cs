@@ -10,8 +10,17 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
     {
         #region Test
 
-        // ArchiveManager.Instance.CreateNewArchive(10, 1, 1, 0.75f);
-        ArchiveManager.Instance.LoadCurrentArchive();
+        if (IsTest)
+        {
+            if (IsCreateNewArchive)
+            {
+                ArchiveManager.Instance.CreateNewArchive(10, 1, 1, 0.75f);
+            }
+            else
+            {
+                ArchiveManager.Instance.LoadCurrentArchive();
+            }
+        }
 
         #endregion
 
@@ -40,11 +49,18 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
         PlayerController.Instance.Init(mapSizeOnWorld);
         CameraController.Instance.Init(mapSizeOnWorld);
 
-        MapManager.Instance.Init();
         MapManager.Instance.UpdateViewer(PlayerController.Instance.transform);
+        MapManager.Instance.Init();
 
         UIManager.Instance.Show<UI_InventoryWindow>();
     }
+
+    #region 测试逻辑
+
+    public bool IsTest = true;
+    public bool IsCreateNewArchive;
+
+    #endregion
 
     #region 加载进度
 

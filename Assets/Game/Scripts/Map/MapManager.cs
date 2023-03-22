@@ -9,6 +9,7 @@ namespace Project_WildernessSurvivalGame
     {
         void Update()
         {
+            if (GameSceneManager.Instance.IsInitialized == false) return;
             UpdateVisibleChunk();
             if (Input.GetKeyDown(KeyCode.M))
             {
@@ -54,7 +55,7 @@ namespace Project_WildernessSurvivalGame
             // 初始化地图块字典
             m_MapChunkDict = new Dictionary<Vector2Int, MapChunkController>();
             m_ChunkSizeOnWorld = m_MapConfig.MapChunkSize * m_MapConfig.CellSize;
-            MapSizeOnWorld = m_ChunkSizeOnWorld * m_MapInitData.MapSize;
+            m_MapSizeOnWorld = m_ChunkSizeOnWorld * m_MapInitData.MapSize;
 
             int mapChunkCount = m_MapData.MapChunkIndexList.Count;
             if (mapChunkCount > 0) // 旧存档
@@ -64,8 +65,9 @@ namespace Project_WildernessSurvivalGame
                 {
                     SerializableVector2 chunkIndex = m_MapData.MapChunkIndexList[i];
                     MapChunkData mapChunkData = ArchiveManager.Instance.GetMapChunkData(chunkIndex);
-                    GenerateMapChunk(chunkIndex.Convert2Vector2Int(), mapChunkData);
+                    GenerateMapChunk(chunkIndex.Convert2Vector2Int(), mapChunkData).gameObject.SetActive(false);
                 }
+                DoUpdateVisibleChunk();
 
                 // 进度条的时间要跟地图块的数量关联
                 for (int i = 1; i <= mapChunkCount; i++)
@@ -76,6 +78,7 @@ namespace Project_WildernessSurvivalGame
             }
             else // 新存档
             {
+                DoUpdateVisibleChunk();
                 for (int i = 1; i <= 10; i++) // 加载九宫格
                 {
                     yield return new WaitForSeconds(0.01f);
@@ -93,6 +96,7 @@ namespace Project_WildernessSurvivalGame
         {
             // 如果观察者没有移动过，不需要刷新
             if (m_Viewer.position == m_LastViewerPos) return;
+            m_LastViewerPos = m_Viewer.position;
 
             // 更新地图 UI
             if (m_IsShowingMap) m_MapUI.UpdatePivot(m_Viewer.position);
@@ -133,8 +137,6 @@ namespace Project_WildernessSurvivalGame
             {
                 for (int y = 0; y < 2 * count + 1; y++)
                 {
-                    m_CanUpdateChunk = false;
-                    Invoke(nameof(ResetCanUpdateChunkFlag), UPDATE_VISIBLE_CHUNK_TIME);
                     Vector2Int chunkIndex = new Vector2Int(startX + x, startY + y);
 
                     // 在地图字典中，也就是之前加载过，但是不一定加载完成了，因为贴图会在协程中执行，执行完成后才算初始化完毕
@@ -145,6 +147,7 @@ namespace Project_WildernessSurvivalGame
                         {
                             m_FinallyDisplayChunkList.Add(chunk);
                             chunk.SetActive(true);
+                            Debug.Log(1);
                         }
                     }
                     else // MapChunkDict.TryGetValue(chunkIndex, out var chunk) == false 之前没有加载过
@@ -153,6 +156,8 @@ namespace Project_WildernessSurvivalGame
                     }
                 }
             }
+            m_CanUpdateChunk = false;
+            Invoke(nameof(ResetCanUpdateChunkFlag), UPDATE_VISIBLE_CHUNK_TIME);
 
             #endregion
         }
@@ -173,11 +178,11 @@ namespace Project_WildernessSurvivalGame
         /// 生成地图块
         /// </summary>
         /// <returns></returns>
-        void GenerateMapChunk(Vector2Int index, MapChunkData mapChunkData = null)
+        MapChunkController GenerateMapChunk(Vector2Int index, MapChunkData mapChunkData = null)
         {
             // 检查坐标的合法性，限制坐标在第一象限
-            if (index.x > m_MapInitData.MapSize - 1 || index.y > m_MapInitData.MapSize - 1) return;
-            if (index.x < 0 || index.y < 0) return;
+            if (index.x > m_MapInitData.MapSize - 1 || index.y > m_MapInitData.MapSize - 1) return null;
+            if (index.x < 0 || index.y < 0) return null;
 
             MapChunkController chunk = m_MapGenerator.GenerateMapChunk
             (
@@ -187,14 +192,16 @@ namespace Project_WildernessSurvivalGame
                 }
             );
             m_MapChunkDict.Add(index, chunk); // 加入到地图块列表
+
+            return chunk;
         }
 
         void ResetCanUpdateChunkFlag() => m_CanUpdateChunk = true;
 
         #region 运行时逻辑变量
 
-        public float MapSizeOnWorld; // 在世界中实际的地图尺寸 MapSize * m_ChunkSizeOnWorld
-        float m_ChunkSizeOnWorld;    // 在世界中实际的地图块尺寸 MapChunkSize * CellSize
+        float m_MapSizeOnWorld;   // 在世界中实际的地图尺寸 MapSize * m_ChunkSizeOnWorld
+        float m_ChunkSizeOnWorld; // 在世界中实际的地图块尺寸 MapChunkSize * CellSize
         MapGenerator m_MapGenerator;
 
         Transform m_Viewer;
@@ -233,7 +240,7 @@ namespace Project_WildernessSurvivalGame
             m_MapUI = UIManager.Instance.Show<UI_MapWindow>();
             if (m_IsInitializedMapUI == false)
             {
-                m_MapUI.InitMap(m_MapInitData.MapSize, m_MapConfig.MapChunkSize, MapSizeOnWorld
+                m_MapUI.InitMap(m_MapInitData.MapSize, m_MapConfig.MapChunkSize, m_MapSizeOnWorld
                               , m_MapConfig.ForestTexture);
                 m_IsInitializedMapUI = true;
             }

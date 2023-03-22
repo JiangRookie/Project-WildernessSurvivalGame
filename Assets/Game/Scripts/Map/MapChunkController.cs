@@ -33,28 +33,30 @@ namespace Project_WildernessSurvivalGame
         /// <param name="active">是否激活</param>
         public void SetActive(bool active)
         {
-            if (m_IsActive == active) return;
-            m_IsActive = active;
-            gameObject.SetActive(m_IsActive);
-            var mapObjectList = MapChunkData.MapObjectList;
-            if (m_IsActive) // 如果当前地图块为激活状态，则从对象池中获取所有物体
+            if (m_IsActive != active)
             {
-                foreach (var mapObject in mapObjectList)
+                m_IsActive = active;
+                gameObject.SetActive(m_IsActive);
+                var mapObjectList = MapChunkData.MapObjectList;
+                if (m_IsActive) // 如果当前地图块为激活状态，则从对象池中获取所有物体
                 {
-                    var config = ConfigManager.Instance.GetConfig<MapObjectConfig>(
-                        ConfigName.MapObject, mapObject.ConfigID);
-                    var gameObj = PoolManager.Instance.GetGameObject(config.Prefab, transform);
-                    gameObj.transform.position = mapObject.Position;
-                    m_MapObjectList.Add(gameObj);
+                    foreach (var mapObject in mapObjectList)
+                    {
+                        var config = ConfigManager.Instance.GetConfig<MapObjectConfig>(
+                            ConfigName.MapObject, mapObject.ConfigID);
+                        var gameObj = PoolManager.Instance.GetGameObject(config.Prefab, transform);
+                        gameObj.transform.position = mapObject.Position;
+                        m_MapObjectList.Add(gameObj);
+                    }
                 }
-            }
-            else // 如果当前地图块为失活状态，则把所有物体放回对象池
-            {
-                for (int i = 0; i < mapObjectList.Count; i++)
+                else // 如果当前地图块为失活状态，则把所有物体放回对象池
                 {
-                    PoolManager.Instance.PushGameObject(m_MapObjectList[i]);
+                    for (int i = 0; i < mapObjectList.Count; i++)
+                    {
+                        PoolManager.Instance.PushGameObject(m_MapObjectList[i]);
+                    }
+                    m_MapObjectList.Clear();
                 }
-                m_MapObjectList.Clear();
             }
         }
     }
