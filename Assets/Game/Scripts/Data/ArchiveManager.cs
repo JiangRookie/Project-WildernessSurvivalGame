@@ -13,6 +13,7 @@ public class ArchiveManager : Singleton<ArchiveManager>
     public MapInitData MapInitData { get; private set; }
     public MapData MapData { get; private set; }
     public InventoryData InventoryData { get; private set; }
+    public TimeData TimeData { get; private set; }
 
     public bool HasArchived { get; private set; }
 
@@ -71,6 +72,15 @@ public class ArchiveManager : Singleton<ArchiveManager>
         #endregion
 
         SaveInventoryData();
+
+        TimeConfig timeConfig = ConfigManager.Instance.GetConfig<TimeConfig>(ConfigName.TIME);
+        TimeData = new TimeData
+        {
+            StateIndex = 0 // 第一个阶段默认是早上
+          , CalculateTime = timeConfig.TimeStateConfigs[0].PhaseDurationTime
+          , DayNum = 0
+        };
+        SaveTimeData();
     }
 
     /// <summary>
@@ -82,6 +92,7 @@ public class ArchiveManager : Singleton<ArchiveManager>
         PlayerTransformData = SaveManager.LoadObject<PlayerTransformData>();
         MapData = SaveManager.LoadObject<MapData>();
         InventoryData = SaveManager.LoadObject<InventoryData>();
+        TimeData = SaveManager.LoadObject<TimeData>();
     }
 
     public void SavePlayerTransformData() => SaveManager.SaveObject(PlayerTransformData);
@@ -125,5 +136,10 @@ public class ArchiveManager : Singleton<ArchiveManager>
     public void SaveInventoryData()
     {
         SaveManager.SaveObject(InventoryData);
+    }
+
+    public void SaveTimeData()
+    {
+        SaveManager.SaveObject(TimeData);
     }
 }

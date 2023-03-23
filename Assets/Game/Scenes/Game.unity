@@ -246,44 +246,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6978bb7e94db5df4ba1735629ff584f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MainLight: {fileID: 705507994}
-  TimeStateDatas:
-  - PhaseDurationTime: 150
-    SunIntensity: 0.5
-    SunColor: {r: 0.96470594, g: 0.6156863, b: 0.3019608, a: 1}
-    SunRotation: {x: 30, y: 15, z: 0}
-    SunQuaternion: {x: 0.25660482, y: 0.12607862, z: -0.033782665, w: 0.9576622}
-    Fog: 1
-    BgAudioClip: {fileID: 8300000, guid: d87b5b3f06f4784468306a3a46b61f1f, type: 3}
-  - PhaseDurationTime: 200
-    SunIntensity: 1.2
-    SunColor: {r: 0.98823535, g: 0.9607844, b: 0.8431373, a: 1}
-    SunRotation: {x: 60, y: 0, z: 0}
-    SunQuaternion: {x: 0.5, y: 0, z: 0, w: 0.8660254}
-    Fog: 0
-    BgAudioClip: {fileID: 0}
-  - PhaseDurationTime: 150
-    SunIntensity: 0.3
-    SunColor: {r: 1, g: 0.53333336, b: 0.14117648, a: 1}
-    SunRotation: {x: 180, y: 90, z: 0}
-    SunQuaternion: {x: 0.70710677, y: -0.00000003090862, z: -0.70710677, w: -0.00000003090862}
-    Fog: 0
-    BgAudioClip: {fileID: 8300000, guid: 21538f6160ff48040a8488deb4ed6d5e, type: 3}
-  - PhaseDurationTime: 60
-    SunIntensity: 0
-    SunColor: {r: 0, g: 0, b: 0, a: 1}
-    SunRotation: {x: 180, y: 90, z: 0}
-    SunQuaternion: {x: 0.70710677, y: -0.00000003090862, z: -0.70710677, w: -0.00000003090862}
-    Fog: 0
-    BgAudioClip: {fileID: 0}
-  - PhaseDurationTime: 30
-    SunIntensity: 0
-    SunColor: {r: 0, g: 0, b: 0, a: 0}
-    SunRotation: {x: 180, y: 90, z: 0}
-    SunQuaternion: {x: 0.70710677, y: -0.00000003090862, z: -0.70710677, w: -0.00000003090862}
-    Fog: 0
-    BgAudioClip: {fileID: 0}
-  TimeScale: 10
+  m_MainLight: {fileID: 705507994}
+  m_TimeScale: 1
 --- !u!114 &127479097
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -793,7 +757,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad1023dade0d1bb42aa72e8d874a34c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MapSizeOnWorld: 0
 --- !u!95 &41619144262961730 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 2539860180613121068, guid: e541b8be040af9349a30cbf7adc435ac, type: 3}

@@ -132,10 +132,11 @@ namespace Project_WildernessSurvivalGame
             // 从左下角开始遍历地图块
             int startX = currChunkIndex.x - m_MapConfig.ViewDistance;
             int startY = currChunkIndex.y - m_MapConfig.ViewDistance;
+            
             int count = 2 * m_MapConfig.ViewDistance + 1;
-            for (int x = 0; x < 2 * count + 1; x++)
+            for (int x = 0; x < count; x++)
             {
-                for (int y = 0; y < 2 * count + 1; y++)
+                for (int y = 0; y < count; y++)
                 {
                     Vector2Int chunkIndex = new Vector2Int(startX + x, startY + y);
 
@@ -147,7 +148,6 @@ namespace Project_WildernessSurvivalGame
                         {
                             m_FinallyDisplayChunkList.Add(chunk);
                             chunk.SetActive(true);
-                            Debug.Log(1);
                         }
                     }
                     else // MapChunkDict.TryGetValue(chunkIndex, out var chunk) == false 之前没有加载过
