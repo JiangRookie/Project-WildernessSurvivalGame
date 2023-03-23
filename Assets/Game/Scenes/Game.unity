@@ -278,7 +278,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTest: 1
-  IsCreateNewArchive: 0
+  IsCreateNewArchive: 1
 --- !u!1 &412835110
 GameObject:
   m_ObjectHideFlags: 0
@@ -346,9 +346,6 @@ MonoBehaviour:
   Animator: {fileID: 41619144262961730}
   CharacterController: {fileID: 412835111}
   m_PlayerModel: {fileID: 130327591116645115}
-  m_FootStepAudioClips:
-  - {fileID: 8300000, guid: b5a2c539e294a754e9538ff27233f6e3, type: 3}
-  - {fileID: 8300000, guid: 58110cfe635d2324c8bc5aa56c9d8dd7, type: 3}
   PositionXScope: {x: 0, y: 0}
   PositionZScope: {x: 0, y: 0}
 --- !u!1 &426879802

@@ -14,17 +14,12 @@ namespace Project_WildernessSurvivalGame
         public CharacterController CharacterController;
         [SerializeField] PlayerModel m_PlayerModel;
 
-        #region 音效资源
-
-        [SerializeField] AudioClip[] m_FootStepAudioClips;
-
-        #endregion
-
         [HideInInspector] public Vector2 PositionXScope;
         [HideInInspector] public Vector2 PositionZScope;
         public Transform PlayerTransform { get; private set; }
-        public float MoveSpeed { get; private set; } = 4;
-        public float RotateSpeed { get; private set; } = 10;
+        PlayerConfig m_PlayerConfig;
+        public float MoveSpeed => m_PlayerConfig.MoveSpeed;
+        public float RotateSpeed => m_PlayerConfig.RotateSpeed;
 
         #region 存档
 
@@ -36,6 +31,7 @@ namespace Project_WildernessSurvivalGame
 
         public void Init(float mapSizeOnWorld)
         {
+            m_PlayerConfig = ConfigManager.Instance.GetConfig<PlayerConfig>(ConfigName.PLAYER);
             m_PlayerTransformData = ArchiveManager.Instance.PlayerTransformData;
 
             m_PlayerModel.Init(PlayAudioOnFootStep);
@@ -65,7 +61,8 @@ namespace Project_WildernessSurvivalGame
 
         void PlayAudioOnFootStep(int index)
         {
-            AudioManager.Instance.PlayOnShot(m_FootStepAudioClips[index], PlayerTransform.position, 0.5f);
+            AudioManager.Instance.PlayOnShot(m_PlayerConfig.FootStepAudioClips[index], PlayerTransform.position
+                                           , m_PlayerConfig.FootStepVolume);
         }
 
         void OnDestroy()
