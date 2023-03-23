@@ -1,3 +1,4 @@
+using System;
 using JKFrame;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -55,23 +56,29 @@ public interface IItemTypeInfo { }
 /// <summary>
 /// 武器类型信息
 /// </summary>
+[Serializable]
 public class Item_WeaponInfo : IItemTypeInfo
 {
     [LabelText("攻击力")] public float AttackValue;
 }
 
 /// <summary>
+/// 可堆叠的物品类型数据基类
+/// </summary>
+[Serializable]
+public abstract class PileItemTypeInfoBase
+{
+    [LabelText("堆积上限")] public int MaxCount;
+}
+
+/// <summary>
 /// 消耗品类型信息
 /// </summary>
-public class Item_ConsumableInfo : IItemTypeInfo
-{
-    [LabelText("堆积上限")] public float MaxCount;
-}
+[Serializable]
+public class Item_ConsumableInfo : PileItemTypeInfoBase, IItemTypeInfo { }
 
 /// <summary>
 /// 材料类型信息
 /// </summary>
-public class Item_MaterialInfo : IItemTypeInfo
-{
-    [LabelText("堆积上限")] public float MaxCount;
-}
+[Serializable]
+public class Item_MaterialInfo : PileItemTypeInfoBase, IItemTypeInfo { }

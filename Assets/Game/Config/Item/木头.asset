@@ -25,7 +25,7 @@ MonoBehaviour:
       Entry: 7
       Data: 0|Item_MaterialInfo, Assembly-CSharp
     - Name: MaxCount
-      Entry: 4
+      Entry: 3
       Data: 10
     - Name: 
       Entry: 8

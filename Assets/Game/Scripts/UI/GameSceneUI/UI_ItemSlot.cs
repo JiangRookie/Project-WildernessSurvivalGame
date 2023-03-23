@@ -86,6 +86,11 @@ public class UI_ItemSlot : MonoBehaviour
         m_IconImage.gameObject.SetActive(true);
         m_IconImage.sprite = ItemData.Config.Icon;
 
+        UpdateCountTextView();
+    }
+
+    public void UpdateCountTextView()
+    {
         switch (ItemData.Config.ItemType)
         {
             case ItemType.Weapon:
@@ -183,17 +188,17 @@ public class UI_ItemSlot : MonoBehaviour
         }
         else
         {
-            // 快捷栏内部交换物品
-            ItemData dragItem = ItemData;
-            ItemData targetItem = CurrentMouseEnterSlot.ItemData;
-            InitData(targetItem);
-            CurrentMouseEnterSlot.InitData(dragItem);
-
-            // 跨窗口交换物品
-            m_OwnerWindow.SetItem(Index, targetItem);
-            CurrentMouseEnterSlot.m_OwnerWindow.SetItem(CurrentMouseEnterSlot.Index, dragItem);
+            SwapSlotItem(this, CurrentMouseEnterSlot);
         }
         ArchiveManager.Instance.SaveInventoryData();
+    }
+
+    public static void SwapSlotItem(UI_ItemSlot currSlot, UI_ItemSlot targetSlot)
+    {
+        ItemData currData = currSlot.ItemData;
+        ItemData targetData = targetSlot.ItemData;
+        currSlot.m_OwnerWindow.SetItem(currSlot.Index, targetData);
+        targetSlot.m_OwnerWindow.SetItem(targetSlot.Index, currData);
     }
 
     #endregion

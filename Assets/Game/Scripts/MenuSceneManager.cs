@@ -18,6 +18,6 @@ public class MenuSceneManager : LogicManagerBase<MenuSceneManager>
 
     void PlayFireSound()
     {
-        AudioManager.Instance.PlayOnShot(BgAudio2, Vector3.zero, 1, false);
+        AudioManager.Instance.PlayOneShot(BgAudio2, Vector3.zero, 1, false);
     }
 }

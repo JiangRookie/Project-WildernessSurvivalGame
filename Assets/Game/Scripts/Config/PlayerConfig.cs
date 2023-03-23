@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using JKFrame;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -30,6 +31,13 @@ public class PlayerConfig : ConfigBase
 
     [FoldoutGroup("角色配置"), LabelText("脚步声大小")]
     public float FootStepVolume = 0.5f;
+
+    #endregion
+
+    #region 杂项
+
+    [FoldoutGroup("杂项"), LabelText("音效配置")]
+    public Dictionary<AudioType, AudioClip> AudioClipDict;
 
     #endregion
 }

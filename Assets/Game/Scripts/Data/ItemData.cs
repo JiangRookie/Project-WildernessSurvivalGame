@@ -46,13 +46,11 @@ public class Item_WeaponData : IItemTypeData
 }
 
 [Serializable]
-public class Item_ConsumableData : IItemTypeData
+public abstract class PileItemTypeDataBase
 {
     public int Count;
 }
 
-[Serializable]
-public class Item_MaterialData : IItemTypeData
-{
-    public int Count;
-}
+[Serializable] public class Item_ConsumableData : PileItemTypeDataBase, IItemTypeData { }
+
+[Serializable] public class Item_MaterialData : PileItemTypeDataBase, IItemTypeData { }

@@ -278,7 +278,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTest: 1
-  IsCreateNewArchive: 0
+  IsCreateNewArchive: 1
 --- !u!1 &412835110
 GameObject:
   m_ObjectHideFlags: 0

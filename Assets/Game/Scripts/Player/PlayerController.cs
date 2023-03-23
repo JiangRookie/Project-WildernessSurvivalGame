@@ -34,7 +34,8 @@ namespace Project_WildernessSurvivalGame
             m_PlayerTransformData.Position = PlayerTransform.localPosition;
             m_PlayerTransformData.Rotation = PlayerTransform.localRotation.eulerAngles;
             ArchiveManager.Instance.SavePlayerTransformData();
-            ArchiveManager.Instance.SavePlayerCoreData();
+            ArchiveManager.Instance.SavePlayerCoreData(); 
+            ArchiveManager.Instance.SaveInventoryData();
         }
 
         public void Init(float mapSizeOnWorld)
@@ -73,7 +74,7 @@ namespace Project_WildernessSurvivalGame
 
         void PlayAudioOnFootStep(int index)
         {
-            AudioManager.Instance.PlayOnShot(m_PlayerConfig.FootStepAudioClips[index], PlayerTransform.position
+            AudioManager.Instance.PlayOneShot(m_PlayerConfig.FootStepAudioClips[index], PlayerTransform.position
                                            , m_PlayerConfig.FootStepVolume);
         }
 
