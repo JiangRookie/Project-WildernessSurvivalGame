@@ -45,7 +45,7 @@ public class TimeManager : LogicManagerBase<TimeManager>
         EventManager.EventTrigger<bool>(EventName.UpdateTimeState, m_TimeData.StateIndex <= 1);
 
         // 发送当前是第几天的事件
-        EventManager.EventTrigger<int>(EventName.UpdateTimeState, m_TimeData.DayNum);
+        EventManager.EventTrigger<int>(EventName.UpdateDayNum, m_TimeData.DayNum);
     }
 
     void UpdateTime()

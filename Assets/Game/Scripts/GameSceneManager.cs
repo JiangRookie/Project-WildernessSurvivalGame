@@ -56,6 +56,9 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
         // 初始化快捷栏 UI
         UIManager.Instance.Show<UI_InventoryWindow>();
 
+        // 显示主信息面板
+        UIManager.Instance.Show<UI_MainInfoWindow>();
+
         // 初始化时间
         TimeManager.Instance.Init();
     }

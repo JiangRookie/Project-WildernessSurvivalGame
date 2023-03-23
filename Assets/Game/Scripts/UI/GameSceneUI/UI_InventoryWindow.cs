@@ -1,7 +1,7 @@
 using JKFrame;
 using UnityEngine;
 
-[UIElement(true, "UI/UI_InventoryWindow", 1)]
+[UIElement(false, "UI/UI_InventoryWindow", 1)]
 public class UI_InventoryWindow : UI_WindowBase
 {
     [SerializeField] UI_ItemSlot[] m_Slots;
