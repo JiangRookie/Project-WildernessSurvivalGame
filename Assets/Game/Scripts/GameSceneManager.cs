@@ -45,8 +45,13 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
         float mapSizeOnWorld
             = ArchiveManager.Instance.MapInitData.MapSize * mapConfig.MapChunkSize * mapConfig.CellSize;
 
+        // 显示主信息面板：
+        // 依赖于 TimeManager 的信息发送
+        // 依赖于 PlayerController 的信息发送
+        UIManager.Instance.Show<UI_MainInfoWindow>(); // Add、RemoveEvent
+
         // 初始化角色、相机
-        PlayerController.Instance.Init(mapSizeOnWorld);
+        PlayerController.Instance.Init(mapSizeOnWorld); // EventTrigger
         CameraController.Instance.Init(mapSizeOnWorld);
 
         // 初始化地图
@@ -56,11 +61,8 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
         // 初始化快捷栏 UI
         UIManager.Instance.Show<UI_InventoryWindow>();
 
-        // 显示主信息面板
-        UIManager.Instance.Show<UI_MainInfoWindow>();
-
         // 初始化时间
-        TimeManager.Instance.Init();
+        TimeManager.Instance.Init(); // EventTrigger
     }
 
     #region 测试逻辑

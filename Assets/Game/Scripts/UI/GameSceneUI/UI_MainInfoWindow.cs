@@ -11,18 +11,29 @@ public class UI_MainInfoWindow : UI_WindowBase
     [SerializeField] Image m_HungryFillImage;
     [SerializeField] Image m_HpFillImage;
 
+    PlayerConfig m_PlayerConfig;
+
+    public override void Init()
+    {
+        m_PlayerConfig = ConfigManager.Instance.GetConfig<PlayerConfig>(ConfigName.PLAYER);
+    }
+
     protected override void RegisterEventListener()
     {
         base.RegisterEventListener();
         EventManager.AddEventListener<bool>(EventName.UpdateTimeState, UpdateTimeState);
         EventManager.AddEventListener<int>(EventName.UpdateDayNum, UpdateDayNum);
+        EventManager.AddEventListener<float>(EventName.UpdatePlayerHp, UpdatePlayerHp);
+        EventManager.AddEventListener<float>(EventName.UpdatePlayerHungry, UpdatePlayerHungry);
     }
 
     protected override void CancelEventListener()
     {
         base.CancelEventListener();
-        EventManager.AddEventListener<bool>(EventName.UpdateTimeState, UpdateTimeState);
-        EventManager.AddEventListener<int>(EventName.UpdateDayNum, UpdateDayNum);
+        EventManager.RemoveEventListener<bool>(EventName.UpdateTimeState, UpdateTimeState);
+        EventManager.RemoveEventListener<int>(EventName.UpdateDayNum, UpdateDayNum);
+        EventManager.RemoveEventListener<float>(EventName.UpdatePlayerHp, UpdatePlayerHp);
+        EventManager.RemoveEventListener<float>(EventName.UpdatePlayerHungry, UpdatePlayerHungry);
     }
 
     void UpdateTimeState(bool isSun)
@@ -33,5 +44,15 @@ public class UI_MainInfoWindow : UI_WindowBase
     void UpdateDayNum(int dayNum)
     {
         m_DayNumText.text = "Day " + (dayNum + 1).ToString();
+    }
+
+    void UpdatePlayerHp(float hp)
+    {
+        m_HpFillImage.fillAmount = hp / m_PlayerConfig.MaxHp;
+    }
+
+    void UpdatePlayerHungry(float hungry)
+    {
+        m_HungryFillImage.fillAmount = hungry / m_PlayerConfig.MaxHungry;
     }
 }

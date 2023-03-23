@@ -14,6 +14,7 @@ public class ArchiveManager : Singleton<ArchiveManager>
     public MapData MapData { get; private set; }
     public InventoryData InventoryData { get; private set; }
     public TimeData TimeData { get; private set; }
+    public PlayerCoreData PlayerCoreData { get; private set; }
 
     public bool HasArchived { get; private set; }
 
@@ -50,6 +51,14 @@ public class ArchiveManager : Singleton<ArchiveManager>
           , Rotation = Vector3.zero
         };
         SavePlayerTransformData();
+
+        PlayerConfig playerConfig = ConfigManager.Instance.GetConfig<PlayerConfig>(ConfigName.PLAYER);
+        PlayerCoreData = new PlayerCoreData
+        {
+            Hp = playerConfig.MaxHp
+          , Hungry = playerConfig.MaxHungry
+        };
+        SavePlayerCoreData();
 
         MapData = new MapData();
         SaveMapData();
@@ -93,9 +102,12 @@ public class ArchiveManager : Singleton<ArchiveManager>
         MapData = SaveManager.LoadObject<MapData>();
         InventoryData = SaveManager.LoadObject<InventoryData>();
         TimeData = SaveManager.LoadObject<TimeData>();
+        PlayerCoreData = SaveManager.LoadObject<PlayerCoreData>();
     }
 
     public void SavePlayerTransformData() => SaveManager.SaveObject(PlayerTransformData);
+
+    public void SavePlayerCoreData() => SaveManager.SaveObject(PlayerCoreData);
 
     public void SaveMapData() => SaveManager.SaveObject(MapData);
 

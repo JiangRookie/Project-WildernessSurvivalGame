@@ -13,26 +13,35 @@ namespace Project_WildernessSurvivalGame
         public Animator Animator;
         public CharacterController CharacterController;
         [SerializeField] PlayerModel m_PlayerModel;
-
         [HideInInspector] public Vector2 PositionXScope;
         [HideInInspector] public Vector2 PositionZScope;
-        public Transform PlayerTransform { get; private set; }
         PlayerConfig m_PlayerConfig;
-        public float MoveSpeed => m_PlayerConfig.MoveSpeed;
-        public float RotateSpeed => m_PlayerConfig.RotateSpeed;
+        StateMachine m_StateMachine;
 
         #region 存档
 
         PlayerTransformData m_PlayerTransformData;
+        PlayerCoreData m_PlayerCoreData;
 
         #endregion
 
-        StateMachine m_StateMachine;
+        public Transform PlayerTransform { get; private set; }
+        public float MoveSpeed => m_PlayerConfig.MoveSpeed;
+        public float RotateSpeed => m_PlayerConfig.RotateSpeed;
+
+        void OnDestroy()
+        {
+            // 把存档数据实际写入磁盘
+            m_PlayerTransformData.Position = PlayerTransform.localPosition;
+            m_PlayerTransformData.Rotation = PlayerTransform.localRotation.eulerAngles;
+            ArchiveManager.Instance.SavePlayerTransformData();
+        }
 
         public void Init(float mapSizeOnWorld)
         {
             m_PlayerConfig = ConfigManager.Instance.GetConfig<PlayerConfig>(ConfigName.PLAYER);
             m_PlayerTransformData = ArchiveManager.Instance.PlayerTransformData;
+            m_PlayerCoreData = ArchiveManager.Instance.PlayerCoreData;
 
             m_PlayerModel.Init(PlayAudioOnFootStep);
             PlayerTransform = transform;
@@ -47,6 +56,9 @@ namespace Project_WildernessSurvivalGame
             // 初始化存档相关的数据
             PlayerTransform.localPosition = m_PlayerTransformData.Position;
             PlayerTransform.localRotation = Quaternion.Euler(m_PlayerTransformData.Rotation);
+
+            TriggerUpdateHpEvent();
+            TriggerUpdateHungryEvent();
         }
 
         /// <summary>
@@ -65,12 +77,14 @@ namespace Project_WildernessSurvivalGame
                                            , m_PlayerConfig.FootStepVolume);
         }
 
-        void OnDestroy()
+        void TriggerUpdateHpEvent()
         {
-            // 把存档数据实际写入磁盘
-            m_PlayerTransformData.Position = PlayerTransform.localPosition;
-            m_PlayerTransformData.Rotation = PlayerTransform.localRotation.eulerAngles;
-            ArchiveManager.Instance.SavePlayerTransformData();
+            EventManager.EventTrigger(EventName.UpdatePlayerHp, m_PlayerCoreData.Hp);
+        }
+
+        void TriggerUpdateHungryEvent()
+        {
+            EventManager.EventTrigger(EventName.UpdatePlayerHungry, m_PlayerCoreData.Hungry);
         }
     }
 }

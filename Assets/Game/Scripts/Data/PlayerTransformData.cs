@@ -23,3 +23,10 @@ public class PlayerTransformData
         set => m_Rotation = value.Convert2SerializableVector3();
     }
 }
+
+[Serializable]
+public class PlayerCoreData
+{
+    public float Hp;
+    public float Hungry;
+}
