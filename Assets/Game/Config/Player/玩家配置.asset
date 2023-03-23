@@ -25,8 +25,8 @@ MonoBehaviour:
   RotateSpeed: 10
   MaxHp: 100
   MaxHungry: 100
-  HungryDampingSpeed: 0.2
-  HpDampingSpeedOnHungryIsZero: 2
+  HungryReducingSpeed: 0.2
+  HpReducingSpeedOnHungryIsZero: 2
   FootStepAudioClips:
   - {fileID: 8300000, guid: b5a2c539e294a754e9538ff27233f6e3, type: 3}
   - {fileID: 8300000, guid: 58110cfe635d2324c8bc5aa56c9d8dd7, type: 3}

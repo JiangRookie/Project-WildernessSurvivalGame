@@ -18,16 +18,15 @@ namespace Project_WildernessSurvivalGame
         PlayerConfig m_PlayerConfig;
         StateMachine m_StateMachine;
 
-        #region 存档
-
-        PlayerTransformData m_PlayerTransformData;
-        PlayerCoreData m_PlayerCoreData;
-
-        #endregion
-
         public Transform PlayerTransform { get; private set; }
         public float MoveSpeed => m_PlayerConfig.MoveSpeed;
         public float RotateSpeed => m_PlayerConfig.RotateSpeed;
+
+        void Update()
+        {
+            if (GameSceneManager.Instance.IsInitialized == false) return;
+            CalculateHungryOnUpdate();
+        }
 
         void OnDestroy()
         {
@@ -35,6 +34,7 @@ namespace Project_WildernessSurvivalGame
             m_PlayerTransformData.Position = PlayerTransform.localPosition;
             m_PlayerTransformData.Rotation = PlayerTransform.localRotation.eulerAngles;
             ArchiveManager.Instance.SavePlayerTransformData();
+            ArchiveManager.Instance.SavePlayerCoreData();
         }
 
         public void Init(float mapSizeOnWorld)
@@ -77,6 +77,28 @@ namespace Project_WildernessSurvivalGame
                                            , m_PlayerConfig.FootStepVolume);
         }
 
+        void CalculateHungryOnUpdate()
+        {
+            if (m_PlayerCoreData.Hungry > 0)
+            {
+                m_PlayerCoreData.Hungry -= Time.deltaTime * m_PlayerConfig.HungryReducingSpeed;
+                if (m_PlayerCoreData.Hungry < 0) m_PlayerCoreData.Hungry = 0;
+                TriggerUpdateHungryEvent();
+            }
+            else
+            {
+                if (m_PlayerCoreData.Hp > 0)
+                {
+                    m_PlayerCoreData.Hp -= Time.deltaTime * m_PlayerConfig.HpReducingSpeedOnHungryIsZero;
+                    if (m_PlayerCoreData.Hp < 0)
+                    {
+                        m_PlayerCoreData.Hp = 0;
+                    }
+                    TriggerUpdateHpEvent();
+                }
+            }
+        }
+
         void TriggerUpdateHpEvent()
         {
             EventManager.EventTrigger(EventName.UpdatePlayerHp, m_PlayerCoreData.Hp);
@@ -86,5 +108,12 @@ namespace Project_WildernessSurvivalGame
         {
             EventManager.EventTrigger(EventName.UpdatePlayerHungry, m_PlayerCoreData.Hungry);
         }
+
+        #region 存档
+
+        PlayerTransformData m_PlayerTransformData;
+        PlayerCoreData m_PlayerCoreData;
+
+        #endregion
     }
 }

@@ -20,10 +20,10 @@ public class PlayerConfig : ConfigBase
     public float MaxHungry = 100;
 
     [FoldoutGroup("角色配置"), LabelText("饥饿值衰减速度")]
-    public float HungryDampingSpeed = 0.2f;
+    public float HungryReducingSpeed = 0.2f;
 
     [FoldoutGroup("角色配置"), LabelText("当饥饿值为0时 生命值的衰减速度")]
-    public float HpDampingSpeedOnHungryIsZero = 2;
+    public float HpReducingSpeedOnHungryIsZero = 2;
 
     [FoldoutGroup("角色配置"), LabelText("脚步声")]
     public AudioClip[] FootStepAudioClips;
