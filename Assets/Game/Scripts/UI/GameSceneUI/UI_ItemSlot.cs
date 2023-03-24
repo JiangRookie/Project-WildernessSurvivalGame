@@ -50,18 +50,9 @@ public class UI_ItemSlot : MonoBehaviour
         if (ItemData == null) return;
         if (m_IsSelect && Input.GetMouseButtonDown(1))
         {
-            switch (ItemData.Config.ItemType)
-            {
-                case ItemType.Weapon:
-                    Debug.Log("可以使用：" + ItemData.Config.ItemType);
-                    break;
-                case ItemType.Consumable:
-                    Debug.Log("可以使用：" + ItemData.Config.ItemType);
-                    break;
-                default:
-                    Debug.Log("无法使用");
-                    break;
-            }
+            // 根据使用的情况来播放音效
+            AudioType resultAudioType = m_OwnerWindow.UseItem(Index);
+            ProjectTool.PlayAudio(resultAudioType);
         }
     }
 

@@ -130,26 +130,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 295300527, guid: 35592af50a118a347aef20848bfd00b8, type: 3}
-      propertyPath: m_Name
-      value: Mask
-      objectReference: {fileID: 0}
-    - target: {fileID: 687255678, guid: 35592af50a118a347aef20848bfd00b8, type: 3}
-      propertyPath: m_Name
-      value: Mask
-      objectReference: {fileID: 0}
-    - target: {fileID: 877360459, guid: 35592af50a118a347aef20848bfd00b8, type: 3}
-      propertyPath: m_Name
-      value: Mask
-      objectReference: {fileID: 0}
-    - target: {fileID: 1052248271, guid: 35592af50a118a347aef20848bfd00b8, type: 3}
-      propertyPath: m_Name
-      value: Mask
-      objectReference: {fileID: 0}
-    - target: {fileID: 1935915074, guid: 35592af50a118a347aef20848bfd00b8, type: 3}
-      propertyPath: m_Name
-      value: Mask
-      objectReference: {fileID: 0}
     - target: {fileID: 3304632367700951240, guid: 35592af50a118a347aef20848bfd00b8, type: 3}
       propertyPath: m_Name
       value: GameRoot

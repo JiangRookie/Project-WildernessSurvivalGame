@@ -21,6 +21,7 @@ namespace Project_WildernessSurvivalGame
         public Transform PlayerTransform { get; private set; }
         public float MoveSpeed => m_PlayerConfig.MoveSpeed;
         public float RotateSpeed => m_PlayerConfig.RotateSpeed;
+        public bool CanUseItem { get; private set; } = true;
 
         void Update()
         {
@@ -34,7 +35,7 @@ namespace Project_WildernessSurvivalGame
             m_PlayerTransformData.Position = PlayerTransform.localPosition;
             m_PlayerTransformData.Rotation = PlayerTransform.localRotation.eulerAngles;
             ArchiveManager.Instance.SavePlayerTransformData();
-            ArchiveManager.Instance.SavePlayerCoreData(); 
+            ArchiveManager.Instance.SavePlayerCoreData();
             ArchiveManager.Instance.SaveInventoryData();
         }
 
@@ -75,7 +76,7 @@ namespace Project_WildernessSurvivalGame
         void PlayAudioOnFootStep(int index)
         {
             AudioManager.Instance.PlayOneShot(m_PlayerConfig.FootStepAudioClips[index], PlayerTransform.position
-                                           , m_PlayerConfig.FootStepVolume);
+                                            , m_PlayerConfig.FootStepVolume);
         }
 
         void CalculateHungryOnUpdate()
@@ -108,6 +109,18 @@ namespace Project_WildernessSurvivalGame
         void TriggerUpdateHungryEvent()
         {
             EventManager.EventTrigger(EventName.UpdatePlayerHungry, m_PlayerCoreData.Hungry);
+        }
+
+        public void RecoverHp(float value)
+        {
+            m_PlayerCoreData.Hp = Mathf.Clamp(m_PlayerCoreData.Hp + value, 0, m_PlayerConfig.MaxHp);
+            TriggerUpdateHpEvent();
+        }
+
+        public void RecoverHungry(float value)
+        {
+            m_PlayerCoreData.Hungry = Mathf.Clamp(m_PlayerCoreData.Hungry + value, 0, m_PlayerConfig.MaxHungry);
+            TriggerUpdateHungryEvent();
         }
 
         #region 存档

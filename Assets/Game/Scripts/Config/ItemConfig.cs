@@ -75,7 +75,11 @@ public abstract class PileItemTypeInfoBase
 /// 消耗品类型信息
 /// </summary>
 [Serializable]
-public class Item_ConsumableInfo : PileItemTypeInfoBase, IItemTypeInfo { }
+public class Item_ConsumableInfo : PileItemTypeInfoBase, IItemTypeInfo
+{
+    [LabelText("恢复生命值")] public float RecoverHp;
+    [LabelText("恢复饥饿值")] public float RecoverHungry;
+}
 
 /// <summary>
 /// 材料类型信息

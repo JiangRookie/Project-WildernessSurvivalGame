@@ -1,4 +1,5 @@
 using JKFrame;
+using Project_WildernessSurvivalGame;
 using UnityEngine;
 
 [UIElement(false, "UI/UI_InventoryWindow", 1)]
@@ -190,6 +191,54 @@ public class UI_InventoryWindow : UI_WindowBase
         {
             m_InventoryData.SetItem(index, itemData);
             m_Slots[index].InitData(itemData);
+        }
+    }
+
+    public AudioType UseItem(int index)
+    {
+        // 玩家的状态也许并不能使用物品
+        if (PlayerController.Instance.CanUseItem == false) return AudioType.PlayerCannotUse;
+
+        // 卸下武器
+        if (index == m_Slots.Length)
+        {
+            int emptySlotIndex = GetEmptySlotIndex();
+            if (emptySlotIndex > 0)
+            {
+                // 武器和空格子进行交换
+                UI_ItemSlot.SwapSlotItem(m_WeaponSlot, m_Slots[emptySlotIndex]);
+                return AudioType.TakeDownWeapon;
+            }
+
+            // 没有空格子
+            return AudioType.Fail;
+        }
+
+        ItemData itemData = m_Slots[index].ItemData;
+        switch (itemData.Config.ItemType)
+        {
+            case ItemType.Weapon:
+                // 装备武器
+                UI_ItemSlot.SwapSlotItem(m_Slots[index], m_WeaponSlot);
+                return AudioType.TakeUpWeapon;
+            case ItemType.Consumable:
+                Item_ConsumableInfo info = itemData.Config.ItemTypeInfo as Item_ConsumableInfo;
+                if (info.RecoverHp != 0) PlayerController.Instance.RecoverHp(info.RecoverHp);
+                if (info.RecoverHungry != 0) PlayerController.Instance.RecoverHungry(info.RecoverHungry);
+
+                // 更新物品的数量
+                PileItemTypeDataBase data = itemData.ItemTypeData as PileItemTypeDataBase;
+                data.Count -= 1;
+                if (data.Count == 0)
+                {
+                    RemoveItem(index);
+                }
+                else
+                {
+                    m_Slots[index].UpdateCountTextView();
+                }
+                return AudioType.UseConsumablesSuccess;
+            default: return AudioType.Fail;
         }
     }
 }
