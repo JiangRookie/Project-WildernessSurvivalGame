@@ -79,6 +79,8 @@ namespace Project_WildernessSurvivalGame
                                             , m_PlayerConfig.FootStepVolume);
         }
 
+        #region 数值
+
         void CalculateHungryOnUpdate()
         {
             if (m_PlayerCoreData.Hungry > 0)
@@ -122,6 +124,51 @@ namespace Project_WildernessSurvivalGame
             m_PlayerCoreData.Hungry = Mathf.Clamp(m_PlayerCoreData.Hungry + value, 0, m_PlayerConfig.MaxHungry);
             TriggerUpdateHungryEvent();
         }
+
+        #endregion
+
+        #region 战斗
+
+        ItemData m_CurrentWeaponItemData;
+        GameObject m_CurrentWeaponGameObject;
+
+        public void ChangeWeapon(ItemData newWeapon)
+        {
+            // 没切换武器
+            if (m_CurrentWeaponItemData == newWeapon)
+            {
+                m_CurrentWeaponItemData = newWeapon;
+                return;
+            }
+
+            // 旧武器如果有数据，就把旧武器模型回收到对象池
+            if (m_CurrentWeaponItemData != null)
+            {
+                m_CurrentWeaponGameObject.JKGameObjectPushPool();
+            }
+
+            // 新武器如果不是null
+            if (newWeapon != null)
+            {
+                Item_WeaponInfo info = newWeapon.Config.ItemTypeInfo as Item_WeaponInfo;
+                m_CurrentWeaponGameObject
+                    = PoolManager.Instance.GetGameObject(info.PrefabOnPlayer, m_PlayerModel.WeaponRoot);
+                m_CurrentWeaponGameObject.transform.localPosition = info.PositionOnPlayer;
+                m_CurrentWeaponGameObject.transform.localRotation = Quaternion.Euler(info.RotationOnPlayer);
+                Animator.runtimeAnimatorController = info.AnimatorOverrideController;
+            }
+            else // 新武器是 null，意味着空手
+            {
+                Animator.runtimeAnimatorController = m_PlayerConfig.NormalAnimatorController;
+            }
+
+            // 由于动画是有限状态机驱动的，如果不重新激活一次动画，动画会出现错误
+            // （比如在移动中突然切换AnimatorOverrideController会不播放走路动画）
+            m_StateMachine.ChangeState<PlayerIdle>((int)PlayerState.Idle, true);
+            m_CurrentWeaponItemData = newWeapon;
+        }
+
+        #endregion
 
         #region 存档
 

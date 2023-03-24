@@ -145,3 +145,4 @@ MonoBehaviour:
   - {fileID: 8300000, guid: b5a2c539e294a754e9538ff27233f6e3, type: 3}
   - {fileID: 8300000, guid: 58110cfe635d2324c8bc5aa56c9d8dd7, type: 3}
   FootStepVolume: 0.5
+  NormalAnimatorController: {fileID: 9100000, guid: 84173a2bad11c364cbda6455652eef6f, type: 2}

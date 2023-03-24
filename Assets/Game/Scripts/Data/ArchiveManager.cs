@@ -77,6 +77,10 @@ public class ArchiveManager : Singleton<ArchiveManager>
 
         InventoryData.ItemDatas[3] = ItemData.CreateItemData(3);
         ((Item_ConsumableData)InventoryData.ItemDatas[3].ItemTypeData).Count = 10;
+        
+        InventoryData.ItemDatas[4] = ItemData.CreateItemData(4);
+        InventoryData.ItemDatas[5] = ItemData.CreateItemData(5);
+
 
         #endregion
 

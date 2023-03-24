@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a4722fdd0a7aa0144b6f639a509b3dd8, type: 3}
-  m_Name: "\u77F3\u65A7"
+  m_Name: "\u77F3\u9550"
   m_EditorClassIdentifier: 
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
     ReferencedUnityObjects:
-    - {fileID: 7958945592178681526, guid: 0be6d44ec5272a749a8eff63ae430581, type: 3}
-    - {fileID: 22100000, guid: 0b1394b7e5a00424a95d147e0daef7c6, type: 2}
+    - {fileID: 5828132043207799916, guid: 57ab68b7e4ff33d4785663a8f09fb888, type: 3}
+    - {fileID: 22100000, guid: b942d88cab91c0547be22d168c85c04f, type: 2}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -28,7 +28,7 @@ MonoBehaviour:
       Data: 0|Item_WeaponInfo, Assembly-CSharp
     - Name: WeaponType
       Entry: 3
-      Data: 0
+      Data: 1
     - Name: PrefabOnPlayer
       Entry: 10
       Data: 0
@@ -37,13 +37,13 @@ MonoBehaviour:
       Data: UnityEngine.Vector3, UnityEngine.CoreModule
     - Name: 
       Entry: 4
-      Data: 0
+      Data: -0.036
     - Name: 
       Entry: 4
-      Data: 0.345
+      Data: 0.368
     - Name: 
       Entry: 4
-      Data: -0.034
+      Data: -0.028
     - Name: 
       Entry: 8
       Data: 
@@ -77,7 +77,7 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-  Name: "\u77F3\u65A7"
+  Name: "\u77F3\u9550"
   ItemType: 0
-  Description: "\u53EF\u4EE5\u780D\u6811"
-  Icon: {fileID: 21300000, guid: aed509809d0894dad916e5d1e414cb03, type: 3}
+  Description: "\u53EF\u4EE5\u7838\u77F3\u5934"
+  Icon: {fileID: 21300000, guid: 8415fef83242a0140adea0803baed56d, type: 3}

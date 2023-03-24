@@ -32,6 +32,9 @@ public class PlayerConfig : ConfigBase
     [FoldoutGroup("角色配置"), LabelText("脚步声大小")]
     public float FootStepVolume = 0.5f;
 
+    [FoldoutGroup("角色配置"), LabelText("默认动画控制器")]
+    public RuntimeAnimatorController NormalAnimatorController;
+
     #endregion
 
     #region 杂项

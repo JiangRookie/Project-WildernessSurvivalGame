@@ -3737,6 +3737,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2478032321581427860}
   - component: {fileID: 2539860180613121068}
+  - component: {fileID: 130327591116645115}
   m_Layer: 0
   m_Name: PlayerModel1
   m_TagString: Untagged
@@ -3764,7 +3765,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &2539860180613121068
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -3781,7 +3782,21 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &130327591116645115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2479758347299276576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fce96a23fc79634295beb6775e620a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_WeaponRoot: {fileID: 2484948892032670308}
 --- !u!1 &2479760106977852434
 GameObject:
   m_ObjectHideFlags: 0

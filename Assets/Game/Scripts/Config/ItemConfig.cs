@@ -13,6 +13,13 @@ public enum ItemType
   , [LabelText("材料")] Material
 }
 
+public enum WeaponType
+{
+    [LabelText("斧头")] Axe
+  , [LabelText("镐")] PickAxe
+  , [LabelText("镰刀")] Sickle
+}
+
 /// <summary>
 /// 物品配置（物品静态数据）
 /// </summary>
@@ -59,7 +66,14 @@ public interface IItemTypeInfo { }
 [Serializable]
 public class Item_WeaponInfo : IItemTypeInfo
 {
+    [LabelText("武器类型")] public WeaponType WeaponType;
+    [LabelText("玩家手里的预制体")] public GameObject PrefabOnPlayer;
+    [LabelText("武器坐标")] public Vector3 PositionOnPlayer;
+    [LabelText("武器旋转")] public Vector3 RotationOnPlayer;
+    [LabelText("世界地图上的预制体")] public GameObject PrefabOnWorld;
+    [LabelText("动画控制器")] public AnimatorOverrideController AnimatorOverrideController;
     [LabelText("攻击力")] public float AttackValue;
+    [LabelText("攻击损耗")] public float AttackDurabilityCost;
 }
 
 /// <summary>

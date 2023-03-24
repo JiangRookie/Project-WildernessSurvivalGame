@@ -17,11 +17,8 @@ MonoBehaviour:
     SerializedBytes: 
     ReferencedUnityObjects:
     - {fileID: 3949864808349845485, guid: 5a979e20ec40f7142aeb84d32be77017, type: 3}
-    - {fileID: 0}
     - {fileID: 4260069446687021677, guid: 214d7a0a2599c8148ae8acff91be250c, type: 3}
-    - {fileID: 0}
     - {fileID: 2786686680103941418, guid: 838319f66f04ebf4c88532ecdcdc9acd, type: 3}
-    - {fileID: 0}
     - {fileID: 8906993709415993066, guid: aad8817a18373f1439d18c92066b522f, type: 3}
     - {fileID: 279085313429594653, guid: d62587285d8ea7a41959022d6115c108, type: 3}
     - {fileID: 5867046237035180630, guid: dc6df14a0fc94e64f9ca8044ff0b5788, type: 3}
@@ -108,8 +105,8 @@ MonoBehaviour:
       Entry: 3
       Data: 1
     - Name: objInstance
-      Entry: 10
-      Data: 1
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -136,13 +133,13 @@ MonoBehaviour:
       Data: false
     - Name: prefab
       Entry: 10
-      Data: 2
+      Data: 1
     - Name: layerNum
       Entry: 3
       Data: 0
     - Name: objInstance
-      Entry: 10
-      Data: 3
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -169,13 +166,13 @@ MonoBehaviour:
       Data: true
     - Name: prefab
       Entry: 10
-      Data: 4
+      Data: 2
     - Name: layerNum
       Entry: 3
       Data: 4
     - Name: objInstance
-      Entry: 10
-      Data: 5
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -202,7 +199,7 @@ MonoBehaviour:
       Data: false
     - Name: prefab
       Entry: 10
-      Data: 6
+      Data: 3
     - Name: layerNum
       Entry: 3
       Data: 1
@@ -235,7 +232,7 @@ MonoBehaviour:
       Data: false
     - Name: prefab
       Entry: 10
-      Data: 7
+      Data: 4
     - Name: layerNum
       Entry: 3
       Data: 1
@@ -268,7 +265,7 @@ MonoBehaviour:
       Data: true
     - Name: prefab
       Entry: 10
-      Data: 8
+      Data: 5
     - Name: layerNum
       Entry: 3
       Data: 4
@@ -301,7 +298,7 @@ MonoBehaviour:
       Data: true
     - Name: prefab
       Entry: 10
-      Data: 9
+      Data: 6
     - Name: layerNum
       Entry: 3
       Data: 4

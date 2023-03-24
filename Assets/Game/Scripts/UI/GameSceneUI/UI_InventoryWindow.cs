@@ -186,6 +186,9 @@ public class UI_InventoryWindow : UI_WindowBase
         {
             m_InventoryData.SetWeaponItem(itemData);
             m_WeaponSlot.InitData(itemData);
+
+            // 将武器数据同步给玩家
+            PlayerController.Instance.ChangeWeapon(itemData);
         }
         else
         {
