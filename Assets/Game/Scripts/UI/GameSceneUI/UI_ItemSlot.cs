@@ -16,8 +16,8 @@ public class UI_ItemSlot : MonoBehaviour
     [SerializeField] Image m_IconImage;
     [SerializeField] Text m_CountText;
     Transform m_IconTransform;
-    Transform m_SlotTransform;
     UI_InventoryWindow m_OwnerWindow; // 宿主窗口：物品栏或仓库
+    Transform m_SlotTransform;
     public ItemData ItemData { get; private set; }
     public int Index { get; private set; }
 
@@ -148,20 +148,15 @@ public class UI_ItemSlot : MonoBehaviour
         {
             GameManager.Instance.SetCursorState(CursorState.Normal);
         }
+
+        // 格子归位
         m_IconTransform.SetParent(m_SlotTransform);
         m_IconTransform.localPosition = Vector3.zero;
 
+        // 如果当前鼠标进入的格子是自己，不执行任何操作
         if (CurrentMouseEnterSlot == this) return;
-        if (CurrentMouseEnterSlot == WeaponSlot)
-        {
-            if (ItemData.Config.ItemType != ItemType.Weapon)
-            {
-                UIManager.Instance.AddTips("必须得是装备才行！");
-                return;
-            }
-            Debug.Log("可以装备物品：" + ItemData.Config.Name);
-        }
 
+        // 如果当前鼠标进入的格子为空（扔东西）
         if (CurrentMouseEnterSlot == null)
         {
             // 射线检测除了Mast外是否有其他UI物体
@@ -180,17 +175,60 @@ public class UI_ItemSlot : MonoBehaviour
             }
             RaycastResultList.Clear();
 
-            m_OwnerWindow.RemoveItem(Index);
-
-            // 从存档中移除这个数据
             Debug.Log("扔地上：" + ItemData.Config.Name);
-            InitData();
+
+            m_OwnerWindow.DiscardItem(Index);
+            ProjectTool.PlayAudio(AudioType.Bag);
+            return;
         }
-        else
+
+        // 如果当前格子是武器格子，
+        if (this == WeaponSlot)
         {
-            SwapSlotItem(this, CurrentMouseEnterSlot);
+            // 但是目标格子是空的，则播放卸下武器的音效
+            if (CurrentMouseEnterSlot.ItemData == null)
+            {
+                ProjectTool.PlayAudio(AudioType.TakeDownWeapon);
+                SwapSlotItem(this, CurrentMouseEnterSlot);
+            }
+
+            // 目标格子是武器格子
+            else if (CurrentMouseEnterSlot.ItemData.Config.ItemType == ItemType.Weapon)
+            {
+                ProjectTool.PlayAudio(AudioType.TakeUpWeapon);
+                SwapSlotItem(this, CurrentMouseEnterSlot);
+            }
+
+            // 目标格子不是武器格子
+            else
+            {
+                ProjectTool.PlayAudio(AudioType.Fail);
+                UIManager.Instance.AddTips("必须得是装备才行！");
+            }
         }
-        ArchiveManager.Instance.SaveInventoryData();
+        else // 当前是普通格子
+        {
+            // 目标格子是武器格子（装备武器）
+            if (CurrentMouseEnterSlot == WeaponSlot)
+            {
+                if (ItemData.Config.ItemType != ItemType.Weapon)
+                {
+                    ProjectTool.PlayAudio(AudioType.Fail);
+                    UIManager.Instance.AddTips("必须得是装备才行！");
+                }
+                else
+                {
+                    ProjectTool.PlayAudio(AudioType.TakeUpWeapon);
+                    Debug.Log("可以装备物品：" + ItemData.Config.Name);
+                    SwapSlotItem(this, CurrentMouseEnterSlot);
+                }
+            }
+            else
+            {
+                SwapSlotItem(this, CurrentMouseEnterSlot);
+                ProjectTool.PlayAudio(AudioType.Bag);
+            }
+        }
     }
 
     public static void SwapSlotItem(UI_ItemSlot currSlot, UI_ItemSlot targetSlot)

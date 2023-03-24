@@ -136,16 +136,46 @@ public class UI_InventoryWindow : UI_WindowBase
         return false;
     }
 
-    public void RemoveItem(int index)
+    public void DiscardItem(int index)
+    {
+        if (index == m_Slots.Length)
+        {
+            RemoveItem(index);
+            return;
+        }
+        ItemData itemData = m_Slots[index].ItemData;
+        switch (itemData.Config.ItemType)
+        {
+            case ItemType.Weapon:
+                RemoveItem(index);
+                break;
+            default:
+                PileItemTypeDataBase data = itemData.ItemTypeData as PileItemTypeDataBase;
+                data.Count -= 1;
+                if (data.Count == 0)
+                {
+                    RemoveItem(index);
+                }
+                else
+                {
+                    m_Slots[index].UpdateCountTextView();
+                }
+                break;
+        }
+    }
+
+    void RemoveItem(int index)
     {
         // Weapon
         if (index == m_InventoryData.ItemDatas.Length)
         {
             m_InventoryData.RemoveWeaponItem();
+            m_WeaponSlot.InitData();
         }
         else
         {
             m_InventoryData.RemoveItem(index);
+            m_Slots[index].InitData();
         }
     }
 
