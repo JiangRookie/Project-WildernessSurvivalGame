@@ -2,7 +2,7 @@ using JKFrame;
 using Project_WildernessSurvivalGame;
 using UnityEngine;
 
-[UIElement(false, "UI/UI_InventoryWindow", 1)]
+[UIElement(true, "UI/UI_InventoryWindow", 1)]
 public class UI_InventoryWindow : UI_WindowBase
 {
     [SerializeField] UI_ItemSlot[] m_Slots;
@@ -34,6 +34,9 @@ public class UI_InventoryWindow : UI_WindowBase
         }
         m_WeaponSlot.Init(m_Slots.Length, this);
         UI_ItemSlot.WeaponSlot = m_WeaponSlot;
+
+        // 初始化玩家手中的武器
+        PlayerController.Instance.ChangeWeapon(m_InventoryData.WeaponSlotItemData);
     }
 
     public override void OnShow()
@@ -42,6 +45,41 @@ public class UI_InventoryWindow : UI_WindowBase
 
         // 根据存档复原
         InitData(m_InventoryData);
+    }
+
+    protected override void RegisterEventListener()
+    {
+        base.RegisterEventListener();
+
+        // 由于目前数据是由这个窗口处理的，所以这个窗口不能销毁，即使关闭，也要持续监听事件
+        EventManager.AddEventListener(EventName.PlayerWeaponAttackSucceed, OnPlayerWeaponAttackSucceed);
+    }
+
+    /// <summary>
+    /// 当玩家使用武器攻击成功后
+    /// </summary>
+    void OnPlayerWeaponAttackSucceed()
+    {
+        if (m_InventoryData.WeaponSlotItemData == null) return;
+        Item_WeaponData weaponData = m_InventoryData.WeaponSlotItemData.ItemTypeData as Item_WeaponData;
+        Item_WeaponInfo weaponInfo = m_InventoryData.WeaponSlotItemData.Config.ItemTypeInfo as Item_WeaponInfo;
+        weaponData.Durability -= weaponInfo.AttackDurabilityCost;
+        if (weaponData.Durability <= 0)
+        {
+            // 武器损坏
+            m_InventoryData.RemoveWeaponItem();
+
+            // 武器槽去掉这个武器
+            m_WeaponSlot.InitData();
+
+            // 通知玩家卸掉武器
+            PlayerController.Instance.ChangeWeapon(null);
+        }
+        else
+        {
+            // 更新耐久度UI
+            m_WeaponSlot.UpdateCountTextView();
+        }
     }
 
     void InitData(InventoryData inventoryData)

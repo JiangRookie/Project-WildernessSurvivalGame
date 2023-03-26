@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using JKFrame;
 using UnityEngine;
 
@@ -39,13 +41,15 @@ namespace Project_WildernessSurvivalGame
             ArchiveManager.Instance.SaveInventoryData();
         }
 
+        #region 初始化
+
         public void Init(float mapSizeOnWorld)
         {
             m_PlayerConfig = ConfigManager.Instance.GetConfig<PlayerConfig>(ConfigName.PLAYER);
             m_PlayerTransformData = ArchiveManager.Instance.PlayerTransformData;
             m_PlayerCoreData = ArchiveManager.Instance.PlayerCoreData;
 
-            m_PlayerModel.Init(PlayAudioOnFootStep);
+            m_PlayerModel.Init(PlayAudioOnFootStep, OnStartHit, OnStopHit, OnAttackOver);
             PlayerTransform = transform;
 
             m_StateMachine = ResManager.Load<StateMachine>();
@@ -73,11 +77,107 @@ namespace Project_WildernessSurvivalGame
             PositionZScope = new Vector2(1, mapSizeOnWorld - 1);
         }
 
+        #endregion
+
+        #region 工具
+
+        List<MapObjectBase> m_LastAttackedMapObjectList = new();
+
         void PlayAudioOnFootStep(int index)
         {
             AudioManager.Instance.PlayOneShot(m_PlayerConfig.FootStepAudioClips[index], PlayerTransform.position
                                             , m_PlayerConfig.FootStepVolume);
         }
+
+        // 让武器开启伤害检测
+        void OnStartHit()
+        {
+            m_AttackSucceedCount = 0;
+            m_CurrentWeaponGameObject.transform.OnTriggerEnter(OnWeaponTriggerEnter);
+        }
+
+        // 让武器停止伤害检测
+        void OnStopHit()
+        {
+            m_CurrentWeaponGameObject.transform.RemoveTriggerEnter(OnWeaponTriggerEnter);
+            m_LastAttackedMapObjectList.Clear();
+        }
+
+        int m_AttackSucceedCount; // 攻击成功的数量
+
+        // 整个攻击状态的结束
+        void OnAttackOver()
+        {
+            // 成功命中过几次就消耗几次耐久度
+            for (int i = 0; i < m_AttackSucceedCount; i++)
+            {
+                // 让武器受损
+                EventManager.EventTrigger(EventName.PlayerWeaponAttackSucceed);
+            }
+
+            m_CanAttack = true;
+
+            // 切换状态到待机
+            ChangeState(PlayerState.Idle);
+
+            // 允许使用物品
+            CanUseItem = true;
+        }
+
+        /// <summary>
+        /// 当武器碰到其他游戏物体时
+        /// </summary>
+        /// <param name="other"></param>
+        /// <param name="arg2"></param>
+        void OnWeaponTriggerEnter(Collider other, object[] arg2)
+        {
+            // 对方得是地图对象
+            if (other.TryGetComponent(out MapObjectBase mapObject))
+            {
+                // 已经攻击过的防止二次伤害
+                if (m_LastAttackedMapObjectList.Contains(mapObject)) return;
+                m_LastAttackedMapObjectList.Add(mapObject);
+                Item_WeaponInfo itemWeaponInfo = (Item_WeaponInfo)m_CurrentWeaponItemData.Config.ItemTypeInfo;
+
+                // 检测对方是什么类型 以及 自己手上是什么武器
+                switch (mapObject.MapObjectType)
+                {
+                    case MapObjectType.Tree:
+
+                        // 当前是不是斧头
+                        if (itemWeaponInfo.WeaponType == WeaponType.Axe)
+                        {
+                            // 让树受伤
+                            ((TreeController)mapObject).Hurt(itemWeaponInfo.AttackValue);
+                            m_AttackSucceedCount += 1;
+                        }
+                        break;
+                    case MapObjectType.Stone: break;
+                    case MapObjectType.SmallStone: break;
+                    default: throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
+        public void ChangeState(PlayerState playerState)
+        {
+            switch (playerState)
+            {
+                case PlayerState.Idle:
+                    m_StateMachine.ChangeState<PlayerIdle>((int)playerState);
+                    break;
+                case PlayerState.Move:
+                    m_StateMachine.ChangeState<PlayerMove>((int)playerState);
+                    break;
+                case PlayerState.Attack:
+                    m_StateMachine.ChangeState<PlayerAttack>((int)playerState);
+                    break;
+                case PlayerState.BeAttack: break;
+                case PlayerState.Dead: break;
+            }
+        }
+
+        #endregion
 
         #region 数值
 
@@ -127,7 +227,7 @@ namespace Project_WildernessSurvivalGame
 
         #endregion
 
-        #region 战斗
+        #region 武器
 
         ItemData m_CurrentWeaponItemData;
         GameObject m_CurrentWeaponGameObject;
@@ -166,6 +266,55 @@ namespace Project_WildernessSurvivalGame
             // （比如在移动中突然切换AnimatorOverrideController会不播放走路动画）
             m_StateMachine.ChangeState<PlayerIdle>((int)PlayerState.Idle, true);
             m_CurrentWeaponItemData = newWeapon;
+        }
+
+        #endregion
+
+        #region 战斗、伐木、采摘
+
+        public void OnSelectMapObject(RaycastHit hitInfo)
+        {
+            if (hitInfo.collider.TryGetComponent(out MapObjectBase mapObject))
+            {
+                // 根据玩家选中的地图对象类型以及当前角色的武器来判断做什么
+                Debug.Log("选中的是：" + mapObject.gameObject.name);
+                float distance = Vector3.Distance(PlayerTransform.position, mapObject.transform.position);
+                switch (mapObject.MapObjectType)
+                {
+                    case MapObjectType.Tree:
+                        if (distance < 2)
+                        {
+                            FellingTree(mapObject);
+                        }
+                        break;
+                    case MapObjectType.Stone: break;
+                    case MapObjectType.SmallStone: break;
+                    default: throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
+        bool m_CanAttack = true;
+        public Quaternion AttackDirection { get; private set; }
+
+        void FellingTree(MapObjectBase mapObject)
+        {
+            // 能攻击 是斧头
+            if (m_CanAttack
+             && m_CurrentWeaponItemData != null
+             && ((Item_WeaponInfo)m_CurrentWeaponItemData.Config.ItemTypeInfo).WeaponType == WeaponType.Axe)
+            {
+                m_CanAttack = false; // 防止攻击过程中再次攻击
+
+                // 计算方向
+                AttackDirection = Quaternion.LookRotation(mapObject.transform.position - transform.position);
+
+                // 切换状态
+                ChangeState(PlayerState.Attack);
+
+                // 禁止使用物品
+                CanUseItem = false;
+            }
         }
 
         #endregion

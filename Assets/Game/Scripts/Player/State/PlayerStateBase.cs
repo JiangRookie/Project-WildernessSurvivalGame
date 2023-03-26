@@ -23,20 +23,4 @@ public class PlayerStateBase : StateBase
     {
         StateMachine.ChangeState<T>((int)playerState);
     }
-
-    protected void ChangeState(PlayerState playerState)
-    {
-        switch (playerState)
-        {
-            case PlayerState.Idle:
-                StateMachine.ChangeState<PlayerIdle>(0);
-                break;
-            case PlayerState.Move:
-                StateMachine.ChangeState<PlayerMove>(1);
-                break;
-            case PlayerState.Attack: break;
-            case PlayerState.BeAttack: break;
-            case PlayerState.Dead: break;
-        }
-    }
 }

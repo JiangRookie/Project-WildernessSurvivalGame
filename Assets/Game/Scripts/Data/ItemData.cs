@@ -42,7 +42,7 @@ public interface IItemTypeData { }
 [Serializable]
 public class Item_WeaponData : IItemTypeData
 {
-    public int Durability;
+    public float Durability = 100;
 }
 
 [Serializable]

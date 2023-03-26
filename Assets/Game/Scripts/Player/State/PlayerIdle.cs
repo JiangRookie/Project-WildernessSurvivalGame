@@ -17,7 +17,7 @@ public class PlayerIdle : PlayerStateBase
         float vertical = Input.GetAxis("Vertical");
         if (horizontal != 0 || vertical != 0)
         {
-            ChangeState(PlayerState.Move);
+            PlayerCtrl.ChangeState(PlayerState.Move);
         }
     }
 }

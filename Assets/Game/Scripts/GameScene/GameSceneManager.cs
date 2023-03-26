@@ -63,6 +63,9 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
 
         // 初始化时间
         TimeManager.Instance.Init(); // EventTrigger
+        
+        // 初始化输入管理器
+        InputManager.Instance.Init();
     }
 
     #region 测试逻辑

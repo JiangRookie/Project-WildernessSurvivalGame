@@ -24,7 +24,7 @@ namespace Project_WildernessSurvivalGame
             var vertical = Input.GetAxis("Vertical");
             if (horizontal == 0 && vertical == 0)
             {
-                ChangeState(PlayerState.Idle);
+                PlayerCtrl.ChangeState(PlayerState.Idle);
                 return;
             }
 

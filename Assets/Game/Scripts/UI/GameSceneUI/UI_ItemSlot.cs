@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using JKFrame;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,7 +10,6 @@ public class UI_ItemSlot : MonoBehaviour
 {
     public static UI_ItemSlot CurrentMouseEnterSlot; // 当前鼠标进入的格子
     public static UI_ItemSlot WeaponSlot;
-    public static List<RaycastResult> RaycastResultList = new(10);
     [SerializeField] Image m_BgImage;
     [SerializeField] Image m_IconImage;
     [SerializeField] Text m_CountText;
@@ -151,23 +149,9 @@ public class UI_ItemSlot : MonoBehaviour
         if (CurrentMouseEnterSlot == null)
         {
             // 射线检测除了Mast外是否有其他UI物体
-            EventSystem.current.RaycastAll(eventData, RaycastResultList);
-            for (int i = 0; i < RaycastResultList.Count; i++)
-            {
-                RaycastResult raycastResult = RaycastResultList[i];
-
-                // 是UI同时不是Mast作用的物体
-                if (raycastResult.gameObject.GetComponent<RectTransform>()
-                 && raycastResult.gameObject.name != "Mask")
-                {
-                    RaycastResultList.Clear();
-                    return;
-                }
-            }
-            RaycastResultList.Clear();
+            if (InputManager.Instance.CheckMouseOnUI()) return;
 
             Debug.Log("扔地上：" + ItemData.Config.Name);
-
             m_OwnerWindow.DiscardItem(Index);
             ProjectTool.PlayAudio(AudioType.Bag);
             return;

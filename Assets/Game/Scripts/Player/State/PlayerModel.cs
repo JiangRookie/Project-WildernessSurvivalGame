@@ -4,19 +4,43 @@ using UnityEngine;
 public class PlayerModel : MonoBehaviour
 {
     Action<int> m_FootstepAction;
+    Action m_StartHitAction;
+    Action m_StopHitAction;
+    Action m_AttackOverAction;
     [SerializeField] Transform m_WeaponRoot;
     public Transform WeaponRoot => m_WeaponRoot;
 
-    public void Init(Action<int> footstepAction)
+    public void Init(Action<int> footstepAction, Action startHitAction, Action stopHitAction, Action attackOverAction)
     {
         m_FootstepAction = footstepAction;
+        m_StartHitAction = startHitAction;
+        m_StopHitAction = stopHitAction;
+        m_AttackOverAction = attackOverAction;
     }
 
     #region 动画事件
 
-    private void Footstep(int index)
+    void Footstep(int index)
     {
         m_FootstepAction?.Invoke(index);
+    }
+
+    // 开始有伤害
+    void StartHit()
+    {
+        m_StartHitAction?.Invoke();
+    }
+
+    // 这里之后没有伤害
+    void StopHit()
+    {
+        m_StopHitAction?.Invoke();
+    }
+
+    // 整个攻击的结束
+    void AttackOver()
+    {
+        m_AttackOverAction?.Invoke();
     }
 
     #endregion

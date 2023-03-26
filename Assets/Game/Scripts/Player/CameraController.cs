@@ -5,6 +5,8 @@ public class CameraController : SingletonMono<CameraController>
 {
     Transform m_Transform;
 
+    [SerializeField] Camera m_Camera;
+    public Camera Camera => m_Camera;
     [SerializeField] Transform m_TargetTrans;
     [SerializeField] Vector3 m_Offset;
     [SerializeField] float m_MoveSpeed;

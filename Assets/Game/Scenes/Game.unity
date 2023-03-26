@@ -189,9 +189,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 127479095}
+  - component: {fileID: 127479097}
   - component: {fileID: 127479098}
   - component: {fileID: 127479096}
-  - component: {fileID: 127479097}
+  - component: {fileID: 127479099}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -258,7 +259,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTest: 1
-  IsCreateNewArchive: 1
+  IsCreateNewArchive: 0
+--- !u!114 &127479099
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 127479094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63d465810fca9344d8143a7d421cfd07, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MapObjectLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1 &412835110
 GameObject:
   m_ObjectHideFlags: 0
@@ -682,6 +698,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b1042af434d6db4f89bd9711f7c0d7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_Camera: {fileID: 963194227}
   m_TargetTrans: {fileID: 412835112}
   m_Offset: {x: 0, y: 5.6, z: -4.3}
   m_MoveSpeed: 10
