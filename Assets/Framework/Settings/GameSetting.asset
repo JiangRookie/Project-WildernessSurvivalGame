@@ -97,7 +97,7 @@ MonoBehaviour:
       Data: 6|JKFrame.UIElement, Framework
     - Name: isCache
       Entry: 5
-      Data: false
+      Data: true
     - Name: prefab
       Entry: 10
       Data: 0

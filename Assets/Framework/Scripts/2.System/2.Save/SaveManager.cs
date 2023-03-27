@@ -43,7 +43,7 @@ namespace JKFrame
             public int CurrID = 0;
 
             // 所有存档的列表
-            public List<SaveItem> SaveItemList = new();
+            public List<SaveItem> SaveItemList = new List<SaveItem>();
         }
 
         static SaveManagerData s_SaveManagerData;
@@ -61,7 +61,7 @@ namespace JKFrame
 
         // 存档中对象的缓存字典 
         // <存档ID,<文件名称，实际的对象>>
-        static Dictionary<int, Dictionary<string, object>> s_CacheDict = new();
+        static Dictionary<int, Dictionary<string, object>> s_CacheDict = new Dictionary<int, Dictionary<string, object>>();
 
         // 初始化的事情
         static SaveManager()
@@ -507,7 +507,7 @@ namespace JKFrame
 
         #region 工具函数
 
-        static BinaryFormatter s_BinaryFormatter = new();
+        static BinaryFormatter s_BinaryFormatter = new BinaryFormatter();
 
         /// <summary>
         /// 获取某个存档的路径

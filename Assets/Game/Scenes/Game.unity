@@ -259,7 +259,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTest: 1
-  IsCreateNewArchive: 0
+  IsCreateNewArchive: 1
 --- !u!114 &127479099
 MonoBehaviour:
   m_ObjectHideFlags: 0

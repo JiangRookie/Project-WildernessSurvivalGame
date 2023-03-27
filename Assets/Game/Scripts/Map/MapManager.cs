@@ -7,6 +7,38 @@ namespace Project_WildernessSurvivalGame
 {
     public class MapManager : SingletonMono<MapManager>
     {
+        #region FIELD
+
+        #region 运行时逻辑变量
+
+        Transform m_Viewer; // 观察者 -> Player
+        MapGenerator m_MapGenerator;
+        float m_MapSizeOnWorld;
+        float m_ChunkSizeOnWorld;
+        const float UPDATE_VISIBLE_CHUNK_TIME = 1f; // 刷新可视地图块时间间隔
+        bool m_CanUpdateChunk = true;
+        Vector3 m_LastViewerPos = -Vector3.one;
+        [Tooltip("全部已有地图块字典")] Dictionary<Vector2Int, MapChunkController> m_MapChunkDict;
+        [Tooltip("最终显示出来的地图块")] List<MapChunkController> m_FinallyDisplayChunkList = new List<MapChunkController>();
+
+        #endregion
+
+        #region 配置
+
+        MapConfig m_MapConfig;
+        Dictionary<MapVertexType, List<int>> m_SpawnConfigDict; // 某个类型可以生成哪些地图对象配置的ID
+
+        #endregion
+
+        #region 存档
+
+        MapInitData m_MapInitData;
+        MapData m_MapData;
+
+        #endregion
+
+        #endregion
+
         void Update()
         {
             if (GameSceneManager.Instance.IsInitialized == false) return;
@@ -34,26 +66,25 @@ namespace Project_WildernessSurvivalGame
             m_MapInitData = ArchiveManager.Instance.MapInitData;
             m_MapData = ArchiveManager.Instance.MapData;
 
-            // 确定配置
+            // 确定配置 获取地图物品配置，初始化地图生成对象配置字典
             m_MapConfig = ConfigManager.Instance.GetConfig<MapConfig>(ConfigName.MAP);
-
-            // 获取地图物品配置，初始化地图生成对象配置字典
             Dictionary<int, ConfigBase> mapConfigDict = ConfigManager.Instance.GetConfigs(ConfigName.MapObject);
             m_SpawnConfigDict = new Dictionary<MapVertexType, List<int>>();
             m_SpawnConfigDict.Add(MapVertexType.Forest, new List<int>());
             m_SpawnConfigDict.Add(MapVertexType.Marsh, new List<int>());
-            foreach ((int id, ConfigBase configBase) in mapConfigDict)
+            foreach ((int id, ConfigBase config) in mapConfigDict)
             {
-                var mapVertexType = ((MapObjectConfig)configBase).MapVertexType;
+                MapVertexType mapVertexType = ((MapObjectConfig)config).MapVertexType;
                 m_SpawnConfigDict[mapVertexType].Add(id); // 将相同的顶点类型的Id放在同一个列表中
             }
 
             // 初始化地图生成器
-            m_MapGenerator = new MapGenerator(m_MapConfig, m_MapInitData, m_SpawnConfigDict);
+            m_MapGenerator = new MapGenerator(m_MapConfig, m_MapInitData, m_MapData, m_SpawnConfigDict);
             m_MapGenerator.GenerateMapData();
 
             // 初始化地图块字典
             m_MapChunkDict = new Dictionary<Vector2Int, MapChunkController>();
+
             m_ChunkSizeOnWorld = m_MapConfig.MapChunkSize * m_MapConfig.CellSize;
             m_MapSizeOnWorld = m_ChunkSizeOnWorld * m_MapInitData.MapSize;
 
@@ -87,7 +118,10 @@ namespace Project_WildernessSurvivalGame
             }
         }
 
-        public void UpdateViewer(Transform player) => m_Viewer = player;
+        public void UpdateViewer(Transform player)
+        {
+            m_Viewer = player;
+        }
 
         /// <summary>
         /// 根据观察者的位置更新可视地图块
@@ -109,16 +143,16 @@ namespace Project_WildernessSurvivalGame
         void DoUpdateVisibleChunk()
         {
             // 获取当前观察者所在的地图块
-            var currChunkIndex = GetMapChunkIndex(m_Viewer.position);
+            Vector2Int currViewerChunkIndex = GetMapChunkIndex(m_Viewer.position);
 
             #region 关闭全部不需要显示的地图块
 
             for (int i = m_FinallyDisplayChunkList.Count - 1; i >= 0; i--)
             {
-                var chunkIndex = m_FinallyDisplayChunkList[i].ChunkIndex;
+                Vector2Int chunkIndex = m_FinallyDisplayChunkList[i].ChunkIndex;
 
-                if (Mathf.Abs(chunkIndex.x - currChunkIndex.x) > m_MapConfig.ViewDistance
-                 || Mathf.Abs(chunkIndex.y - currChunkIndex.y) > m_MapConfig.ViewDistance)
+                if (Mathf.Abs(chunkIndex.x - currViewerChunkIndex.x) > m_MapConfig.ViewDistance
+                 || Mathf.Abs(chunkIndex.y - currViewerChunkIndex.y) > m_MapConfig.ViewDistance)
                 {
                     m_FinallyDisplayChunkList[i].SetActive(false);
                     m_FinallyDisplayChunkList.RemoveAt(i);
@@ -130,10 +164,10 @@ namespace Project_WildernessSurvivalGame
             #region 开启需要显示的地图块
 
             // 从左下角开始遍历地图块
-            int startX = currChunkIndex.x - m_MapConfig.ViewDistance;
-            int startY = currChunkIndex.y - m_MapConfig.ViewDistance;
-            
+            int startX = currViewerChunkIndex.x - m_MapConfig.ViewDistance;
+            int startY = currViewerChunkIndex.y - m_MapConfig.ViewDistance;
             int count = 2 * m_MapConfig.ViewDistance + 1;
+
             for (int x = 0; x < count; x++)
             {
                 for (int y = 0; y < count; y++)
@@ -141,7 +175,7 @@ namespace Project_WildernessSurvivalGame
                     Vector2Int chunkIndex = new Vector2Int(startX + x, startY + y);
 
                     // 在地图字典中，也就是之前加载过，但是不一定加载完成了，因为贴图会在协程中执行，执行完成后才算初始化完毕
-                    if (m_MapChunkDict.TryGetValue(chunkIndex, out var chunk))
+                    if (m_MapChunkDict.TryGetValue(chunkIndex, out MapChunkController chunk))
                     {
                         // 上一次显示的地图列表中并不包含这个地图块 && 同时它已经完成了初始化
                         if (m_FinallyDisplayChunkList.Contains(chunk) == false && chunk.IsInitializedMapUI)
@@ -184,74 +218,47 @@ namespace Project_WildernessSurvivalGame
             if (index.x > m_MapInitData.MapSize - 1 || index.y > m_MapInitData.MapSize - 1) return null;
             if (index.x < 0 || index.y < 0) return null;
 
-            MapChunkController chunk = m_MapGenerator.GenerateMapChunk
-            (
-                index, transform, mapChunkData, () =>
+            MapChunkController chunk
+                = m_MapGenerator.GenerateMapChunk(index, transform, mapChunkData, () =>
                 {
-                    m_WaitForUIUpdateMapChunkList.Add(index); // 加入到待更新的地图块UI列表
-                }
-            );
+                    m_WaitForUpdateMapChunkUIList.Add(index); // 加入到待更新的地图块UI列表
+                });
             m_MapChunkDict.Add(index, chunk); // 加入到地图块列表
 
             return chunk;
         }
 
-        void ResetCanUpdateChunkFlag() => m_CanUpdateChunk = true;
+        void ResetCanUpdateChunkFlag()
+        {
+            m_CanUpdateChunk = true;
+        }
 
-        #region 运行时逻辑变量
+        #region Map UI
 
-        float m_MapSizeOnWorld;   // 在世界中实际的地图尺寸 MapSize * m_ChunkSizeOnWorld
-        float m_ChunkSizeOnWorld; // 在世界中实际的地图块尺寸 MapChunkSize * CellSize
-        MapGenerator m_MapGenerator;
-
-        Transform m_Viewer;
-        Vector3 m_LastViewerPos = Vector3.one * -1;
-        const float UPDATE_VISIBLE_CHUNK_TIME = 1f; // 刷新可视地图块时间间隔
-        bool m_CanUpdateChunk = true;
-
-        Dictionary<Vector2Int, MapChunkController> m_MapChunkDict;  // 全部已有的地图块
-        List<MapChunkController> m_FinallyDisplayChunkList = new(); // 最终显示出来的地图块
-
-        #endregion
-
-        #region 配置
-
-        MapConfig m_MapConfig;
-        Dictionary<MapVertexType, List<int>> m_SpawnConfigDict; // 某个类型可以生成哪些地图对象配置的ID
-
-        #endregion
-
-        #region 存档
-
-        MapInitData m_MapInitData;
-        MapData m_MapData;
-
-        #endregion
-
-        #region MapUI
-
+        UI_MapWindow m_MapUI;
         bool m_IsInitializedMapUI = false;
         bool m_IsShowingMap = false;
-        List<Vector2Int> m_WaitForUIUpdateMapChunkList = new(); // 等待更新的地图块UI表
-        UI_MapWindow m_MapUI;
+        List<Vector2Int> m_WaitForUpdateMapChunkUIList = new(); // 等待更新的地图块UI列表
 
         void ShowMapUI()
         {
             m_MapUI = UIManager.Instance.Show<UI_MapWindow>();
             if (m_IsInitializedMapUI == false)
             {
-                m_MapUI.InitMap(m_MapInitData.MapSize, m_MapConfig.MapChunkSize, m_MapSizeOnWorld
-                              , m_MapConfig.ForestTexture);
+                m_MapUI.InitMap(m_MapInitData.MapSize, m_MapConfig.MapChunkSize, m_MapSizeOnWorld, m_MapConfig.ForestTexture);
                 m_IsInitializedMapUI = true;
             }
             UpdateMapUI();
         }
 
-        static void CloseMapUI() => UIManager.Instance.Close<UI_MapWindow>();
+        static void CloseMapUI()
+        {
+            UIManager.Instance.Close<UI_MapWindow>();
+        }
 
         void UpdateMapUI()
         {
-            foreach (var chunkIndex in m_WaitForUIUpdateMapChunkList)
+            foreach (var chunkIndex in m_WaitForUpdateMapChunkUIList)
             {
                 Texture2D texture = null;
                 MapChunkController mapChunk = m_MapChunkDict[chunkIndex];
@@ -259,10 +266,19 @@ namespace Project_WildernessSurvivalGame
                 {
                     texture = (Texture2D)mapChunk.GetComponent<MeshRenderer>().material.mainTexture;
                 }
-                m_MapUI.AddMapChunk(chunkIndex, mapChunk.MapChunkData.MapObjectList, texture);
+                m_MapUI.AddMapChunk(chunkIndex, mapChunk.MapChunkData.MapObjectDict, texture);
             }
-            m_WaitForUIUpdateMapChunkList.Clear();
+            m_WaitForUpdateMapChunkUIList.Clear();
             m_MapUI.UpdatePivot(m_Viewer.position);
+        }
+
+        /// <summary>
+        /// 移除一个地图对象
+        /// </summary>
+        /// <param name="mapObjectID">地图对象ID</param>
+        public void RemoveMapObject(ulong mapObjectID)
+        {
+            if (m_MapUI != null) m_MapUI.RemoveMapObjectIcon(mapObjectID);
         }
 
         #endregion

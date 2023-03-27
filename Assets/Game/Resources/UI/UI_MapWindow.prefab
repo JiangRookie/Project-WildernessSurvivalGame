@@ -442,7 +442,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1435b99f8a6f364fb0518ec26689ba6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Content: {fileID: 5867046236286607369}
-  MapItemPrefab: {fileID: 6839919911568655807, guid: 19f085687ffd94c49bb21427f0aab2cb, type: 3}
-  MapIconPrefab: {fileID: 6839919911568655807, guid: e0cc18a63623cf8438a3589b2d6730aa, type: 3}
-  PlayerIcon: {fileID: 5867046236816927773}
+  m_Content: {fileID: 5867046236286607369}
+  m_MapItemPrefab: {fileID: 6839919911568655807, guid: 19f085687ffd94c49bb21427f0aab2cb, type: 3}
+  m_MapIconPrefab: {fileID: 6839919911568655807, guid: e0cc18a63623cf8438a3589b2d6730aa, type: 3}
+  m_PlayerIcon: {fileID: 5867046236816927773}

@@ -24,13 +24,11 @@ public class TreeController : MapObjectBase
         }
         print("树：啊我受伤了");
         m_Animator.SetTrigger(s_Hurt);
-        AudioManager.Instance.PlayOneShot(
-            m_HurtAudioClips[Random.Range(0, m_HurtAudioClips.Length)]
-          , transform.position);
+        AudioManager.Instance.PlayOneShot(m_HurtAudioClips[Random.Range(0, m_HurtAudioClips.Length)], transform.position);
     }
 
     void Dead()
     {
-        Destroy(gameObject);
+        RemoveOnMap();
     }
 }

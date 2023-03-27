@@ -22,7 +22,8 @@ namespace Project_WildernessSurvivalGame
     [Serializable]
     public class MapData
     {
-        public List<SerializableVector2> MapChunkIndexList = new(); // 当前玩家去过的所有地图块（已经生成过的地图块）
+        [Tooltip("当前地图对象ID取值")] public ulong CurrentID = ulong.MinValue;
+        [Tooltip("当前玩家去过的所有地图块（已经生成过的地图块）")] public List<SerializableVector2> MapChunkIndexList = new List<SerializableVector2>();
     }
 
     /// <summary>
@@ -31,18 +32,17 @@ namespace Project_WildernessSurvivalGame
     [Serializable]
     public class MapChunkData
     {
-        /// <summary>
-        /// 地图块中的各种地图对象组合成的列表
-        /// </summary>
-        public List<MapChunkMapObjectData> MapObjectList = new();
+        [Tooltip("地图块中的各种地图对象组合成的列表")]
+        public SerializableDictionary<ulong, MapObjectData> MapObjectDict = new SerializableDictionary<ulong, MapObjectData>();
     }
 
     /// <summary>
     /// 地图块地图对象数据
     /// </summary>
     [Serializable]
-    public class MapChunkMapObjectData
+    public class MapObjectData
     {
+        public ulong ID; // 唯一身份标识
         public int ConfigID;
         SerializableVector3 m_Position;
 

@@ -12,6 +12,8 @@ namespace Project_WildernessSurvivalGame
     /// </summary>
     public class MapGenerator
     {
+        #region FIELD
+
         #region 运行时逻辑变量
 
         MapGrid m_MapGrid;
@@ -25,11 +27,7 @@ namespace Project_WildernessSurvivalGame
 
         #region 配置
 
-        /// <summary>
-        /// Key：顶点类型 Value：可以生成的地图对象配置的ID列表
-        /// </summary>
         Dictionary<MapVertexType, List<int>> m_SpawnConfigDict;
-
         MapConfig m_MapConfig;
 
         #endregion
@@ -37,14 +35,17 @@ namespace Project_WildernessSurvivalGame
         #region 存档
 
         MapInitData m_MapInitData;
+        MapData m_MapData;
 
         #endregion
 
-        public MapGenerator
-            (MapConfig mapConfig, MapInitData mapInitData, Dictionary<MapVertexType, List<int>> spawnConfigDict)
+        #endregion
+
+        public MapGenerator(MapConfig mapConfig, MapInitData mapInitData, MapData mapData, Dictionary<MapVertexType, List<int>> spawnConfigDict)
         {
             m_MapConfig = mapConfig;
             m_MapInitData = mapInitData;
+            m_MapData = mapData;
             m_SpawnConfigDict = spawnConfigDict;
         }
 
@@ -56,34 +57,37 @@ namespace Project_WildernessSurvivalGame
             // 应用地图随机生成种子
             Random.InitState(m_MapInitData.MapGenerationSeed);
 
-            var rowTotalCellNum = m_MapInitData.MapSize * m_MapConfig.MapChunkSize; // 一行/列总格子数
-            var mapChunkLength = m_MapConfig.MapChunkSize * m_MapConfig.CellSize;   // 单个地图块的长度
+            int rowTotalCellNum = m_MapInitData.MapSize * m_MapConfig.MapChunkSize; // 一行/列总格子数
+            float[,] noiseMap = GenerateNoiseMap(rowTotalCellNum, rowTotalCellNum, m_MapConfig.NoiseLacunarity);
 
-            var noiseMap = GenerateNoiseMap(rowTotalCellNum, rowTotalCellNum, m_MapConfig.NoiseLacunarity);
-
+            // 生成网格数据
             m_MapGrid = new MapGrid(rowTotalCellNum, rowTotalCellNum, m_MapConfig.CellSize);
             m_MapGrid.CalculateMapVertexType(noiseMap, m_MapInitData.MarshLimit);
 
-            m_MapConfig.MapMaterial.mainTexture = m_MapConfig.ForestTexture; // Set the main texture
+            m_MapConfig.MapMaterial.mainTexture = m_MapConfig.ForestTexture;
+            float mapChunkLength = m_MapConfig.MapChunkSize * m_MapConfig.CellSize;
             m_MapConfig.MapMaterial.SetTextureScale(s_MainTex, new Vector2(mapChunkLength, mapChunkLength)); // 设置纹理缩放
+
+            // 实例化一个沼泽材质
             m_MarshMaterial = new Material(m_MapConfig.MapMaterial); // 通过复制其他材质的所有属性来创建一个沼泽材质
             m_MarshMaterial.SetTextureScale(s_MainTex, Vector2.one);
 
-            m_ChunkMesh = GenerateMapChunkMesh(m_MapConfig.MapChunkSize, m_MapConfig.MapChunkSize
-                                             , m_MapConfig.CellSize);
+            m_ChunkMesh = GenerateMapChunkMesh(m_MapConfig.MapChunkSize, m_MapConfig.MapChunkSize, m_MapConfig.CellSize);
 
             // 应用地图随机对象（花草树木）生成种子
             Random.InitState(m_MapInitData.MapObjectRandomSpawnSeed);
 
             List<int> idList = m_SpawnConfigDict[MapVertexType.Forest];
             foreach (int id in idList)
-                m_ForestSpawnWeightTotal
-                    += ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, id).Probability;
+            {
+                m_ForestSpawnWeightTotal += ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, id).Probability;
+            }
 
             idList = m_SpawnConfigDict[MapVertexType.Marsh];
             foreach (int id in idList)
-                m_MarshSpawnWeightTotal
-                    += ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, id).Probability;
+            {
+                m_MarshSpawnWeightTotal += ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, id).Probability;
+            }
         }
 
         /// <summary>
@@ -94,41 +98,38 @@ namespace Project_WildernessSurvivalGame
         /// <param name="mapChunkData"></param>
         /// <param name="callBackForMapTexture"></param>
         /// <returns></returns>
-        public MapChunkController GenerateMapChunk
-            (Vector2Int chunkIndex, Transform parent, MapChunkData mapChunkData, Action callBackForMapTexture)
+        public MapChunkController GenerateMapChunk(Vector2Int chunkIndex, Transform parent, MapChunkData mapChunkData, Action callBackForMapTexture)
         {
             // 生成地图块物体
-            var mapChunkGameObj = new GameObject("Chunk_" + chunkIndex);
-            var mapChunk = mapChunkGameObj.AddComponent<MapChunkController>();
+            GameObject mapChunkGameObj = new GameObject("Chunk_" + chunkIndex.ToString());
+            MapChunkController mapChunk = mapChunkGameObj.AddComponent<MapChunkController>();
 
             // 为地图块生成 Mesh 并添加碰撞体
             mapChunkGameObj.AddComponent<MeshFilter>().mesh = m_ChunkMesh;
             mapChunkGameObj.AddComponent<MeshCollider>();
 
+            Texture2D mapTexture;
+            bool allForest;
+
             // 生成地图块的贴图
-            // Texture2D mapTexture;
-            // bool allForest;
-
-            this.StartCoroutine(GenerateMapTexture(chunkIndex, CallBack));
-
-            void CallBack(Texture2D texture, bool isAllForest)
+            this.StartCoroutine(GenerateMapTexture(chunkIndex, (texture, isAllForest) =>
             {
-                // allForest = isAllForest;
+                allForest = isAllForest;
                 if (isAllForest)
                 {
                     mapChunkGameObj.AddComponent<MeshRenderer>().sharedMaterial = m_MapConfig.MapMaterial;
                 }
                 else
                 {
-                    // mapTexture = texture;
+                    mapTexture = texture;
                     Material material = new Material(m_MarshMaterial);
-                    material.mainTexture = texture;
+                    material.mainTexture = mapTexture;
                     mapChunkGameObj.AddComponent<MeshRenderer>().material = material;
                 }
                 callBackForMapTexture?.Invoke();
 
-                var chunkSize = m_MapConfig.MapChunkSize * m_MapConfig.CellSize; // 地图块大小
-                var position = new Vector3(chunkIndex.x * chunkSize, 0, chunkIndex.y * chunkSize);
+                float chunkSize = m_MapConfig.MapChunkSize * m_MapConfig.CellSize; // 地图块大小
+                Vector3 position = new Vector3(chunkIndex.x * chunkSize, 0, chunkIndex.y * chunkSize);
                 mapChunk.transform.position = position;
                 mapChunkGameObj.transform.SetParent(parent);
 
@@ -138,15 +139,15 @@ namespace Project_WildernessSurvivalGame
                     mapChunkData = new MapChunkData();
 
                     // 生成场景物体数据
-                    mapChunkData.MapObjectList = SpawnMapObject(chunkIndex);
+                    mapChunkData.MapObjectDict = SpawnMapObject(chunkIndex);
 
                     // 生成后进行持久化保存
                     ArchiveManager.Instance.AddAndSaveMapChunkData(chunkIndex, mapChunkData);
                 }
 
                 // 生成场景物体
-                mapChunk.Init(chunkIndex, isAllForest, mapChunkData);
-            }
+                mapChunk.Init(chunkIndex, new Vector3(chunkSize / 2, 0, chunkSize / 2), allForest, mapChunkData);
+            }));
 
             return mapChunk;
         }
@@ -212,8 +213,7 @@ namespace Project_WildernessSurvivalGame
             {
                 for (int z = 0; z < height - 1; z++)
                 {
-                    noiseMap[x, z] =
-                        Mathf.PerlinNoise(x * lacunarity + offsetX, z * lacunarity + offsetZ);
+                    noiseMap[x, z] = Mathf.PerlinNoise(x * lacunarity + offsetX, z * lacunarity + offsetZ);
                 }
             }
             return noiseMap;
@@ -252,30 +252,29 @@ namespace Project_WildernessSurvivalGame
 
             if (isAllForest == false) // 如果是沼泽
             {
-                var textureCellSize = m_MapConfig.ForestTexture.width;           // 贴图都是正方形
-                var mapChunkLength = m_MapConfig.MapChunkSize * textureCellSize; // 整个地图块的边长
+                int textureCellSize = m_MapConfig.ForestTexture.width;           // 贴图都是正方形
+                int mapChunkLength = m_MapConfig.MapChunkSize * textureCellSize; // 整个地图块的边长
                 mapTexture = new Texture2D(mapChunkLength, mapChunkLength, TextureFormat.RGB24, false);
 
                 // 遍历每一个格子
-                for (int chunkZ = 0; chunkZ < m_MapConfig.MapChunkSize; chunkZ++)
+                for (int y = 0; y < m_MapConfig.MapChunkSize; y++)
                 {
                     yield return null; // 一帧只绘制一列像素
 
-                    int pixelOffsetZ = chunkZ * textureCellSize;
+                    int pixelOffsetY = y * textureCellSize; // 像素偏移量
 
-                    for (int chunkX = 0; chunkX < m_MapConfig.MapChunkSize; chunkX++)
+                    for (int x = 0; x < m_MapConfig.MapChunkSize; x++)
                     {
-                        int pixelOffsetX = chunkX * textureCellSize;
+                        int pixelOffsetX = x * textureCellSize;
 
                         // <0 是森林，>=0 是 沼泽
-                        int textureIndex = m_MapGrid.GetCell(chunkX + cellOffsetX, chunkZ + cellOffsetZ).TextureIndex
-                          - 1;
+                        int textureIndex = m_MapGrid.GetCell(x + cellOffsetX, y + cellOffsetZ).TextureIndex - 1;
 
                         // 绘制每一个格子内的像素
                         // 访问每一个像素点
-                        for (int cellZ = 0; cellZ < textureCellSize; cellZ++)
+                        for (int y1 = 0; y1 < textureCellSize; y1++)
                         {
-                            for (int cellX = 0; cellX < textureCellSize; cellX++)
+                            for (int x1 = 0; x1 < textureCellSize; x1++)
                             {
                                 // 设置某个像素点的颜色
                                 // 确定是森林还是沼泽
@@ -284,19 +283,19 @@ namespace Project_WildernessSurvivalGame
 
                                 if (textureIndex < 0) // <0 是森林
                                 {
-                                    color = m_MapConfig.ForestTexture.GetPixel(cellX, cellZ);
+                                    color = m_MapConfig.ForestTexture.GetPixel(x1, y1);
                                 }
                                 else
                                 {
-                                    color = m_MapConfig.MarshTextures[textureIndex].GetPixel(cellX, cellZ);
+                                    color = m_MapConfig.MarshTextures[textureIndex].GetPixel(x1, y1);
 
                                     if (color.a < 1f)
                                     {
-                                        color = m_MapConfig.ForestTexture.GetPixel(cellX, cellZ);
+                                        color = m_MapConfig.ForestTexture.GetPixel(x1, y1);
                                     }
                                 }
 
-                                mapTexture.SetPixel(cellX + pixelOffsetX, cellZ + pixelOffsetZ, color);
+                                mapTexture.SetPixel(x1 + pixelOffsetX, y1 + pixelOffsetY, color);
                             }
                         }
                     }
@@ -315,23 +314,23 @@ namespace Project_WildernessSurvivalGame
         /// 生成地图上的游戏物体
         /// </summary>
         /// <remarks>遍历地图顶点，根据spawnConfig中的配置信息及其概率进行随机生成，并在对应位置实例化物体</remarks>
-        List<MapChunkMapObjectData> SpawnMapObject(Vector2Int chunkIndex)
+        SerializableDictionary<ulong, MapObjectData> SpawnMapObject(Vector2Int chunkIndex)
         {
-            var mapChunkMapObjectList = new List<MapChunkMapObjectData>();
-            var cellSize = m_MapGrid.CellSize;
-            var offsetX = chunkIndex.x * m_MapConfig.MapChunkSize;
-            var offsetZ = chunkIndex.y * m_MapConfig.MapChunkSize;
+            SerializableDictionary<ulong, MapObjectData> mapChunkMapObjectDict = new SerializableDictionary<ulong, MapObjectData>();
+            float cellSize = m_MapGrid.CellSize;
+            int offsetX = chunkIndex.x * m_MapConfig.MapChunkSize;
+            int offsetZ = chunkIndex.y * m_MapConfig.MapChunkSize;
 
             // 遍历地图顶点
             for (int x = 1; x < m_MapConfig.MapChunkSize; x++)
             {
-                for (int z = 1; z < m_MapConfig.MapChunkSize; z++)
+                for (int y = 1; y < m_MapConfig.MapChunkSize; y++)
                 {
-                    var mapVertex = m_MapGrid.GetVertex(x + offsetX, z + offsetZ);
+                    MapVertex mapVertex = m_MapGrid.GetVertex(x + offsetX, y + offsetZ);
 
                     // 根据概率配置随机
                     // 根据顶点的顶点类型获取对应的列表
-                    var spawnConfigIdList = m_SpawnConfigDict[mapVertex.VertexType];
+                    List<int> spawnConfigIdList = m_SpawnConfigDict[mapVertex.VertexType];
 
                     // 确定权重的总和
                     int weightTotal = mapVertex.VertexType == MapVertexType.Forest
@@ -344,9 +343,7 @@ namespace Project_WildernessSurvivalGame
 
                     for (int i = 0; i < spawnConfigIdList.Count; i++)
                     {
-                        probabilitySum += ConfigManager.Instance
-                                                       .GetConfig<MapObjectConfig>(
-                                                            ConfigName.MapObject, spawnConfigIdList[i]).Probability;
+                        probabilitySum += ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, spawnConfigIdList[i]).Probability;
 
                         if (randomValue < probabilitySum) // 命中
                         {
@@ -354,24 +351,24 @@ namespace Project_WildernessSurvivalGame
                             break;
                         }
                     }
-                    var configID = spawnConfigIdList[spawnConfigIndex];
-                    var spawnModel = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, configID);
 
-                    if (spawnModel.IsEmpty) continue;
+                    // 确定到底生成什么地图物品
+                    int configID = spawnConfigIdList[spawnConfigIndex];
+                    MapObjectConfig spawnModel = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, configID);
+                    if (spawnModel.IsEmpty == false)
+                    {
+                        var position = mapVertex.Position
+                          + new Vector3(Random.Range(-cellSize / 2, cellSize / 2), 0, Random.Range(-cellSize / 2, cellSize / 2));
 
-                    var position = mapVertex.Position + new Vector3
-                    (
-                        Random.Range(-cellSize / 2, cellSize / 2)
-                      , 0
-                      , Random.Range(-cellSize / 2, cellSize / 2)
-                    );
-                    mapChunkMapObjectList.Add
-                    (
-                        new MapChunkMapObjectData { ConfigID = configID, Position = position }
-                    );
+                        mapChunkMapObjectDict.Dictionary.Add
+                        (m_MapData.CurrentID
+                       , new MapObjectData { ID = m_MapData.CurrentID, ConfigID = configID, Position = position });
+
+                        m_MapData.CurrentID++;
+                    }
                 }
             }
-            return mapChunkMapObjectList;
+            return mapChunkMapObjectDict;
         }
     }
 }

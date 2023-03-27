@@ -10,12 +10,11 @@ public class ArchiveManager : Singleton<ArchiveManager>
     public ArchiveManager() => LoadArchiveData();
 
     public PlayerTransformData PlayerTransformData { get; private set; }
+    public PlayerCoreData PlayerCoreData { get; private set; }
     public MapInitData MapInitData { get; private set; }
     public MapData MapData { get; private set; }
     public InventoryData InventoryData { get; private set; }
     public TimeData TimeData { get; private set; }
-    public PlayerCoreData PlayerCoreData { get; private set; }
-
     public bool HasArchived { get; private set; }
 
     public void LoadArchiveData()
@@ -77,10 +76,9 @@ public class ArchiveManager : Singleton<ArchiveManager>
 
         InventoryData.ItemDatas[3] = ItemData.CreateItemData(3);
         ((Item_ConsumableData)InventoryData.ItemDatas[3].ItemTypeData).Count = 10;
-        
+
         InventoryData.ItemDatas[4] = ItemData.CreateItemData(4);
         InventoryData.ItemDatas[5] = ItemData.CreateItemData(5);
-
 
         #endregion
 

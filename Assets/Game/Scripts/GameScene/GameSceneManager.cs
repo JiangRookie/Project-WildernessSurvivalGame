@@ -42,8 +42,7 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
 
         // 确定地图初始化配置数据
         MapConfig mapConfig = ConfigManager.Instance.GetConfig<MapConfig>(ConfigName.MAP);
-        float mapSizeOnWorld
-            = ArchiveManager.Instance.MapInitData.MapSize * mapConfig.MapChunkSize * mapConfig.CellSize;
+        float mapSizeOnWorld = ArchiveManager.Instance.MapInitData.MapSize * mapConfig.MapChunkSize * mapConfig.CellSize;
 
         // 显示主信息面板：
         // 依赖于 TimeManager 的信息发送
@@ -63,7 +62,7 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
 
         // 初始化时间
         TimeManager.Instance.Init(); // EventTrigger
-        
+
         // 初始化输入管理器
         InputManager.Instance.Init();
     }

@@ -13,17 +13,17 @@ namespace Project_WildernessSurvivalGame
     {
         #region Field
 
-        [SerializeField] RectTransform Content;    // 所有地图块、Icon显示的父物体
-        [SerializeField] GameObject MapItemPrefab; // 单个地图块在UI中的预制体
-        [SerializeField] GameObject MapIconPrefab; // 单个Icon在UI中的预制体
-        [SerializeField] RectTransform PlayerIcon; // 玩家所在位置的Icon
+        [SerializeField] GameObject m_MapItemPrefab; // 单个地图块在UI中的预制体
+        [SerializeField] GameObject m_MapIconPrefab; // 单个Icon在UI中的预制体
+        [SerializeField] RectTransform m_Content;    // 所有地图块、Icon显示的父物体
+        [SerializeField] RectTransform m_PlayerIcon; // 玩家所在位置的Icon
 
         int m_MapChunkSize;
         float m_ContentSize;
         float m_MapChunkImageSize;
         float m_MapSizeOnWorld;
         Sprite m_ForestSprite;
-        Dictionary<Vector2Int, Image> m_MapImageDict = new(); // 地图图片字典
+        Dictionary<ulong, Image> m_MapObjectIconDict = new Dictionary<ulong, Image>(); // 所有的地图物体的Icon字典
         float m_ScrollValue;
         float m_MinScaleFactor;
 
@@ -40,8 +40,8 @@ namespace Project_WildernessSurvivalGame
             m_ScrollValue = Input.GetAxis(MouseScrollWheel); // 这里会一直监听鼠标滑轮事件
             if (m_ScrollValue != 0)
             {
-                float newScale = Mathf.Clamp(Content.localScale.x + m_ScrollValue, m_MinScaleFactor, MaxScaleFactor);
-                Content.localScale = new Vector3(newScale, newScale, 0);
+                float newScale = Mathf.Clamp(m_Content.localScale.x + m_ScrollValue, m_MinScaleFactor, MaxScaleFactor);
+                m_Content.localScale = new Vector3(newScale, newScale, 0);
             }
         }
 
@@ -63,10 +63,10 @@ namespace Project_WildernessSurvivalGame
             m_MapSizeOnWorld = mapSizeOnWorld;
             m_ForestSprite = CreateSprite(forestTexture);
 
-            m_ContentSize = mapSizeOnWorld * ContentScaleFactor;                 // 将 Content 容器的大小设置为地图大小的 10 倍
-            Content.sizeDelta = new Vector2(m_ContentSize, m_ContentSize);       // 这个 RectTransform 大小相对于锚点之间的距离。
-            Content.localScale = new Vector3(MaxScaleFactor, MaxScaleFactor, 1); // 打开默认最大缩放
-            m_MapChunkImageSize = m_ContentSize / mapSize;                       // 计算单个地图块 UI 的尺寸
+            m_ContentSize = mapSizeOnWorld * ContentScaleFactor;                   // 将 Content 容器的大小设置为地图大小的 10 倍
+            m_Content.sizeDelta = new Vector2(m_ContentSize, m_ContentSize);       // 这个 RectTransform 大小相对于锚点之间的距离。
+            m_Content.localScale = new Vector3(MaxScaleFactor, MaxScaleFactor, 1); // 打开默认最大缩放
+            m_MapChunkImageSize = m_ContentSize / mapSize;                         // 计算单个地图块 UI 的尺寸
             m_MinScaleFactor = ScrollViewSize / m_ContentSize;
         }
 
@@ -78,22 +78,20 @@ namespace Project_WildernessSurvivalGame
         {
             float x = viewerPos.x / m_MapSizeOnWorld;
             float z = viewerPos.z / m_MapSizeOnWorld;
-            Content.pivot = new Vector2(x, z); // 修改 Content.pivot 会触发 Scroll Rect 组件的 OnValueChanged 事件
+            m_Content.pivot = new Vector2(x, z); // 修改 Content.pivot 会触发 Scroll Rect 组件的 OnValueChanged 事件
         }
 
         /// <summary>
         /// 添加一个地图块
         /// </summary>
         /// <param name="chunkIndex">地图块索引</param>
-        /// <param name="mapObjectList">地图块中的各种地图对象组合成的列表</param>
+        /// <param name="mapObjectDict">地图块中的各种地图对象组合成的列表</param>
         /// <param name="texture">纹理</param>
-        public void AddMapChunk
-            (Vector2Int chunkIndex, List<MapChunkMapObjectData> mapObjectList, Texture2D texture = null)
+        public void AddMapChunk(Vector2Int chunkIndex, SerializableDictionary<ulong, MapObjectData> mapObjectDict, Texture2D texture = null)
         {
             // 获取地图块 UI 的 RectTransform 并设置地图块 UI 的位置和大小
-            var mapChunkRect = Instantiate(MapItemPrefab, Content).GetComponent<RectTransform>();
-            mapChunkRect.anchoredPosition
-                = new Vector2(chunkIndex.x * m_MapChunkImageSize, chunkIndex.y * m_MapChunkImageSize);
+            RectTransform mapChunkRect = Instantiate(m_MapItemPrefab, m_Content).GetComponent<RectTransform>();
+            mapChunkRect.anchoredPosition = new Vector2(chunkIndex.x * m_MapChunkImageSize, chunkIndex.y * m_MapChunkImageSize);
             mapChunkRect.sizeDelta = new Vector2(m_MapChunkImageSize, m_MapChunkImageSize);
 
             var mapChunkImage = mapChunkRect.GetComponent<Image>();
@@ -111,24 +109,29 @@ namespace Project_WildernessSurvivalGame
                 mapChunkImage.sprite = CreateSprite(texture);
             }
 
-            foreach (var mapObject in mapObjectList)
+            foreach (var mapObject in mapObjectDict.Dictionary)
             {
-                var config = ConfigManager.Instance.GetConfig<MapObjectConfig>(
-                    ConfigName.MapObject, mapObject.ConfigID);
-
-                // TODO: 这个物体它需要放进UI地图，除了Icon可能还有其他信息
+                MapObjectConfig config = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, mapObject.Value.ConfigID);
                 if (config.MapIconSprite == null) continue;
+                GameObject gameObj = PoolManager.Instance.GetGameObject(m_MapIconPrefab, m_Content);
+                Image iconImage = gameObj.GetComponent<Image>();
+                iconImage.sprite = config.MapIconSprite;
 
                 // 因为 Content 的尺寸在初始化的时候 * ContentScaleFactor，所以 Icon 也需要乘上同样的系数
-                var gameObj = PoolManager.Instance.GetGameObject(MapIconPrefab, Content);
-                var x = mapObject.Position.x * ContentScaleFactor;
-                var y = mapObject.Position.z * ContentScaleFactor;
-                gameObj.GetComponent<Image>().sprite = config.MapIconSprite;
+                var x = mapObject.Value.Position.x * ContentScaleFactor;
+                var y = mapObject.Value.Position.z * ContentScaleFactor;
                 gameObj.GetComponent<RectTransform>().anchoredPosition = new Vector2(x, y);
+                m_MapObjectIconDict.Add(mapObject.Key, iconImage);
             }
+        }
 
-            // TODO：待重构，因为肯定还需要保存Icon的信息用来后续移除（因为Icon代表的花草树木有可能会消失）
-            m_MapImageDict.Add(chunkIndex, mapChunkImage);
+        public void RemoveMapObjectIcon(ulong mapObjectID)
+        {
+            if (m_MapObjectIconDict.TryGetValue(mapObjectID, out Image icon))
+            {
+                icon.JKGameObjectPushPool();
+                m_MapObjectIconDict.Remove(mapObjectID);
+            }
         }
 
         /// <summary>
@@ -150,7 +153,7 @@ namespace Project_WildernessSurvivalGame
         {
             // 玩家的 Icon 完全放在 Content 的中心点
             // anchoredPosition：这个RectTransform的中心点相对于锚点参考点的位置。
-            PlayerIcon.anchoredPosition3D = Content.anchoredPosition;
+            m_PlayerIcon.anchoredPosition3D = m_Content.anchoredPosition;
         }
     }
 }
