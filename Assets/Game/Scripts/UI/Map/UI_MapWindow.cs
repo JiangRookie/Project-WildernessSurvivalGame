@@ -116,6 +116,7 @@ namespace Project_WildernessSurvivalGame
                 GameObject gameObj = PoolManager.Instance.GetGameObject(m_MapIconPrefab, m_Content);
                 Image iconImage = gameObj.GetComponent<Image>();
                 iconImage.sprite = config.MapIconSprite;
+                iconImage.transform.localScale = Vector3.one * config.IconSize;
 
                 // 因为 Content 的尺寸在初始化的时候 * ContentScaleFactor，所以 Icon 也需要乘上同样的系数
                 var x = mapObject.Value.Position.x * ContentScaleFactor;

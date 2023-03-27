@@ -1,7 +1,8 @@
 using JKFrame;
+using Project_WildernessSurvivalGame;
 using UnityEngine;
 
-public class TreeController : MapObjectBase
+public abstract class CanHitMapObjectBase : MapObjectBase
 {
     [SerializeField] Animator m_Animator;
     [SerializeField] AudioClip[] m_HurtAudioClips;
@@ -9,8 +10,9 @@ public class TreeController : MapObjectBase
     float m_Hp;
     static readonly int s_Hurt = Animator.StringToHash("Hurt");
 
-    void Start()
+    public override void Init(MapChunkController mapChunkController, ulong id)
     {
+        base.Init(mapChunkController, id);
         m_Hp = m_MaxHp;
     }
 
@@ -19,10 +21,8 @@ public class TreeController : MapObjectBase
         m_Hp -= damage;
         if (m_Hp <= 0)
         {
-            // 死亡
             Dead();
         }
-        print("树：啊我受伤了");
         m_Animator.SetTrigger(s_Hurt);
         AudioManager.Instance.PlayOneShot(m_HurtAudioClips[Random.Range(0, m_HurtAudioClips.Length)], transform.position);
     }

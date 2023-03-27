@@ -17,7 +17,7 @@ namespace Project_WildernessSurvivalGame
         float m_ChunkSizeOnWorld;
         const float UPDATE_VISIBLE_CHUNK_TIME = 1f; // 刷新可视地图块时间间隔
         bool m_CanUpdateChunk = true;
-        Vector3 m_LastViewerPos = -Vector3.one;
+        Vector3 m_LastViewerPos = Vector3.one * -1;
         [Tooltip("全部已有地图块字典")] Dictionary<Vector2Int, MapChunkController> m_MapChunkDict;
         [Tooltip("最终显示出来的地图块")] List<MapChunkController> m_FinallyDisplayChunkList = new List<MapChunkController>();
 
