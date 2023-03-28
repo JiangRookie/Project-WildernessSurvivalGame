@@ -5,4 +5,5 @@ public class EventName
     public const string UpdatePlayerHp = "UpdatePlayerHp";
     public const string UpdatePlayerHungry = "UpdatePlayerHungry";
     public const string PlayerWeaponAttackSucceed = "PlayerWeaponAttackSucceed";
+    public const string AddItem = "AddItem";
 }

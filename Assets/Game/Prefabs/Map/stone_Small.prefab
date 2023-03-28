@@ -11,8 +11,9 @@ GameObject:
   - component: {fileID: 2865003299892930544}
   - component: {fileID: 6528407384878980550}
   - component: {fileID: 694968891041145151}
-  - component: {fileID: 7113503355303961054}
-  m_Layer: 0
+  - component: {fileID: 7092732673454443811}
+  - component: {fileID: 2071897035562371203}
+  m_Layer: 6
   m_Name: stone_Small
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -84,8 +85,8 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &7113503355303961054
-MeshCollider:
+--- !u!65 &7092732673454443811
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -94,7 +95,22 @@ MeshCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -2063009232456271865, guid: c23e770496550fb40ae0c566918ee940, type: 3}
+  serializedVersion: 2
+  m_Size: {x: 0.47642004, y: 0.18389681, z: 0.44202483}
+  m_Center: {x: 0.007409863, y: 0.09190066, z: 0.0037086308}
+--- !u!114 &2071897035562371203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1268274063586252259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4595d0df32a95494ba1480ba04799ff8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MapObjectType: 3
+  touchDistance: 0.6
+  canPickUp: 1
+  canPickUpItemConfigID: 1

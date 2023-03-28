@@ -26,4 +26,4 @@ MonoBehaviour:
   Prefab: {fileID: 1268274063586252259, guid: 7108a712c21959f49ab8478ba3687e71, type: 3}
   MapIconSprite: {fileID: 21300000, guid: c7f63e68fc50b8047a6558ced6ebefd9, type: 3}
   IconSize: 0.5
-  Probability: 2
+  Probability: 5

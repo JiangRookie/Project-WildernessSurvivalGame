@@ -29,7 +29,10 @@ public class InputManager : SingletonMono<InputManager>
 
     void CheckSelectMapObject()
     {
-        if (Input.GetMouseButton(0))
+        bool mouseButtonDown = Input.GetMouseButtonDown(0);
+        bool mouseButton = Input.GetMouseButton(0);
+
+        if (mouseButtonDown || mouseButton)
         {
             // 如果检测到UI则无视
             if (CheckMouseOnUI()) return;
@@ -38,7 +41,7 @@ public class InputManager : SingletonMono<InputManager>
             if (Physics.Raycast(ray, out RaycastHit hitInfo, 100, m_MapObjectLayer))
             {
                 // 发给PlayerController去处理
-                PlayerController.Instance.OnSelectMapObject(hitInfo);
+                PlayerController.Instance.OnSelectMapObject(hitInfo, mouseButtonDown);
             }
         }
     }

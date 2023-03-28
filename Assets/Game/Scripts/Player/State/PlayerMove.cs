@@ -15,7 +15,7 @@ namespace Project_WildernessSurvivalGame
 
         public override void Enter()
         {
-            PlayerAnimation("Move");
+            PlayerCtrl.PlayerAnimation("Move");
         }
 
         public override void Update()

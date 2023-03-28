@@ -8,7 +8,7 @@ public class PlayerIdle : PlayerStateBase
 {
     public override void Enter()
     {
-        PlayerAnimation("Idle");
+        PlayerCtrl.PlayerAnimation("Idle");
     }
 
     public override void Update()

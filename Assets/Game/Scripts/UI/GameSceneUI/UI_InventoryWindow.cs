@@ -14,10 +14,10 @@ public class UI_InventoryWindow : UI_WindowBase
     {
         #region Test
 
-        if (Input.GetKeyDown(KeyCode.Alpha0)) AddItem(0);
-        if (Input.GetKeyDown(KeyCode.Alpha1)) AddItem(1);
-        if (Input.GetKeyDown(KeyCode.Alpha2)) AddItem(2);
-        if (Input.GetKeyDown(KeyCode.Alpha3)) AddItem(3);
+        if (Input.GetKeyDown(KeyCode.Alpha0)) AddItemAndPlayAudio(0);
+        if (Input.GetKeyDown(KeyCode.Alpha1)) AddItemAndPlayAudio(1);
+        if (Input.GetKeyDown(KeyCode.Alpha2)) AddItemAndPlayAudio(2);
+        if (Input.GetKeyDown(KeyCode.Alpha3)) AddItemAndPlayAudio(3);
 
         #endregion
     }
@@ -93,9 +93,9 @@ public class UI_InventoryWindow : UI_WindowBase
         m_WeaponSlot.InitData(inventoryData.WeaponSlotItemData);
     }
 
-    public void AddItem(int itemConfigID)
+    public bool AddItemAndPlayAudio(int itemConfigID)
     {
-        bool result = AddItemForLogic(itemConfigID);
+        bool result = AddItem(itemConfigID);
         if (result)
         {
             ProjectTool.PlayAudio(AudioType.Bag);
@@ -104,9 +104,10 @@ public class UI_InventoryWindow : UI_WindowBase
         {
             ProjectTool.PlayAudio(AudioType.Fail);
         }
+        return result;
     }
 
-    public bool AddItemForLogic(int itemConfigID)
+    public bool AddItem(int itemConfigID)
     {
         ItemConfig itemConfig = ConfigManager.Instance.GetConfig<ItemConfig>(ConfigName.ITEM, itemConfigID);
         switch (itemConfig.ItemType)

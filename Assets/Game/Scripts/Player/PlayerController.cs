@@ -351,21 +351,21 @@ namespace Project_WildernessSurvivalGame
                     case MapObjectType.Tree:
                         if (CheckHitMapObject(mapObject, WeaponType.Axe) == false && isMouseButtonDown)
                         {
-                            UIManager.Instance.AddTips("请离近一点哦！");
+                            UIManager.Instance.AddTips("你需要装备斧头！");
                             ProjectTool.PlayAudio(AudioType.Fail);
                         }
                         break;
                     case MapObjectType.Stone:
                         if (CheckHitMapObject(mapObject, WeaponType.PickAxe) == false && isMouseButtonDown)
                         {
-                            UIManager.Instance.AddTips("请离近一点哦！");
+                            UIManager.Instance.AddTips("你需要装备镐！");
                             ProjectTool.PlayAudio(AudioType.Fail);
                         }
                         break;
                     case MapObjectType.Bush:
                         if (CheckHitMapObject(mapObject, WeaponType.Sickle) == false && isMouseButtonDown)
                         {
-                            UIManager.Instance.AddTips("请离近一点哦！");
+                            UIManager.Instance.AddTips("你需要装备镰刀！");
                             ProjectTool.PlayAudio(AudioType.Fail);
                         }
                         break;

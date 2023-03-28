@@ -14,11 +14,6 @@ public class PlayerStateBase : StateBase
         PlayerCtrl = owner as PlayerController;
     }
 
-    protected void PlayerAnimation(string animationName, float fixedTransitionDuration = 0.25f)
-    {
-        PlayerCtrl.Animator.CrossFadeInFixedTime(animationName, fixedTransitionDuration);
-    }
-
     protected void ChangeState<T>(PlayerState playerState) where T : PlayerStateBase, new()
     {
         StateMachine.ChangeState<T>((int)playerState);

@@ -167,6 +167,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MapObjectType: 0
+  touchDistance: 1
+  canPickUp: 0
+  canPickUpItemConfigID: -1
   m_Animator: {fileID: 490973900}
   m_HurtAudioClips:
   - {fileID: 8300000, guid: 0b276f169e395a44b950ce2ee6648a77, type: 3}
