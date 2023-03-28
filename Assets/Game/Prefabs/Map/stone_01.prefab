@@ -59,7 +59,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3eb32aabba11f474c8186760cc022fb7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_MapObjectType: 1
+  m_MapObjectType: 2
+  touchDistance: 1
+  canPickUp: 0
+  canPickUpItemConfigID: -1
   m_Animator: {fileID: 3568504255481147961}
   m_HurtAudioClips:
   - {fileID: 8300000, guid: 4310b7b11ff7785458ccd21136b42cb3, type: 3}

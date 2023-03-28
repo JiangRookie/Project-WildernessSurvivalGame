@@ -79,5 +79,10 @@ namespace Project_WildernessSurvivalGame
             // UI地图层面移除
             MapManager.Instance.RemoveMapObject(mapObjectID);
         }
+
+        void OnDestroy()
+        {
+            ArchiveManager.Instance.SaveMapChunkData(ChunkIndex, MapChunkData);
+        }
     }
 }

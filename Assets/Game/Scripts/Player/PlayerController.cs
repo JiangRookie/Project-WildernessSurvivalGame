@@ -1,29 +1,42 @@
-using System;
 using System.Collections.Generic;
 using JKFrame;
 using UnityEngine;
 
 namespace Project_WildernessSurvivalGame
 {
-    public enum PlayerState
-    {
-        Idle, Move, Attack, BeAttack, Dead
-    }
+    public enum PlayerState { Idle, Move, Attack, BeAttack, Dead }
 
     public class PlayerController : SingletonMono<PlayerController>, IStateMachineOwner
     {
-        public Animator Animator;
+        #region FIELD
+
         public CharacterController CharacterController;
+        [SerializeField] Animator m_Animator;
         [SerializeField] PlayerModel m_PlayerModel;
         [HideInInspector] public Vector2 PositionXScope;
         [HideInInspector] public Vector2 PositionZScope;
-        PlayerConfig m_PlayerConfig;
+
         StateMachine m_StateMachine;
 
         public Transform PlayerTransform { get; private set; }
+        public bool CanUseItem { get; private set; } = true;
         public float MoveSpeed => m_PlayerConfig.MoveSpeed;
         public float RotateSpeed => m_PlayerConfig.RotateSpeed;
-        public bool CanUseItem { get; private set; } = true;
+
+        #region 配置
+
+        PlayerConfig m_PlayerConfig;
+
+        #endregion
+
+        #region 存档
+
+        PlayerTransformData m_PlayerTransformData;
+        PlayerCoreData m_PlayerCoreData;
+
+        #endregion
+
+        #endregion
 
         void Update()
         {
@@ -81,12 +94,12 @@ namespace Project_WildernessSurvivalGame
 
         #region 工具
 
-        List<MapObjectBase> m_LastAttackedMapObjectList = new();
+        int m_AttackSucceedCount; // 攻击成功的数量
+        List<MapObjectBase> m_LastAttackedMapObjectList = new List<MapObjectBase>();
 
         void PlayAudioOnFootStep(int index)
         {
-            AudioManager.Instance.PlayOneShot(m_PlayerConfig.FootStepAudioClips[index], PlayerTransform.position
-                                            , m_PlayerConfig.FootStepVolume);
+            AudioManager.Instance.PlayOneShot(m_PlayerConfig.FootStepAudioClips[index], PlayerTransform.position, m_PlayerConfig.FootStepVolume);
         }
 
         // 让武器开启伤害检测
@@ -102,8 +115,6 @@ namespace Project_WildernessSurvivalGame
             m_CurrentWeaponGameObject.transform.RemoveTriggerEnter(OnWeaponTriggerEnter);
             m_LastAttackedMapObjectList.Clear();
         }
-
-        int m_AttackSucceedCount; // 攻击成功的数量
 
         // 整个攻击状态的结束
         void OnAttackOver()
@@ -131,31 +142,37 @@ namespace Project_WildernessSurvivalGame
         /// <param name="arg2"></param>
         void OnWeaponTriggerEnter(Collider other, object[] arg2)
         {
-            // 对方得是地图对象
-            if (other.TryGetComponent(out MapObjectBase mapObject))
+            // 判断对方是不是可击打的地图对象
+            if (other.TryGetComponent(out CanHitMapObjectBase canHitMapObject))
             {
-                // 已经攻击过的防止二次伤害
-                if (m_LastAttackedMapObjectList.Contains(mapObject)) return;
-                m_LastAttackedMapObjectList.Add(mapObject);
-                Item_WeaponInfo itemWeaponInfo = (Item_WeaponInfo)m_CurrentWeaponItemData.Config.ItemTypeInfo;
+                // 防止已经攻击过的地图对象受到二次伤害
+                if (m_LastAttackedMapObjectList.Contains(canHitMapObject)) return;
+                m_LastAttackedMapObjectList.Add(canHitMapObject);
 
                 // 检测对方是什么类型 以及 自己手上是什么武器
-                switch (mapObject.MapObjectType)
+                switch (canHitMapObject.MapObjectType)
                 {
                     case MapObjectType.Tree:
-
-                        // 当前是不是斧头
-                        if (itemWeaponInfo.WeaponType == WeaponType.Axe)
-                        {
-                            // 让树受伤
-                            ((TreeController)mapObject).Hurt(itemWeaponInfo.AttackValue);
-                            m_AttackSucceedCount += 1;
-                        }
+                        CheckMapObjectHurt(canHitMapObject, WeaponType.Axe);
                         break;
-                    case MapObjectType.Stone: break;
-                    case MapObjectType.SmallStone: break;
-                    default: throw new ArgumentOutOfRangeException();
+                    case MapObjectType.Stone:
+                        CheckMapObjectHurt(canHitMapObject, WeaponType.PickAxe);
+                        break;
+                    case MapObjectType.Bush:
+                        CheckMapObjectHurt(canHitMapObject, WeaponType.Sickle);
+                        break;
                 }
+            }
+        }
+
+        void CheckMapObjectHurt(CanHitMapObjectBase canHitMapObject, WeaponType weaponType)
+        {
+            Item_WeaponInfo itemWeaponInfo = (Item_WeaponInfo)m_CurrentWeaponItemData.Config.ItemTypeInfo;
+
+            if (itemWeaponInfo.WeaponType == weaponType)
+            {
+                canHitMapObject.Hurt(itemWeaponInfo.AttackValue);
+                m_AttackSucceedCount += 1;
             }
         }
 
@@ -175,6 +192,11 @@ namespace Project_WildernessSurvivalGame
                 case PlayerState.BeAttack: break;
                 case PlayerState.Dead: break;
             }
+        }
+
+        public void PlayerAnimation(string animationName, float fixedTransitionDuration = 0.25f)
+        {
+            m_Animator.CrossFadeInFixedTime(animationName, fixedTransitionDuration);
         }
 
         #endregion
@@ -251,15 +273,17 @@ namespace Project_WildernessSurvivalGame
             if (newWeapon != null)
             {
                 Item_WeaponInfo info = newWeapon.Config.ItemTypeInfo as Item_WeaponInfo;
-                m_CurrentWeaponGameObject
-                    = PoolManager.Instance.GetGameObject(info.PrefabOnPlayer, m_PlayerModel.WeaponRoot);
-                m_CurrentWeaponGameObject.transform.localPosition = info.PositionOnPlayer;
-                m_CurrentWeaponGameObject.transform.localRotation = Quaternion.Euler(info.RotationOnPlayer);
-                Animator.runtimeAnimatorController = info.AnimatorOverrideController;
+                if (info != null)
+                {
+                    m_CurrentWeaponGameObject = PoolManager.Instance.GetGameObject(info.PrefabOnPlayer, m_PlayerModel.WeaponRoot);
+                    m_CurrentWeaponGameObject.transform.localPosition = info.PositionOnPlayer;
+                    m_CurrentWeaponGameObject.transform.localRotation = Quaternion.Euler(info.RotationOnPlayer);
+                    m_Animator.runtimeAnimatorController = info.AnimatorOverrideController;
+                }
             }
             else // 新武器是 null，意味着空手
             {
-                Animator.runtimeAnimatorController = m_PlayerConfig.NormalAnimatorController;
+                m_Animator.runtimeAnimatorController = m_PlayerConfig.NormalAnimatorController;
             }
 
             // 由于动画是有限状态机驱动的，如果不重新激活一次动画，动画会出现错误
@@ -272,24 +296,79 @@ namespace Project_WildernessSurvivalGame
 
         #region 战斗、伐木、采摘
 
-        public void OnSelectMapObject(RaycastHit hitInfo)
+        public void OnSelectMapObject(RaycastHit hitInfo, bool isMouseButtonDown)
         {
             if (hitInfo.collider.TryGetComponent(out MapObjectBase mapObject))
             {
-                // 根据玩家选中的地图对象类型以及当前角色的武器来判断做什么
-                Debug.Log("选中的是：" + mapObject.gameObject.name);
                 float distance = Vector3.Distance(PlayerTransform.position, mapObject.transform.position);
+
+                // 不在交互范围内
+                if (distance > mapObject.TouchDistance)
+                {
+                    if (isMouseButtonDown)
+                    {
+                        UIManager.Instance.AddTips("请离近一点哦！");
+                        ProjectTool.PlayAudio(AudioType.Fail);
+                    }
+                    return;
+                }
+
+                // 判断拾取
+                if (mapObject.CanPickUp)
+                {
+                    // 加个判断，物品是否已满
+                    // 获取捡到的物品
+                    int itemConfigID = mapObject.CanPickUpItemConfigID;
+                    if (itemConfigID != -1)
+                    {
+                        // 背包里面如果数据添加成功 则销毁地图物体
+                        if (UIManager.Instance.Show<UI_InventoryWindow>().AddItem(itemConfigID))
+                        {
+                            mapObject.OnPickUp();
+
+                            // 播放拾取物品动画 这里没有切换状态，依然是Idle状态
+                            PlayerAnimation("PickUp");
+                            ProjectTool.PlayAudio(AudioType.Bag);
+                        }
+                        else
+                        {
+                            if (isMouseButtonDown)
+                            {
+                                UIManager.Instance.AddTips("背包已经满了！");
+                                ProjectTool.PlayAudio(AudioType.Fail);
+                            }
+                        }
+                    }
+                    return;
+                }
+
+                // 判断攻击
+                if (m_CanAttack == false) { return; }
+
+                // 根据玩家选中的地图对象类型以及当前角色的武器来判断做什么
                 switch (mapObject.MapObjectType)
                 {
                     case MapObjectType.Tree:
-                        if (distance < 2)
+                        if (CheckHitMapObject(mapObject, WeaponType.Axe) == false && isMouseButtonDown)
                         {
-                            FellingTree(mapObject);
+                            UIManager.Instance.AddTips("请离近一点哦！");
+                            ProjectTool.PlayAudio(AudioType.Fail);
                         }
                         break;
-                    case MapObjectType.Stone: break;
-                    case MapObjectType.SmallStone: break;
-                    default: throw new ArgumentOutOfRangeException();
+                    case MapObjectType.Stone:
+                        if (CheckHitMapObject(mapObject, WeaponType.PickAxe) == false && isMouseButtonDown)
+                        {
+                            UIManager.Instance.AddTips("请离近一点哦！");
+                            ProjectTool.PlayAudio(AudioType.Fail);
+                        }
+                        break;
+                    case MapObjectType.Bush:
+                        if (CheckHitMapObject(mapObject, WeaponType.Sickle) == false && isMouseButtonDown)
+                        {
+                            UIManager.Instance.AddTips("请离近一点哦！");
+                            ProjectTool.PlayAudio(AudioType.Fail);
+                        }
+                        break;
                 }
             }
         }
@@ -297,32 +376,19 @@ namespace Project_WildernessSurvivalGame
         bool m_CanAttack = true;
         public Quaternion AttackDirection { get; private set; }
 
-        void FellingTree(MapObjectBase mapObject)
+        bool CheckHitMapObject(MapObjectBase mapObject, WeaponType weaponType)
         {
-            // 能攻击 是斧头
-            if (m_CanAttack
-             && m_CurrentWeaponItemData != null
-             && ((Item_WeaponInfo)m_CurrentWeaponItemData.Config.ItemTypeInfo).WeaponType == WeaponType.Axe)
+            // 能攻击，有武器，武器类型符合要求
+            if (m_CurrentWeaponItemData != null && ((Item_WeaponInfo)m_CurrentWeaponItemData.Config.ItemTypeInfo).WeaponType == weaponType)
             {
-                m_CanAttack = false; // 防止攻击过程中再次攻击
-
-                // 计算方向
-                AttackDirection = Quaternion.LookRotation(mapObject.transform.position - transform.position);
-
-                // 切换状态
-                ChangeState(PlayerState.Attack);
-
-                // 禁止使用物品
-                CanUseItem = false;
+                m_CanAttack = false;                                                                          // 防止攻击过程中再次攻击
+                AttackDirection = Quaternion.LookRotation(mapObject.transform.position - transform.position); // 计算攻击方向
+                ChangeState(PlayerState.Attack);                                                              // 切换状态
+                CanUseItem = false;                                                                           // 禁止使用物品
+                return true;
             }
+            return false;
         }
-
-        #endregion
-
-        #region 存档
-
-        PlayerTransformData m_PlayerTransformData;
-        PlayerCoreData m_PlayerCoreData;
 
         #endregion
     }

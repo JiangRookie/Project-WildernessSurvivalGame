@@ -10,9 +10,9 @@ public abstract class CanHitMapObjectBase : MapObjectBase
     float m_Hp;
     static readonly int s_Hurt = Animator.StringToHash("Hurt");
 
-    public override void Init(MapChunkController mapChunkController, ulong id)
+    public override void Init(MapChunkController chunk, ulong objectId)
     {
-        base.Init(mapChunkController, id);
+        base.Init(chunk, objectId);
         m_Hp = m_MaxHp;
     }
 
@@ -23,7 +23,10 @@ public abstract class CanHitMapObjectBase : MapObjectBase
         {
             Dead();
         }
-        m_Animator.SetTrigger(s_Hurt);
+        else
+        {
+            m_Animator.SetTrigger(s_Hurt);
+        }
         AudioManager.Instance.PlayOneShot(m_HurtAudioClips[Random.Range(0, m_HurtAudioClips.Length)], transform.position);
     }
 

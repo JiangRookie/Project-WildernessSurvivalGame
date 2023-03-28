@@ -2,12 +2,7 @@ using JKFrame;
 using Project_WildernessSurvivalGame;
 using UnityEngine;
 
-public enum MapObjectType
-{
-    Tree
-  , Stone
-  , SmallStone
-}
+public enum MapObjectType { Tree, Bush, Stone, SmallStone, Mushroom }
 
 /// <summary>
 /// 地图对象基类
@@ -15,22 +10,34 @@ public enum MapObjectType
 public abstract class MapObjectBase : MonoBehaviour
 {
     [SerializeField] MapObjectType m_MapObjectType;
+    [SerializeField] protected float touchDistance; // 交互距离
+    [SerializeField] protected bool canPickUp;
+    [SerializeField] protected int canPickUpItemConfigID = -1;
+    protected MapChunkController mapChunkController;
+    protected ulong id;
+
     public MapObjectType MapObjectType => m_MapObjectType;
+    public float TouchDistance => touchDistance;
+    public bool CanPickUp => canPickUp;
+    public int CanPickUpItemConfigID => canPickUpItemConfigID;
 
-    protected MapChunkController MapChunkController;
-    protected ulong ID;
-
-    public virtual void Init(MapChunkController mapChunkController, ulong id)
+    public virtual void Init(MapChunkController chunk, ulong objectId)
     {
-        MapChunkController = mapChunkController;
-        ID = id;
+        mapChunkController = chunk;
+        id = objectId;
     }
 
     public virtual void RemoveOnMap()
     {
-        MapChunkController.RemoveMapObject(ID);
+        mapChunkController.RemoveMapObject(id);
 
         // 把自己扔回对象池
         this.JKGameObjectPushPool();
+    }
+
+    public virtual int OnPickUp()
+    {
+        RemoveOnMap(); // 从地图上消失
+        return canPickUpItemConfigID;
     }
 }
