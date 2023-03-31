@@ -6,14 +6,18 @@ namespace Project_WildernessSurvivalGame
 {
     public class MapChunkController : MonoBehaviour
     {
+        bool m_IsActive = false;
+        Dictionary<ulong, MapObjectBase> m_MapObjectDict;
         public MapChunkData MapChunkData { get; private set; }
         public Vector2Int ChunkIndex { get; private set; }
         public Vector3 CenterPos { get; private set; }
         public bool IsAllForest { get; private set; }
         public bool IsInitializedMapUI { get; private set; } = false;
 
-        bool m_IsActive = false;
-        Dictionary<ulong, MapObjectBase> m_MapObjectDict;
+        void OnDestroy()
+        {
+            ArchiveManager.Instance.SaveMapChunkData(ChunkIndex, MapChunkData);
+        }
 
         /// <summary>
         /// 初始化地图块
@@ -45,16 +49,10 @@ namespace Project_WildernessSurvivalGame
                     foreach (var mapObjectDict in MapChunkData.MapObjectDict.Dictionary)
                     {
                         var config = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, mapObjectDict.Value.ConfigID);
-                        var gameObj = PoolManager.Instance.GetGameObject(config.Prefab, transform);
-                        gameObj.transform.position = mapObjectDict.Value.Position;
-
-                        // 测试逻辑
-                        // 测试逻辑的隐患：不管理物体意味着也不会进入对象池
-                        if (gameObj.TryGetComponent(out MapObjectBase mapObject))
-                        {
-                            mapObject.Init(this, mapObjectDict.Key);
-                            m_MapObjectDict.Add(mapObjectDict.Key, mapObject);
-                        }
+                        var mapObj = PoolManager.Instance.GetGameObject(config.Prefab, transform).GetComponent<MapObjectBase>();
+                        mapObj.transform.position = mapObjectDict.Value.Position;
+                        mapObj.Init(this, mapObjectDict.Key);
+                        m_MapObjectDict.Add(mapObjectDict.Key, mapObj);
                     }
                 }
                 else // 如果当前地图块为失活状态，则把所有物体放回对象池
@@ -80,9 +78,20 @@ namespace Project_WildernessSurvivalGame
             MapManager.Instance.RemoveMapObject(mapObjectID);
         }
 
-        void OnDestroy()
+        public void AddMapObject(MapObjectData mapObjectData)
         {
-            ArchiveManager.Instance.SaveMapChunkData(ChunkIndex, MapChunkData);
+            // 添加存档数据
+            MapChunkData.MapObjectDict.Dictionary.Add(mapObjectData.ID, mapObjectData);
+
+            // 实例化物体
+            if (m_IsActive)
+            {
+                MapObjectConfig mapObjectConfig = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, mapObjectData.ConfigID);
+                MapObjectBase mapObj = PoolManager.Instance.GetGameObject<MapObjectBase>(mapObjectConfig.Prefab, transform);
+                mapObj.transform.position = mapObjectData.Position;
+                mapObj.Init(this, mapObjectData.ID);
+                m_MapObjectDict.Add(mapObjectData.ID, mapObj);
+            }
         }
     }
 }

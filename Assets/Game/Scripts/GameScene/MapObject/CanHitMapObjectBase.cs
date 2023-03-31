@@ -7,6 +7,7 @@ public abstract class CanHitMapObjectBase : MapObjectBase
     [SerializeField] Animator m_Animator;
     [SerializeField] AudioClip[] m_HurtAudioClips;
     [SerializeField] float m_MaxHp;
+    [SerializeField] int m_LootConfigID = -1; // 死亡时掉落的配置ID
     float m_Hp;
     static readonly int s_Hurt = Animator.StringToHash("Hurt");
 
@@ -33,5 +34,18 @@ public abstract class CanHitMapObjectBase : MapObjectBase
     void Dead()
     {
         RemoveOnMap();
+        if (m_LootConfigID == -1) return;
+        LootConfig lootConfig = ConfigManager.Instance.GetConfig<LootConfig>(ConfigName.LOOT, m_LootConfigID);
+        if (lootConfig == null) return;
+        foreach (var lootConfigModel in lootConfig.LootConfigList)
+        {
+            int randomValue = Random.Range(1, 101);
+            if (randomValue < lootConfigModel.Probability)
+            {
+                // 生成掉落物品
+                Vector3 spawnPos = transform.position + Vector3.up;
+                MapManager.Instance.SpawnMapObject(mapChunkController, lootConfigModel.LootObjectConfigID, spawnPos);
+            }
+        }
     }
 }

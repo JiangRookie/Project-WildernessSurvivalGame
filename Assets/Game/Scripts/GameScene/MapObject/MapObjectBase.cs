@@ -2,7 +2,7 @@ using JKFrame;
 using Project_WildernessSurvivalGame;
 using UnityEngine;
 
-public enum MapObjectType { Tree, Bush, Stone, SmallStone, Mushroom }
+public enum MapObjectType { Tree, Bush, Stone, SmallStone, Mushroom, Wood, Twig, Weapon, Berry }
 
 /// <summary>
 /// 地图对象基类

@@ -109,20 +109,9 @@ namespace Project_WildernessSurvivalGame
                 mapChunkImage.sprite = CreateSprite(texture);
             }
 
-            foreach (var mapObject in mapObjectDict.Dictionary)
+            foreach (var mapObjectData in mapObjectDict.Dictionary.Values)
             {
-                MapObjectConfig config = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, mapObject.Value.ConfigID);
-                if (config.MapIconSprite == null) continue;
-                GameObject gameObj = PoolManager.Instance.GetGameObject(m_MapIconPrefab, m_Content);
-                Image iconImage = gameObj.GetComponent<Image>();
-                iconImage.sprite = config.MapIconSprite;
-                iconImage.transform.localScale = Vector3.one * config.IconSize;
-
-                // 因为 Content 的尺寸在初始化的时候 * ContentScaleFactor，所以 Icon 也需要乘上同样的系数
-                var x = mapObject.Value.Position.x * ContentScaleFactor;
-                var y = mapObject.Value.Position.z * ContentScaleFactor;
-                gameObj.GetComponent<RectTransform>().anchoredPosition = new Vector2(x, y);
-                m_MapObjectIconDict.Add(mapObject.Key, iconImage);
+                AddMapObjectIcon(mapObjectData);
             }
         }
 
@@ -133,6 +122,22 @@ namespace Project_WildernessSurvivalGame
                 icon.JKGameObjectPushPool();
                 m_MapObjectIconDict.Remove(mapObjectID);
             }
+        }
+
+        public void AddMapObjectIcon(MapObjectData mapObjectData)
+        {
+            MapObjectConfig config = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, mapObjectData.ConfigID);
+            if (config.MapIconSprite == null) return;
+            GameObject gameObj = PoolManager.Instance.GetGameObject(m_MapIconPrefab, m_Content);
+            Image iconImage = gameObj.GetComponent<Image>();
+            iconImage.sprite = config.MapIconSprite;
+            iconImage.transform.localScale = Vector3.one * config.IconSize;
+
+            // 因为 Content 的尺寸在初始化的时候 * ContentScaleFactor，所以 Icon 也需要乘上同样的系数
+            var x = mapObjectData.Position.x * ContentScaleFactor;
+            var y = mapObjectData.Position.z * ContentScaleFactor;
+            gameObj.GetComponent<RectTransform>().anchoredPosition = new Vector2(x, y);
+            m_MapObjectIconDict.Add(mapObjectData.ID, iconImage);
         }
 
         /// <summary>

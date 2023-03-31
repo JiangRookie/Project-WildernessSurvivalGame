@@ -1,4 +1,5 @@
 using JKFrame;
+using Project_WildernessSurvivalGame;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -150,10 +151,17 @@ public class UI_ItemSlot : MonoBehaviour
         {
             // 射线检测除了Mast外是否有其他UI物体
             if (InputManager.Instance.CheckMouseOnUI()) return;
+            if (InputManager.Instance.GetMouseWorldPosOnGround(eventData.position, out Vector3 mouseWorldPos))
+            {
+                // 在地面生成物品
+                mouseWorldPos.y = 1;
+                MapManager.Instance.SpawnMapObject(ItemData.Config.MapObjectConfigID, mouseWorldPos);
 
-            Debug.Log("扔地上：" + ItemData.Config.Name);
-            m_OwnerWindow.DiscardItem(Index);
-            ProjectTool.PlayAudio(AudioType.Bag);
+                // 丢弃一件物品
+                m_OwnerWindow.DiscardItem(Index);
+                ProjectTool.PlayAudio(AudioType.Bag);
+            }
+
             return;
         }
 

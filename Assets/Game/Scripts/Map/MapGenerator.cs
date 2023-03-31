@@ -21,6 +21,7 @@ namespace Project_WildernessSurvivalGame
         Mesh m_ChunkMesh;
         int m_ForestSpawnWeightTotal; // 森林生成物品的权重总和
         int m_MarshSpawnWeightTotal;  // 沼泽生成物品的权重总和
+        int m_GroundLayer;
         static readonly int s_MainTex = Shader.PropertyToID("_MainTex");
 
         #endregion
@@ -47,6 +48,7 @@ namespace Project_WildernessSurvivalGame
             m_MapInitData = mapInitData;
             m_MapData = mapData;
             m_SpawnConfigDict = spawnConfigDict;
+            m_GroundLayer = LayerMask.NameToLayer("Ground");
         }
 
         /// <summary>
@@ -103,6 +105,9 @@ namespace Project_WildernessSurvivalGame
             // 生成地图块物体
             GameObject mapChunkGameObj = new GameObject("Chunk_" + chunkIndex.ToString());
             MapChunkController mapChunk = mapChunkGameObj.AddComponent<MapChunkController>();
+
+            // 将地图块指定为 Ground 层
+            mapChunkGameObj.layer = m_GroundLayer;
 
             // 为地图块生成 Mesh 并添加碰撞体
             mapChunkGameObj.AddComponent<MeshFilter>().mesh = m_ChunkMesh;
@@ -369,6 +374,24 @@ namespace Project_WildernessSurvivalGame
                 }
             }
             return mapChunkMapObjectDict;
+        }
+
+        /// <summary>
+        /// 生成一个地图对象的数据
+        /// </summary>
+        /// <param name="mapObjectConfigID"></param>
+        /// <param name="spawnPos"></param>
+        /// <returns></returns>
+        public MapObjectData SpawnMapObjectData(int mapObjectConfigID, Vector3 spawnPos)
+        {
+            MapObjectData mapObjectData = null;
+            MapObjectConfig mapObjectConfig = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, mapObjectConfigID);
+            if (mapObjectConfig.IsEmpty == false)
+            {
+                mapObjectData = new MapObjectData { ID = m_MapData.CurrentID, ConfigID = mapObjectConfigID, Position = spawnPos };
+                m_MapData.CurrentID++;
+            }
+            return mapObjectData;
         }
     }
 }

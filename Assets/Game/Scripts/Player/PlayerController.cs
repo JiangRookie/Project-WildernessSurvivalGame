@@ -296,6 +296,10 @@ namespace Project_WildernessSurvivalGame
 
         #region 战斗、伐木、采摘
 
+        bool m_CanAttack = true;
+        public Quaternion AttackDirection { get; private set; }
+        MapObjectBase m_LastHitMapObject; // 最后被攻击的地图对象
+
         public void OnSelectMapObject(RaycastHit hitInfo, bool isMouseButtonDown)
         {
             if (hitInfo.collider.TryGetComponent(out MapObjectBase mapObject))
@@ -316,13 +320,15 @@ namespace Project_WildernessSurvivalGame
                 // 判断拾取
                 if (mapObject.CanPickUp)
                 {
-                    // 加个判断，物品是否已满
+                    if (isMouseButtonDown == false) return;
+                    m_LastHitMapObject = null;
+
                     // 获取捡到的物品
                     int itemConfigID = mapObject.CanPickUpItemConfigID;
                     if (itemConfigID != -1)
                     {
                         // 背包里面如果数据添加成功 则销毁地图物体
-                        if (UIManager.Instance.Show<UI_InventoryWindow>().AddItem(itemConfigID))
+                        if (UI_InventoryWindow.Instance.AddItem(itemConfigID))
                         {
                             mapObject.OnPickUp();
 
@@ -332,11 +338,13 @@ namespace Project_WildernessSurvivalGame
                         }
                         else
                         {
-                            if (isMouseButtonDown)
-                            {
-                                UIManager.Instance.AddTips("背包已经满了！");
-                                ProjectTool.PlayAudio(AudioType.Fail);
-                            }
+                            // if (isMouseButtonDown) // Expression is always true
+                            // {
+                            //     UIManager.Instance.AddTips("背包已经满了！");
+                            //     ProjectTool.PlayAudio(AudioType.Fail);
+                            // }
+                            UIManager.Instance.AddTips("背包已经满了！");
+                            ProjectTool.PlayAudio(AudioType.Fail);
                         }
                     }
                     return;
@@ -344,6 +352,10 @@ namespace Project_WildernessSurvivalGame
 
                 // 判断攻击
                 if (m_CanAttack == false) { return; }
+
+                // 现在交互的对象为一个新对象，且鼠标从上一个对象到现在这个新对象一直保持按着鼠标的状态则退出
+                // 转换对象之后必须重新按下数鼠标左键才允许交互
+                if (m_LastHitMapObject != mapObject && isMouseButtonDown == false) return;
 
                 // 根据玩家选中的地图对象类型以及当前角色的武器来判断做什么
                 switch (mapObject.MapObjectType)
@@ -372,9 +384,6 @@ namespace Project_WildernessSurvivalGame
                 }
             }
         }
-
-        bool m_CanAttack = true;
-        public Quaternion AttackDirection { get; private set; }
 
         bool CheckHitMapObject(MapObjectBase mapObject, WeaponType weaponType)
         {

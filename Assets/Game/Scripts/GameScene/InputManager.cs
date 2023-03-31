@@ -7,6 +7,7 @@ using UnityEngine.EventSystems;
 public class InputManager : SingletonMono<InputManager>
 {
     [SerializeField] LayerMask m_MapObjectLayer;
+    [SerializeField] LayerMask m_GroundLayer;
     bool m_NeedToCheck = false;
     List<RaycastResult> m_RaycastResultList = new();
 
@@ -61,14 +62,28 @@ public class InputManager : SingletonMono<InputManager>
             RaycastResult raycastResult = m_RaycastResultList[i];
 
             // 是UI同时不是Mast作用的物体
-            if (raycastResult.gameObject.GetComponent<RectTransform>()
-             && raycastResult.gameObject.name != "Mask")
+            if (raycastResult.gameObject.GetComponent<RectTransform>() && raycastResult.gameObject.name != "Mask")
             {
                 m_RaycastResultList.Clear();
                 return true;
             }
         }
         m_RaycastResultList.Clear();
+        return false;
+    }
+
+    /// <summary>
+    /// 获取鼠标在地面的世界坐标
+    /// </summary>
+    /// <returns></returns>
+    public bool GetMouseWorldPosOnGround(Vector3 mousePos, out Vector3 mouseWorldPos)
+    {
+        if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePos), out RaycastHit hitInfo, 1000, m_GroundLayer))
+        {
+            mouseWorldPos = hitInfo.point;
+            return true;
+        }
+        mouseWorldPos = Vector3.zero;
         return false;
     }
 }

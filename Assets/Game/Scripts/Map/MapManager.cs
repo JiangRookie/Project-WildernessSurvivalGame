@@ -75,6 +75,7 @@ namespace Project_WildernessSurvivalGame
             foreach ((int id, ConfigBase config) in mapConfigDict)
             {
                 MapVertexType mapVertexType = ((MapObjectConfig)config).MapVertexType;
+                if (mapVertexType == MapVertexType.None) continue;
                 m_SpawnConfigDict[mapVertexType].Add(id); // 将相同的顶点类型的Id放在同一个列表中
             }
 
@@ -282,5 +283,39 @@ namespace Project_WildernessSurvivalGame
         }
 
         #endregion
+
+        /// <summary>
+        /// 生成一个地图对象
+        /// </summary>
+        /// <param name="mapChunkController"></param>
+        /// <param name="mapObjectConfigID"></param>
+        /// <param name="spawnPos"></param>
+        public void SpawnMapObject(MapChunkController mapChunkController, int mapObjectConfigID, Vector3 spawnPos)
+        {
+            // 生成数据
+            MapObjectData mapObjectData = m_MapGenerator.SpawnMapObjectData(mapObjectConfigID, spawnPos);
+            if (mapObjectData == null) return;
+
+            // 交给地图块
+            mapChunkController.AddMapObject(mapObjectData);
+
+            // 处理Icon
+            if (m_MapUI != null)
+            {
+                m_MapUI.AddMapObjectIcon(mapObjectData);
+            }
+        }
+
+        /// <summary>
+        /// 生成一个地图对象
+        /// </summary>
+        /// <param name="mapChunkController"></param>
+        /// <param name="mapObjectConfigID"></param>
+        /// <param name="spawnPos"></param>
+        public void SpawnMapObject(int mapObjectConfigID, Vector3 spawnPos)
+        {
+            Vector2Int chunkIndex = GetMapChunkIndex(spawnPos);
+            SpawnMapObject(m_MapChunkDict[chunkIndex], mapObjectConfigID, spawnPos);
+        }
     }
 }

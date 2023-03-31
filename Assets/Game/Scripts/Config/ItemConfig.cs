@@ -31,6 +31,7 @@ public class ItemConfig : ConfigBase
     [LabelText("类型"), OnValueChanged(nameof(OnItemTypeChanged))]
     public ItemType ItemType;
 
+    [LabelText("地图物品ID")] public int MapObjectConfigID;
     [LabelText("描述"), MultiLineProperty] public string Description;
     [LabelText("图标")] public Sprite Icon;
     [LabelText("类型专属信息")] public IItemTypeInfo ItemTypeInfo;

@@ -144,7 +144,7 @@ namespace Project_WildernessSurvivalGame
         #endregion
     }
 
-    public enum MapVertexType { Forest, Marsh }
+    public enum MapVertexType { None, Forest, Marsh }
 
     /// <summary>
     /// 地图顶点

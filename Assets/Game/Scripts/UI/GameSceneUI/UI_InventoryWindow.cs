@@ -5,6 +5,8 @@ using UnityEngine;
 [UIElement(true, "UI/UI_InventoryWindow", 1)]
 public class UI_InventoryWindow : UI_WindowBase
 {
+    public static UI_InventoryWindow Instance;
+
     [SerializeField] UI_ItemSlot[] m_Slots;
     [SerializeField] UI_ItemSlot m_WeaponSlot;
     InventoryData m_InventoryData;
@@ -24,6 +26,11 @@ public class UI_InventoryWindow : UI_WindowBase
 
     public override void Init()
     {
+        Instance = this;
+
+        // 由于目前数据是由这个窗口处理的，所以这个窗口不能销毁，即使关闭，也要持续监听事件
+        EventManager.AddEventListener(EventName.PlayerWeaponAttackSucceed, OnPlayerWeaponAttackSucceed);
+
         // 确定存档数据
         m_InventoryData = ArchiveManager.Instance.InventoryData;
 
@@ -45,14 +52,6 @@ public class UI_InventoryWindow : UI_WindowBase
 
         // 根据存档复原
         InitData(m_InventoryData);
-    }
-
-    protected override void RegisterEventListener()
-    {
-        base.RegisterEventListener();
-
-        // 由于目前数据是由这个窗口处理的，所以这个窗口不能销毁，即使关闭，也要持续监听事件
-        EventManager.AddEventListener(EventName.PlayerWeaponAttackSucceed, OnPlayerWeaponAttackSucceed);
     }
 
     /// <summary>
@@ -126,12 +125,9 @@ public class UI_InventoryWindow : UI_WindowBase
     bool CheckAndAddItemForEmptySlot(int itemConfigID)
     {
         int index = GetEmptySlotIndex();
-        if (index > 0)
-        {
-            SetItem(index, ItemData.CreateItemData(itemConfigID));
-            return true;
-        }
-        return false;
+        if (index < 0) return false;
+        SetItem(index, ItemData.CreateItemData(itemConfigID));
+        return true;
     }
 
     /// <summary>

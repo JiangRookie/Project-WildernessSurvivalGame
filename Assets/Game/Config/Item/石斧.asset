@@ -79,5 +79,6 @@ MonoBehaviour:
       Data: 
   Name: "\u77F3\u65A7"
   ItemType: 0
+  MapObjectConfigID: 21
   Description: "\u53EF\u4EE5\u780D\u6811"
   Icon: {fileID: 21300000, guid: aed509809d0894dad916e5d1e414cb03, type: 3}
