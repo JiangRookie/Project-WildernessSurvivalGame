@@ -21,7 +21,6 @@ namespace Project_WildernessSurvivalGame
         Mesh m_ChunkMesh;
         int m_ForestSpawnWeightTotal; // 森林生成物品的权重总和
         int m_MarshSpawnWeightTotal;  // 沼泽生成物品的权重总和
-        int m_GroundLayer;
         static readonly int s_MainTex = Shader.PropertyToID("_MainTex");
 
         #endregion
@@ -48,7 +47,6 @@ namespace Project_WildernessSurvivalGame
             m_MapInitData = mapInitData;
             m_MapData = mapData;
             m_SpawnConfigDict = spawnConfigDict;
-            m_GroundLayer = LayerMask.NameToLayer("Ground");
         }
 
         /// <summary>
@@ -106,12 +104,8 @@ namespace Project_WildernessSurvivalGame
             GameObject mapChunkGameObj = new GameObject("Chunk_" + chunkIndex.ToString());
             MapChunkController mapChunk = mapChunkGameObj.AddComponent<MapChunkController>();
 
-            // 将地图块指定为 Ground 层
-            mapChunkGameObj.layer = m_GroundLayer;
-
-            // 为地图块生成 Mesh 并添加碰撞体
+            // 为地图块生成 Mesh
             mapChunkGameObj.AddComponent<MeshFilter>().mesh = m_ChunkMesh;
-            mapChunkGameObj.AddComponent<MeshCollider>();
 
             Texture2D mapTexture;
             bool allForest;

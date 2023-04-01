@@ -49,13 +49,12 @@ namespace Project_WildernessSurvivalGame
             int height = noiseMap.GetLength(1);
 
             // 遍历的是格子所以要加上 “=” 号
-            for (int x = 1; x <= width; x++)
+            for (int x = 1; x < width; x++)
             {
-                for (int z = 1; z <= height; z++)
+                for (int y = 1; y < height; y++)
                 {
                     // 基于噪声中的值确定这个顶点的类型；减1是因为数组要从0开始。
-                    SetVertexType(
-                        x, z, noiseMap[x - 1, z - 1] >= marshLimit ? MapVertexType.Marsh : MapVertexType.Forest);
+                    SetVertexType(x, y, noiseMap[x - 1, y - 1] >= marshLimit ? MapVertexType.Marsh : MapVertexType.Forest);
                 }
             }
         }
@@ -70,8 +69,7 @@ namespace Project_WildernessSurvivalGame
 
         void AddVertex(int x, int z)
         {
-            VertexDic.Add(new Vector2Int(x, z)
-                        , new MapVertex { Position = new Vector3(x * CellSize, 0, z * CellSize) });
+            VertexDic.Add(new Vector2Int(x, z), new MapVertex { Position = new Vector3(x * CellSize, 0, z * CellSize) });
         }
 
         public MapVertex GetVertex(Vector2Int index)
@@ -92,25 +90,27 @@ namespace Project_WildernessSurvivalGame
         void SetVertexType(Vector2Int vertexPos, MapVertexType vertexType)
         {
             var vertex = GetVertex(vertexPos);
-            if (vertex.VertexType == vertexType) return; // FIXME:反转了if，可能会出错
-            vertex.VertexType = vertexType;
+            if (vertex.VertexType != vertexType) // FIXME:反转了if，可能会出错
+            {
+                vertex.VertexType = vertexType;
 
-            // 只有沼泽需要计算
-            if (vertex.VertexType != MapVertexType.Marsh) return; // FIXME:反转了if，可能会出错
-
-            // 计算附近的贴图权重
-            MapCell cell = GetLBMapCell(vertexPos);
-            if (cell != null) cell.TextureIndex += 1;
-            cell = GetRBMapCell(vertexPos);
-            if (cell != null) cell.TextureIndex += 2;
-            cell = GetLTMapCell(vertexPos);
-            if (cell != null) cell.TextureIndex += 4;
-            cell = GetRTMapCell(vertexPos);
-            if (cell != null) cell.TextureIndex += 8;
+                // 只有沼泽需要计算
+                if (vertex.VertexType == MapVertexType.Marsh) // FIXME:反转了if，可能会出错
+                {
+                    // 计算附近的贴图权重
+                    MapCell cell = GetLBMapCell(vertexPos);
+                    if (cell != null) cell.TextureIndex += 1;
+                    cell = GetRBMapCell(vertexPos);
+                    if (cell != null) cell.TextureIndex += 2;
+                    cell = GetLTMapCell(vertexPos);
+                    if (cell != null) cell.TextureIndex += 4;
+                    cell = GetRTMapCell(vertexPos);
+                    if (cell != null) cell.TextureIndex += 8;
+                }
+            }
         }
 
-        void SetVertexType
-            (int x, int y, MapVertexType mapVertexType) => SetVertexType(new Vector2Int(x, y), mapVertexType);
+        void SetVertexType(int x, int y, MapVertexType mapVertexType) => SetVertexType(new Vector2Int(x, y), mapVertexType);
 
         #endregion
 

@@ -11,6 +11,7 @@ namespace Project_WildernessSurvivalGame
 
         #region 运行时逻辑变量
 
+        [SerializeField] MeshCollider m_MeshCollider;
         Transform m_Viewer; // 观察者 -> Player
         MapGenerator m_MapGenerator;
         float m_MapSizeOnWorld;
@@ -55,6 +56,11 @@ namespace Project_WildernessSurvivalGame
             if (m_IsShowingMap) UpdateMapUI();
         }
 
+        void OnDestroy()
+        {
+            ArchiveManager.Instance.SaveMapData();
+        }
+
         public void Init()
         {
             StartCoroutine(DoInit());
@@ -88,6 +94,9 @@ namespace Project_WildernessSurvivalGame
 
             m_ChunkSizeOnWorld = m_MapConfig.MapChunkSize * m_MapConfig.CellSize;
             m_MapSizeOnWorld = m_ChunkSizeOnWorld * m_MapInitData.MapSize;
+
+            // 生成地面碰撞体
+            m_MeshCollider.sharedMesh = GenerateGroundMesh(m_MapSizeOnWorld, m_MapSizeOnWorld);
 
             int mapChunkCount = m_MapData.MapChunkIndexList.Count;
             if (mapChunkCount > 0) // 旧存档
@@ -316,6 +325,38 @@ namespace Project_WildernessSurvivalGame
         {
             Vector2Int chunkIndex = GetMapChunkIndex(spawnPos);
             SpawnMapObject(m_MapChunkDict[chunkIndex], mapObjectConfigID, spawnPos);
+        }
+
+        static Mesh GenerateGroundMesh(float width, float height)
+        {
+            Mesh mesh = new Mesh();
+
+            // 确定顶点在哪里
+            mesh.vertices = new[]
+            {
+                new Vector3(0, 0, 0)
+              , new Vector3(0, 0, height)
+              , new Vector3(width, 0, height)
+              , new Vector3(width, 0, 0)
+            };
+
+            // 确定哪些点形成三角形
+            mesh.triangles = new[]
+            {
+                0, 1, 2
+              , 0, 2, 3
+            };
+
+            // 设置 UV
+            mesh.uv = new Vector2[]
+            {
+                new Vector3(0, 0)
+              , new Vector3(0, 1)
+              , new Vector3(1, 1)
+              , new Vector3(1, 0)
+            };
+
+            return mesh;
         }
     }
 }
