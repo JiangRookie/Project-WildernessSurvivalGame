@@ -151,6 +151,9 @@ public class UI_ItemSlot : MonoBehaviour
         {
             // 射线检测除了Mast外是否有其他UI物体
             if (InputManager.Instance.CheckMouseOnUI()) return;
+            if (InputManager.Instance.CheckMouseOnBigMapObject()) return;
+
+            // 射线去检测防止玩家将物品扔到大型物体身上
             if (InputManager.Instance.GetMouseWorldPosOnGround(eventData.position, out Vector3 mouseWorldPos))
             {
                 // 在地面生成物品

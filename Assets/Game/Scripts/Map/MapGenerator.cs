@@ -204,15 +204,15 @@ namespace Project_WildernessSurvivalGame
             lacunarity += 0.1f;
 
             // 这里的噪声图是为了顶点服务的，而顶点是不包含地图四周的边界的，所以要在原有宽高的基础上 -1
-            float[,] noiseMap = new float[width - 1, height - 1];
+            float[,] noiseMap = new float[width, height];
             float offsetX = Random.Range(-10000f, 10000f);
             float offsetZ = Random.Range(-10000f, 10000f);
 
-            for (int x = 0; x < width - 1; x++)
+            for (int x = 0; x < width; x++)
             {
-                for (int z = 0; z < height - 1; z++)
+                for (int y = 0; y < height; y++)
                 {
-                    noiseMap[x, z] = Mathf.PerlinNoise(x * lacunarity + offsetX, z * lacunarity + offsetZ);
+                    noiseMap[x, y] = Mathf.PerlinNoise(x * lacunarity + offsetX, y * lacunarity + offsetZ);
                 }
             }
             return noiseMap;

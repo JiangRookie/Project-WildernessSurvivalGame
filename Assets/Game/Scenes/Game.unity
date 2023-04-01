@@ -272,7 +272,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63d465810fca9344d8143a7d421cfd07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_MapObjectLayer:
+  m_BigMapObjectLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  m_MapObjectLayerForMouseCanInteract:
     serializedVersion: 2
     m_Bits: 320
   m_GroundLayer:

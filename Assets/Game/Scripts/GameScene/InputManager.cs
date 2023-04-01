@@ -6,7 +6,8 @@ using UnityEngine.EventSystems;
 
 public class InputManager : SingletonMono<InputManager>
 {
-    [SerializeField] LayerMask m_MapObjectLayer;
+    [SerializeField] LayerMask m_BigMapObjectLayer;
+    [SerializeField] LayerMask m_MapObjectLayerForMouseCanInteract; // Map object layer that the mouse can interact with
     [SerializeField] LayerMask m_GroundLayer;
     bool m_NeedToCheck = false;
     List<RaycastResult> m_RaycastResultList = new();
@@ -39,7 +40,7 @@ public class InputManager : SingletonMono<InputManager>
             if (CheckMouseOnUI()) return;
 
             Ray ray = CameraController.Instance.Camera.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hitInfo, 100, m_MapObjectLayer))
+            if (Physics.Raycast(ray, out RaycastHit hitInfo, 100, m_MapObjectLayerForMouseCanInteract))
             {
                 // 发给PlayerController去处理
                 PlayerController.Instance.OnSelectMapObject(hitInfo, mouseButtonDown);
@@ -85,5 +86,10 @@ public class InputManager : SingletonMono<InputManager>
         }
         mouseWorldPos = Vector3.zero;
         return false;
+    }
+
+    public bool CheckMouseOnBigMapObject()
+    {
+        return Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), 1000, m_BigMapObjectLayer);
     }
 }
