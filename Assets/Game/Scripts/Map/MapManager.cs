@@ -318,7 +318,6 @@ namespace Project_WildernessSurvivalGame
         /// <summary>
         /// 生成一个地图对象
         /// </summary>
-        /// <param name="mapChunkController"></param>
         /// <param name="mapObjectConfigID"></param>
         /// <param name="spawnPos"></param>
         public void SpawnMapObject(int mapObjectConfigID, Vector3 spawnPos)

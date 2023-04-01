@@ -19,5 +19,6 @@ namespace Project_WildernessSurvivalGame
         [LabelText("地图材质")] public Material MapMaterial;
 
         [LabelText("玩家可视距离")] public int ViewDistance;
+        [LabelText("地图早晨刷新概率 1/x")] public int RefreshProbability;
     }
 }

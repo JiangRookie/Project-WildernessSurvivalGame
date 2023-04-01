@@ -153,6 +153,7 @@ namespace Project_WildernessSurvivalGame
     {
         public MapVertexType VertexType;
         public Vector3 Position;
+        public ulong MapObjectID; // 当前地图顶点上的地图对象ID
     }
 
     /// <summary>

@@ -22,7 +22,7 @@ namespace Project_WildernessSurvivalGame
     [Serializable]
     public class MapData
     {
-        [Tooltip("当前地图对象ID取值")] public ulong CurrentID = ulong.MinValue;
+        [Tooltip("当前地图对象ID取值")] public ulong CurrentID = 1;
         [Tooltip("当前玩家去过的所有地图块（已经生成过的地图块）")] public List<SerializableVector2> MapChunkIndexList = new List<SerializableVector2>();
     }
 

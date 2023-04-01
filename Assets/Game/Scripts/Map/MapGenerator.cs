@@ -90,6 +90,8 @@ namespace Project_WildernessSurvivalGame
             }
         }
 
+        #region MapChunk
+
         /// <summary>
         /// 生成地图块
         /// </summary>
@@ -138,7 +140,7 @@ namespace Project_WildernessSurvivalGame
                     mapChunkData = new MapChunkData();
 
                     // 生成场景物体数据
-                    mapChunkData.MapObjectDict = SpawnMapObject(chunkIndex);
+                    mapChunkData.MapObjectDict = SpawnMapObjectDataOnMapChunkInit(chunkIndex);
 
                     // 生成后进行持久化保存
                     ArchiveManager.Instance.AddAndSaveMapChunkData(chunkIndex, mapChunkData);
@@ -310,67 +312,6 @@ namespace Project_WildernessSurvivalGame
         }
 
         /// <summary>
-        /// 生成地图上的游戏物体
-        /// </summary>
-        /// <remarks>遍历地图顶点，根据spawnConfig中的配置信息及其概率进行随机生成，并在对应位置实例化物体</remarks>
-        SerializableDictionary<ulong, MapObjectData> SpawnMapObject(Vector2Int chunkIndex)
-        {
-            SerializableDictionary<ulong, MapObjectData> mapChunkMapObjectDict = new SerializableDictionary<ulong, MapObjectData>();
-            float cellSize = m_MapGrid.CellSize;
-            int offsetX = chunkIndex.x * m_MapConfig.MapChunkSize;
-            int offsetZ = chunkIndex.y * m_MapConfig.MapChunkSize;
-
-            // 遍历地图顶点
-            for (int x = 1; x < m_MapConfig.MapChunkSize; x++)
-            {
-                for (int y = 1; y < m_MapConfig.MapChunkSize; y++)
-                {
-                    MapVertex mapVertex = m_MapGrid.GetVertex(x + offsetX, y + offsetZ);
-
-                    // 根据概率配置随机
-                    // 根据顶点的顶点类型获取对应的列表
-                    List<int> spawnConfigIdList = m_SpawnConfigDict[mapVertex.VertexType];
-
-                    // 确定权重的总和
-                    int weightTotal = mapVertex.VertexType == MapVertexType.Forest
-                        ? m_ForestSpawnWeightTotal
-                        : m_MarshSpawnWeightTotal;
-
-                    int randomValue = Random.Range(1, weightTotal + 1);
-                    float probabilitySum = 0; // 概率和
-                    int spawnConfigIndex = 0; // 最终要生成的物品的索引
-
-                    for (int i = 0; i < spawnConfigIdList.Count; i++)
-                    {
-                        probabilitySum += ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, spawnConfigIdList[i]).Probability;
-
-                        if (randomValue < probabilitySum) // 命中
-                        {
-                            spawnConfigIndex = i;
-                            break;
-                        }
-                    }
-
-                    // 确定到底生成什么地图物品
-                    int configID = spawnConfigIdList[spawnConfigIndex];
-                    MapObjectConfig spawnModel = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, configID);
-                    if (spawnModel.IsEmpty == false)
-                    {
-                        var position = mapVertex.Position
-                          + new Vector3(Random.Range(-cellSize / 2, cellSize / 2), 0, Random.Range(-cellSize / 2, cellSize / 2));
-
-                        mapChunkMapObjectDict.Dictionary.Add
-                        (m_MapData.CurrentID
-                       , new MapObjectData { ID = m_MapData.CurrentID, ConfigID = configID, Position = position });
-
-                        m_MapData.CurrentID++;
-                    }
-                }
-            }
-            return mapChunkMapObjectDict;
-        }
-
-        /// <summary>
         /// 生成一个地图对象的数据
         /// </summary>
         /// <param name="mapObjectConfigID"></param>
@@ -387,5 +328,111 @@ namespace Project_WildernessSurvivalGame
             }
             return mapObjectData;
         }
+
+        /// <summary>
+        /// 通过权重获取一个地图对象的配置ID
+        /// </summary>
+        /// <returns></returns>
+        int GetMapObjectConfigIDForWeight(MapVertexType mapVertexType)
+        {
+            // 根据概率配置随机
+            List<int> spawnConfigIdList = m_SpawnConfigDict[mapVertexType];
+
+            // 确定权重的总和
+            int weightTotal = mapVertexType == MapVertexType.Forest ? m_ForestSpawnWeightTotal : m_MarshSpawnWeightTotal;
+
+            int randomValue = Random.Range(1, weightTotal + 1);
+            float probabilitySum = 0; // 概率和
+            foreach (int id in spawnConfigIdList)
+            {
+                probabilitySum += ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, id).Probability;
+
+                if (randomValue < probabilitySum) // 命中
+                {
+                    // 确定到底生成什么地图物品
+                    return id;
+                }
+            }
+            return -1;
+        }
+
+        /// <summary>
+        /// 生成地图对象数据，为了地图块初始化准备的
+        /// </summary>
+        /// <remarks>遍历地图顶点，根据spawnConfig中的配置信息及其概率进行随机生成，并在对应位置实例化物体</remarks>
+        SerializableDictionary<ulong, MapObjectData> SpawnMapObjectDataOnMapChunkInit(Vector2Int chunkIndex)
+        {
+            SerializableDictionary<ulong, MapObjectData> mapChunkMapObjectDict = new SerializableDictionary<ulong, MapObjectData>();
+            int offsetX = chunkIndex.x * m_MapConfig.MapChunkSize;
+            int offsetZ = chunkIndex.y * m_MapConfig.MapChunkSize;
+
+            // 遍历地图顶点
+            for (int x = 1; x < m_MapConfig.MapChunkSize; x++)
+            {
+                for (int y = 1; y < m_MapConfig.MapChunkSize; y++)
+                {
+                    MapVertex mapVertex = m_MapGrid.GetVertex(x + offsetX, y + offsetZ);
+
+                    // 通过权重获取一个地图对象的配置ID
+                    int configID = GetMapObjectConfigIDForWeight(mapVertex.VertexType);
+                    MapObjectConfig spawnModel = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, configID);
+                    if (spawnModel.IsEmpty == false)
+                    {
+                        var position = mapVertex.Position + new Vector3(Random.Range(-m_MapGrid.CellSize / 2, m_MapGrid.CellSize / 2)
+                                                                      , 0
+                                                                      , Random.Range(-m_MapGrid.CellSize / 2, m_MapGrid.CellSize / 2));
+
+                        mapChunkMapObjectDict.Dictionary.Add(
+                            m_MapData.CurrentID
+                          , new MapObjectData { ID = m_MapData.CurrentID, ConfigID = configID, Position = position });
+
+                        mapVertex.MapObjectID = m_MapData.CurrentID;
+                        m_MapData.CurrentID++;
+                    }
+                }
+            }
+            return mapChunkMapObjectDict;
+        }
+
+        /// <summary>
+        /// 游戏中每天早晨通过地图块索引返回这个地图块多出来（新生成）的物品数据
+        /// </summary>
+        /// <param name="chunkIndex"></param>
+        /// <returns></returns>
+        public List<MapObjectData> SpawnMapObjectDataOnMapChunkRefresh(Vector2Int chunkIndex)
+        {
+            List<MapObjectData> mapObjectDataList = null;
+            int offsetX = chunkIndex.x * m_MapConfig.MapChunkSize;
+            int offsetZ = chunkIndex.y * m_MapConfig.MapChunkSize;
+            for (int x = 1; x < m_MapConfig.MapChunkSize; x++)
+            {
+                for (int y = 1; y < m_MapConfig.MapChunkSize; y++)
+                {
+                    if (Random.Range(0, m_MapConfig.RefreshProbability) != 0) continue; // 如果概率没命中，则这一个顶点不刷新
+
+                    MapVertex mapVertex = m_MapGrid.GetVertex(x + offsetX, y + offsetZ);
+                    if (mapVertex.MapObjectID != 0) continue; // 不为0则不能生成
+
+                    // 通过权重获取一个地图对象的配置ID
+                    int configID = GetMapObjectConfigIDForWeight(mapVertex.VertexType);
+                    MapObjectConfig spawnModel = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, configID);
+
+                    if (spawnModel.IsEmpty == false)
+                    {
+                        var position = mapVertex.Position + new Vector3(Random.Range(-m_MapGrid.CellSize / 2, m_MapGrid.CellSize / 2)
+                                                                      , 0
+                                                                      , Random.Range(-m_MapGrid.CellSize / 2, m_MapGrid.CellSize / 2));
+
+                        if (mapObjectDataList == null) mapObjectDataList = new List<MapObjectData>();
+                        mapObjectDataList.Add(new MapObjectData { ID = m_MapData.CurrentID, ConfigID = configID, Position = position });
+                        mapVertex.MapObjectID = m_MapData.CurrentID;
+                        m_MapData.CurrentID++;
+                    }
+                }
+            }
+            return mapObjectDataList;
+        }
+
+        #endregion
     }
 }
