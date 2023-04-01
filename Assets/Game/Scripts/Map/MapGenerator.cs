@@ -140,7 +140,7 @@ namespace Project_WildernessSurvivalGame
                     mapChunkData = new MapChunkData();
 
                     // 生成场景物体数据
-                    mapChunkData.MapObjectDict = SpawnMapObjectDataOnMapChunkInit(chunkIndex);
+                    mapChunkData.MapObjectDict = GenerateMapObjectDataDictOnMapChunkInit(chunkIndex);
 
                     // 生成后进行持久化保存
                     ArchiveManager.Instance.AddAndSaveMapChunkData(chunkIndex, mapChunkData);
@@ -317,15 +317,32 @@ namespace Project_WildernessSurvivalGame
         /// <param name="mapObjectConfigID"></param>
         /// <param name="spawnPos"></param>
         /// <returns></returns>
-        public MapObjectData SpawnMapObjectData(int mapObjectConfigID, Vector3 spawnPos)
+        public MapObjectData GenerateMapObjectData(int mapObjectConfigID, Vector3 spawnPos)
         {
             MapObjectData mapObjectData = null;
             MapObjectConfig mapObjectConfig = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, mapObjectConfigID);
             if (mapObjectConfig.IsEmpty == false)
             {
-                mapObjectData = new MapObjectData { ID = m_MapData.CurrentID, ConfigID = mapObjectConfigID, Position = spawnPos };
-                m_MapData.CurrentID++;
+                mapObjectData = GenerateMapObjectData(mapObjectConfigID, spawnPos, mapObjectConfig.DestroyDays);
             }
+            return mapObjectData;
+        }
+
+        /// <summary>
+        /// 生成一个地图对象数据
+        /// </summary>
+        /// <param name="mapObjectConfigID"></param>
+        /// <param name="position"></param>
+        /// <param name="destroyDays"></param>
+        /// <returns></returns>
+        MapObjectData GenerateMapObjectData(int mapObjectConfigID, Vector3 position, int destroyDays)
+        {
+            MapObjectData mapObjectData = PoolManager.Instance.GetObject<MapObjectData>();
+            mapObjectData.ConfigID = mapObjectConfigID;
+            mapObjectData.ID = m_MapData.CurrentID;
+            m_MapData.CurrentID++;
+            mapObjectData.Position = position;
+            mapObjectData.DestroyDays = destroyDays;
             return mapObjectData;
         }
 
@@ -353,14 +370,14 @@ namespace Project_WildernessSurvivalGame
                     return id;
                 }
             }
-            return -1;
+            return 0;
         }
 
         /// <summary>
         /// 生成地图对象数据，为了地图块初始化准备的
         /// </summary>
         /// <remarks>遍历地图顶点，根据spawnConfig中的配置信息及其概率进行随机生成，并在对应位置实例化物体</remarks>
-        SerializableDictionary<ulong, MapObjectData> SpawnMapObjectDataOnMapChunkInit(Vector2Int chunkIndex)
+        SerializableDictionary<ulong, MapObjectData> GenerateMapObjectDataDictOnMapChunkInit(Vector2Int chunkIndex)
         {
             SerializableDictionary<ulong, MapObjectData> mapChunkMapObjectDict = new SerializableDictionary<ulong, MapObjectData>();
             int offsetX = chunkIndex.x * m_MapConfig.MapChunkSize;
@@ -375,33 +392,32 @@ namespace Project_WildernessSurvivalGame
 
                     // 通过权重获取一个地图对象的配置ID
                     int configID = GetMapObjectConfigIDForWeight(mapVertex.VertexType);
-                    MapObjectConfig spawnModel = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, configID);
-                    if (spawnModel.IsEmpty == false)
+                    MapObjectConfig objectConfig = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, configID);
+                    if (objectConfig.IsEmpty == false)
                     {
-                        var position = mapVertex.Position + new Vector3(Random.Range(-m_MapGrid.CellSize / 2, m_MapGrid.CellSize / 2)
-                                                                      , 0
+                        var position = mapVertex.Position + new Vector3(Random.Range(-m_MapGrid.CellSize / 2, m_MapGrid.CellSize / 2), 0
                                                                       , Random.Range(-m_MapGrid.CellSize / 2, m_MapGrid.CellSize / 2));
 
-                        mapChunkMapObjectDict.Dictionary.Add(
-                            m_MapData.CurrentID
-                          , new MapObjectData { ID = m_MapData.CurrentID, ConfigID = configID, Position = position });
-
                         mapVertex.MapObjectID = m_MapData.CurrentID;
-                        m_MapData.CurrentID++;
+
+                        mapChunkMapObjectDict.Dictionary.Add(
+                            m_MapData.CurrentID, GenerateMapObjectData(configID, position, objectConfig.DestroyDays));
                     }
                 }
             }
             return mapChunkMapObjectDict;
         }
 
+        List<MapObjectData> m_MapObjectDataList = new List<MapObjectData>(); // 用来避免每次都返回一个新的 List 对象
+
         /// <summary>
         /// 游戏中每天早晨通过地图块索引返回这个地图块多出来（新生成）的物品数据
         /// </summary>
         /// <param name="chunkIndex"></param>
         /// <returns></returns>
-        public List<MapObjectData> SpawnMapObjectDataOnMapChunkRefresh(Vector2Int chunkIndex)
+        public List<MapObjectData> GenerateMapObjectDataListOnMapChunkRefresh(Vector2Int chunkIndex)
         {
-            List<MapObjectData> mapObjectDataList = null;
+            m_MapObjectDataList.Clear();
             int offsetX = chunkIndex.x * m_MapConfig.MapChunkSize;
             int offsetZ = chunkIndex.y * m_MapConfig.MapChunkSize;
             for (int x = 1; x < m_MapConfig.MapChunkSize; x++)
@@ -415,22 +431,20 @@ namespace Project_WildernessSurvivalGame
 
                     // 通过权重获取一个地图对象的配置ID
                     int configID = GetMapObjectConfigIDForWeight(mapVertex.VertexType);
-                    MapObjectConfig spawnModel = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, configID);
+                    MapObjectConfig objectConfig = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, configID);
 
-                    if (spawnModel.IsEmpty == false)
+                    if (objectConfig.IsEmpty == false)
                     {
                         var position = mapVertex.Position + new Vector3(Random.Range(-m_MapGrid.CellSize / 2, m_MapGrid.CellSize / 2)
                                                                       , 0
                                                                       , Random.Range(-m_MapGrid.CellSize / 2, m_MapGrid.CellSize / 2));
 
-                        if (mapObjectDataList == null) mapObjectDataList = new List<MapObjectData>();
-                        mapObjectDataList.Add(new MapObjectData { ID = m_MapData.CurrentID, ConfigID = configID, Position = position });
                         mapVertex.MapObjectID = m_MapData.CurrentID;
-                        m_MapData.CurrentID++;
+                        m_MapObjectDataList.Add(GenerateMapObjectData(configID, position, objectConfig.DestroyDays));
                     }
                 }
             }
-            return mapObjectDataList;
+            return m_MapObjectDataList;
         }
 
         #endregion

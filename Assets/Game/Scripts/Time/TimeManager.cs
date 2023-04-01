@@ -74,7 +74,12 @@ public class TimeManager : LogicManagerBase<TimeManager>
         if (m_TimeData.StateIndex == 0) // m_CurrStateIndex == 0 意味着新的一天开始了
         {
             m_TimeData.DayNum++;
+
+            // 发送当前是第几天的事件
             EventManager.EventTrigger<int>(EventName.UpdateDayNum, m_TimeData.DayNum);
+
+            // 发送当前是早晨的事件
+            EventManager.EventTrigger(EventName.OnMorning);
         }
 
         m_TimeData.CalculateTime = m_TimeConfig.TimeStateConfigs[m_TimeData.StateIndex].PhaseDurationTime;

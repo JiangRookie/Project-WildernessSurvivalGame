@@ -44,6 +44,7 @@ namespace Project_WildernessSurvivalGame
     {
         public ulong ID; // 唯一身份标识
         public int ConfigID;
+        public int DestroyDays; // 剩余的腐烂天数，-1代表无效
         SerializableVector3 m_Position;
 
         public Vector3 Position

@@ -128,6 +128,40 @@ namespace Project_WildernessSurvivalGame
             }
         }
 
+        static Mesh GenerateGroundMesh(float width, float height)
+        {
+            Mesh mesh = new Mesh();
+
+            // 确定顶点在哪里
+            mesh.vertices = new[]
+            {
+                new Vector3(0, 0, 0)
+              , new Vector3(0, 0, height)
+              , new Vector3(width, 0, height)
+              , new Vector3(width, 0, 0)
+            };
+
+            // 确定哪些点形成三角形
+            mesh.triangles = new[]
+            {
+                0, 1, 2
+              , 0, 2, 3
+            };
+
+            // 设置 UV
+            mesh.uv = new Vector2[]
+            {
+                new Vector3(0, 0)
+              , new Vector3(0, 1)
+              , new Vector3(1, 1)
+              , new Vector3(1, 0)
+            };
+
+            return mesh;
+        }
+
+        #region MapChunk
+
         public void UpdateViewer(Transform player)
         {
             m_Viewer = player;
@@ -243,6 +277,8 @@ namespace Project_WildernessSurvivalGame
             m_CanUpdateChunk = true;
         }
 
+        #endregion
+
         #region Map UI
 
         UI_MapWindow m_MapUI;
@@ -282,6 +318,10 @@ namespace Project_WildernessSurvivalGame
             m_MapUI.UpdatePivot(m_Viewer.position);
         }
 
+        #endregion
+
+        #region MapObject
+
         /// <summary>
         /// 移除一个地图对象
         /// </summary>
@@ -290,8 +330,6 @@ namespace Project_WildernessSurvivalGame
         {
             if (m_MapUI != null) m_MapUI.RemoveMapObjectIcon(mapObjectID);
         }
-
-        #endregion
 
         /// <summary>
         /// 生成一个地图对象
@@ -302,7 +340,7 @@ namespace Project_WildernessSurvivalGame
         public void SpawnMapObject(MapChunkController mapChunkController, int mapObjectConfigID, Vector3 spawnPos)
         {
             // 生成数据
-            MapObjectData mapObjectData = m_MapGenerator.SpawnMapObjectData(mapObjectConfigID, spawnPos);
+            MapObjectData mapObjectData = m_MapGenerator.GenerateMapObjectData(mapObjectConfigID, spawnPos);
             if (mapObjectData == null) return;
 
             // 交给地图块
@@ -326,36 +364,11 @@ namespace Project_WildernessSurvivalGame
             SpawnMapObject(m_MapChunkDict[chunkIndex], mapObjectConfigID, spawnPos);
         }
 
-        static Mesh GenerateGroundMesh(float width, float height)
+        public List<MapObjectData> SpawnMapObjectDataOnMapChunkRefresh(Vector2Int chunkIndex)
         {
-            Mesh mesh = new Mesh();
-
-            // 确定顶点在哪里
-            mesh.vertices = new[]
-            {
-                new Vector3(0, 0, 0)
-              , new Vector3(0, 0, height)
-              , new Vector3(width, 0, height)
-              , new Vector3(width, 0, 0)
-            };
-
-            // 确定哪些点形成三角形
-            mesh.triangles = new[]
-            {
-                0, 1, 2
-              , 0, 2, 3
-            };
-
-            // 设置 UV
-            mesh.uv = new Vector2[]
-            {
-                new Vector3(0, 0)
-              , new Vector3(0, 1)
-              , new Vector3(1, 1)
-              , new Vector3(1, 0)
-            };
-
-            return mesh;
+            return m_MapGenerator.GenerateMapObjectDataListOnMapChunkRefresh(chunkIndex);
         }
+
+        #endregion
     }
 }

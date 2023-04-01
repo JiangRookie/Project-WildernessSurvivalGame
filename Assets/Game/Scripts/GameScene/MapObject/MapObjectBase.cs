@@ -1,4 +1,3 @@
-using JKFrame;
 using Project_WildernessSurvivalGame;
 using UnityEngine;
 
@@ -30,9 +29,6 @@ public abstract class MapObjectBase : MonoBehaviour
     public virtual void RemoveOnMap()
     {
         mapChunkController.RemoveMapObject(id);
-
-        // 把自己扔回对象池
-        this.JKGameObjectPushPool();
     }
 
     public virtual int OnPickUp()

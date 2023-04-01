@@ -26,4 +26,5 @@ MonoBehaviour:
   Prefab: {fileID: 9088588310510183361, guid: a5df7c6378d8e6640ab03f0ed384a02a, type: 3}
   MapIconSprite: {fileID: 0}
   IconSize: 0
+  DestroyDays: 2
   Probability: 0
