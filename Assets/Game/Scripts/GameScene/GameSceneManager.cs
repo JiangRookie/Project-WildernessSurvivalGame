@@ -65,6 +65,9 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
 
         // 初始化输入管理器
         InputManager.Instance.Init();
+
+        // 初始化建造面板
+        UIManager.Instance.Show<UI_BuildWindow>();
     }
 
     #region 测试逻辑

@@ -14,6 +14,7 @@ namespace JKFrame
         class UILayer
         {
             public Transform Root;
+            public bool EnableMask;
             public Image MaskImage;
             int m_Count = 0;
 
@@ -31,6 +32,7 @@ namespace JKFrame
 
             void Update()
             {
+                if (EnableMask == false) return;
                 MaskImage.raycastTarget = m_Count != 0;
                 int posIndex = Root.childCount - 2;
                 MaskImage.transform.SetSiblingIndex(posIndex < 0 ? 0 : posIndex);

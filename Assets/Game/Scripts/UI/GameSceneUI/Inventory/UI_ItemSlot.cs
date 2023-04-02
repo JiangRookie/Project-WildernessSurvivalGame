@@ -32,6 +32,7 @@ public class UI_ItemSlot : MonoBehaviour
         this.OnBeginDrag(BeginDrag);
         this.OnDrag(Drag);
         this.OnEndDrag(EndDrag);
+        this.BindMouseEffect();
     }
 
     void OnEnable()

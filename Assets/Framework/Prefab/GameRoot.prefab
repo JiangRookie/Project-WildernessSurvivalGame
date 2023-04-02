@@ -1336,14 +1336,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   UILayers:
   - Root: {fileID: 209671190}
+    EnableMask: 1
     MaskImage: {fileID: 1052248273}
   - Root: {fileID: 799209266}
+    EnableMask: 0
     MaskImage: {fileID: 877360461}
   - Root: {fileID: 1698360326}
+    EnableMask: 1
     MaskImage: {fileID: 1935915076}
   - Root: {fileID: 588667062}
+    EnableMask: 1
     MaskImage: {fileID: 295300529}
   - Root: {fileID: 1808348528}
+    EnableMask: 1
     MaskImage: {fileID: 687255680}
   UITips: {fileID: 778908336}
   DragLayer: {fileID: 464933959}
