@@ -8,6 +8,7 @@ public class UI_BuildWindow : UI_WindowBase
 {
     // 所有的一级菜单选项
     [SerializeField] UI_BuildWindow_MainMenuItem[] m_MainMenuItems;
+    [SerializeField] UI_BuildWindow_SecondaryMenu m_SecondaryMenu;
     UI_BuildWindow_MainMenuItem m_CurrentSelectedMainMenuItem;
 
     public override void Init()
@@ -17,6 +18,7 @@ public class UI_BuildWindow : UI_WindowBase
         {
             m_MainMenuItems[i].Init((BuildType)i, this);
         }
+        m_SecondaryMenu.Init();
     }
 
     /// <summary>
@@ -29,6 +31,7 @@ public class UI_BuildWindow : UI_WindowBase
         m_CurrentSelectedMainMenuItem = newMenuItem;
         m_CurrentSelectedMainMenuItem.OnSelect();
 
-        Debug.Log("开启二级菜单：" + m_CurrentSelectedMainMenuItem.MenuType.ToString());
+        Debug.Log("开启二级菜单：" + m_CurrentSelectedMainMenuItem.BuildType.ToString());
+        m_SecondaryMenu.Show(newMenuItem.BuildType);
     }
 }

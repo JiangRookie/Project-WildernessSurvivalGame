@@ -7,12 +7,12 @@ public class UI_BuildWindow_MainMenuItem : MonoBehaviour
     [SerializeField] Button m_Button;
     [SerializeField] Image m_IconImage;
     [SerializeField] Sprite[] m_BgSprites;
-    public BuildType MenuType { get; private set; }
+    public BuildType BuildType { get; private set; }
     UI_BuildWindow m_OwnerWindow;
 
     public void Init(BuildType buildType, UI_BuildWindow ownerWindow)
     {
-        MenuType = buildType;
+        BuildType = buildType;
         m_OwnerWindow = ownerWindow;
         this.BindMouseEffect();
         m_Button.onClick.AddListener(OnClick);

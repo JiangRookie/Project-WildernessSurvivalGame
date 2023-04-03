@@ -6,4 +6,5 @@ public static class ConfigName
     public const string TIME = "Time";
     public const string PLAYER = "Player";
     public const string LOOT = "Loot";
+    public const string Build = "Build";
 }
