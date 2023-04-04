@@ -10,6 +10,21 @@ public class UI_BuildWindow : UI_WindowBase
     [SerializeField] UI_BuildWindow_MainMenuItem[] m_MainMenuItems;
     [SerializeField] UI_BuildWindow_SecondaryMenu m_SecondaryMenu;
     UI_BuildWindow_MainMenuItem m_CurrentSelectedMainMenuItem;
+    bool m_IsTouch = false;
+
+    void Update()
+    {
+        if (m_IsTouch && RectTransformUtility.RectangleContainsScreenPoint(transform as RectTransform, Input.mousePosition) == false)
+        {
+            m_IsTouch = false;
+            CloseMenu();
+        }
+    }
+
+    void CloseMenu()
+    {
+        m_SecondaryMenu.Close();
+    }
 
     public override void Init()
     {
@@ -33,5 +48,6 @@ public class UI_BuildWindow : UI_WindowBase
 
         Debug.Log("开启二级菜单：" + m_CurrentSelectedMainMenuItem.BuildType.ToString());
         m_SecondaryMenu.Show(newMenuItem.BuildType);
+        m_IsTouch = true;
     }
 }

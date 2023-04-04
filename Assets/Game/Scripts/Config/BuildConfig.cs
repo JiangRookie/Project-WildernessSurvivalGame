@@ -9,6 +9,18 @@ public class BuildConfig : ConfigBase
     [LabelText("合成类型")] public BuildType BuildType;
     [LabelText("合成条件")] public List<BuildConfigCondition> BuildConfigConditionList = new List<BuildConfigCondition>();
     [LabelText("合成产物")] public int TargetID;
+
+    public bool CheckBuildConfigCondition()
+    {
+        foreach (var condition in BuildConfigConditionList)
+        {
+            int currCount = UI_InventoryWindow.Instance.GetItemCount(condition.ItemID);
+
+            // 检查当前数量是否满足这个条件
+            if (currCount < condition.Count) return false;
+        }
+        return true;
+    }
 }
 
 public class BuildConfigCondition

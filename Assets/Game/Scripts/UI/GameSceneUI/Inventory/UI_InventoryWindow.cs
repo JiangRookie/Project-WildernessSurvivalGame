@@ -279,4 +279,86 @@ public class UI_InventoryWindow : UI_WindowBase
             default: return AudioType.Fail;
         }
     }
+
+    /// <summary>
+    /// 获取某个物品的数量
+    /// </summary>
+    /// <param name="configID"></param>
+    /// <returns></returns>
+    public int GetItemCount(int configID)
+    {
+        int count = 0;
+        foreach (var itemData in m_InventoryData.ItemDatas)
+        {
+            if (itemData != null && itemData.ConfigID == configID)
+            {
+                if (itemData.ItemTypeData is PileItemTypeDataBase)
+                {
+                    count += ((PileItemTypeDataBase)itemData.ItemTypeData).Count;
+                }
+                else
+                {
+                    count += 1;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    /// <summary>
+    /// 基于建造配置，减少物品
+    /// </summary>
+    /// <param name="buildConfig"></param>
+    public void UpdateItemsForBuild(BuildConfig buildConfig)
+    {
+        foreach (var buildConfigCondition in buildConfig.BuildConfigConditionList)
+        {
+            UpdateItemForBuild(buildConfigCondition);
+        }
+    }
+
+    void UpdateItemForBuild(BuildConfigCondition buildConfigCondition)
+    {
+        int count = buildConfigCondition.Count;
+        for (int i = 0; i < m_InventoryData.ItemDatas.Length; i++)
+        {
+            ItemData itemData = m_InventoryData.ItemDatas[i];
+            if (itemData != null && itemData.ConfigID == buildConfigCondition.ItemID)
+            {
+                if (itemData.ItemTypeData is PileItemTypeDataBase)
+                {
+                    PileItemTypeDataBase pileItemTypeData = itemData.ItemTypeData as PileItemTypeDataBase;
+
+                    // 差距：当前格子里面有的数量 - 需要的数量
+                    int quantity = pileItemTypeData.Count - count;
+                    if (quantity > 0) // 数量超过
+                    {
+                        pileItemTypeData.Count -= count;
+                        m_Slots[i].UpdateCountTextView();
+                        return;
+                    }
+
+                    // else // 数量不够（刚好）
+                    // {
+                    //     count -= pileItemTypeData.Count;
+                    //     RemoveItem(i);
+                    //     if (count == 0) return;
+                    // }
+                    count -= pileItemTypeData.Count;
+                    RemoveItem(i);
+                    if (count == 0) return;
+                }
+                else
+                {
+                    count -= 1;
+                    RemoveItem(i);
+                    if (count == 0) return;
+                }
+            }
+        }
+
+        // 如果执行到这里说明出现了Bug
+        Debug.LogError("背包：建造配置内的条件，背包不满足");
+    }
 }

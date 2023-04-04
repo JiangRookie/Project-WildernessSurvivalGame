@@ -10,7 +10,7 @@ public class UI_BuildWindow_SecondaryMenuItem : MonoBehaviour
     [SerializeField] Sprite[] m_BgSprites;
     public BuildConfig BuildConfig { get; private set; } // 当前选项代表的建造配置
     UI_BuildWindow_SecondaryMenu m_OwnerWindow;
-    bool m_IsMeetCondition;
+    public bool IsMeetCondition { get; private set; }
 
     void Start()
     {
@@ -22,7 +22,7 @@ public class UI_BuildWindow_SecondaryMenuItem : MonoBehaviour
     {
         BuildConfig = buildConfig;
         m_OwnerWindow = ownerWindow;
-        m_IsMeetCondition = isMeetCondition;
+        IsMeetCondition = isMeetCondition;
         m_IconImage.sprite = ConfigManager.Instance.GetConfig<ItemConfig>(ConfigName.ITEM, buildConfig.TargetID).Icon;
         m_IconImage.color = isMeetCondition ? Color.white : Color.black;
         UnSelect();

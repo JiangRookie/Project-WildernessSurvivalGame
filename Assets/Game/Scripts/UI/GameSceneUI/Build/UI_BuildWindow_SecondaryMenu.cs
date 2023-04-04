@@ -6,9 +6,14 @@ public class UI_BuildWindow_SecondaryMenu : MonoBehaviour
 {
     [SerializeField] Transform m_ItemParent;
     [SerializeField] GameObject m_SecondaryMenuItemPrefab;
+    [SerializeField] UI_BuildWindow_BuildPanel m_BuildPanel;
     Dictionary<BuildType, List<BuildConfig>> m_BuildConfigDict;
     List<UI_BuildWindow_SecondaryMenuItem> m_CurrEffectAllSecondaryMenuItemList;
+    List<BuildConfig> m_MeetTheConditionConfigList;
+    List<BuildConfig> m_NotMeetTheConditionConfigList;
+
     UI_BuildWindow_SecondaryMenuItem m_CurrSelectedSecondaryMenuItem;
+    BuildType m_CurrBuildType;
 
     public void Init()
     {
@@ -24,11 +29,28 @@ public class UI_BuildWindow_SecondaryMenu : MonoBehaviour
             m_BuildConfigDict[buildConfig.BuildType].Add(buildConfig);
         }
         m_CurrEffectAllSecondaryMenuItemList = new List<UI_BuildWindow_SecondaryMenuItem>(10);
+        m_MeetTheConditionConfigList = new List<BuildConfig>();
+        m_NotMeetTheConditionConfigList = new List<BuildConfig>();
+        m_BuildPanel.Init(this);
         Close();
+    }
+
+    public void RefreshView()
+    {
+        Show(m_CurrBuildType);
+        foreach (var secondaryMenuItem in m_CurrEffectAllSecondaryMenuItemList)
+        {
+            if (secondaryMenuItem.BuildConfig == m_CurrSelectedSecondaryMenuItem.BuildConfig)
+            {
+                secondaryMenuItem.Select();
+            }
+        }
     }
 
     public void Show(BuildType buildType)
     {
+        m_CurrBuildType = buildType;
+
         // 旧列表中的所有选项先放进对象池
         foreach (var secondaryMenuItem in m_CurrEffectAllSecondaryMenuItemList)
         {
@@ -39,11 +61,21 @@ public class UI_BuildWindow_SecondaryMenu : MonoBehaviour
         // 当前类型的配置列表
         List<BuildConfig> buildConfigList = m_BuildConfigDict[buildType];
 
-        // 对配置进行分类，满足条件/不满足条件
-        foreach (var buildConfig in buildConfigList)
+        m_MeetTheConditionConfigList.Clear();
+        m_NotMeetTheConditionConfigList.Clear();
+
+        foreach (BuildConfig buildConfig in buildConfigList)
         {
-            AddSecondMenuItem(buildConfig, true);
+            bool isMeet = buildConfig.CheckBuildConfigCondition();
+            if (isMeet)
+                m_MeetTheConditionConfigList.Add(buildConfig);
+            else
+                m_NotMeetTheConditionConfigList.Add(buildConfig);
         }
+
+        // 对配置进行分类，满足条件/不满足条件
+        foreach (var buildConfig in m_MeetTheConditionConfigList) AddSecondMenuItem(buildConfig, true);
+        foreach (var buildConfig in m_NotMeetTheConditionConfigList) AddSecondMenuItem(buildConfig, false);
         gameObject.SetActive(true);
     }
 
@@ -64,10 +96,12 @@ public class UI_BuildWindow_SecondaryMenu : MonoBehaviour
         }
         m_CurrSelectedSecondaryMenuItem = newSecondaryMenuItem;
         m_CurrSelectedSecondaryMenuItem.Select();
+        m_BuildPanel.Show(newSecondaryMenuItem.BuildConfig);
     }
 
-    void Close()
+    public void Close()
     {
+        m_BuildPanel.Close();
         gameObject.SetActive(false);
     }
 }
