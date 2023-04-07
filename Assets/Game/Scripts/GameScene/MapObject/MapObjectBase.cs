@@ -1,7 +1,10 @@
 using Project_WildernessSurvivalGame;
 using UnityEngine;
 
-public enum MapObjectType { Tree, Bush, Stone, SmallStone, Mushroom, Wood, Twig, Weapon, Berry }
+public enum MapObjectType
+{
+    Tree, Bush, Stone, Material, Consumable, Weapon, Building
+}
 
 /// <summary>
 /// 地图对象基类

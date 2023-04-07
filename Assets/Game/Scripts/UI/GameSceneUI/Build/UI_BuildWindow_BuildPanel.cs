@@ -1,4 +1,5 @@
 using JKFrame;
+using Project_WildernessSurvivalGame;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,17 +20,26 @@ public class UI_BuildWindow_BuildPanel : MonoBehaviour
 
     void BuildButtonClick()
     {
-        if (UI_InventoryWindow.Instance.AddItemAndPlayAudio(m_BuildConfig.TargetID))
+        if (m_BuildConfig.BuildType == BuildType.Weapon)
         {
-            // 根据建造配置减少材料
-            UI_InventoryWindow.Instance.UpdateItemsForBuild(m_BuildConfig);
+            if (UI_InventoryWindow.Instance.AddItemAndPlayAudio(m_BuildConfig.TargetID))
+            {
+                // 根据建造配置减少材料
+                UI_InventoryWindow.Instance.UpdateItemsForBuild(m_BuildConfig);
 
-            // 刷新当前界面状态
-            RefreshView();
+                // 刷新当前界面状态
+                RefreshView();
+            }
+            else
+            {
+                UIManager.Instance.AddTips("背包已满，无法建造");
+            }
         }
         else
         {
-            UIManager.Instance.AddTips("背包已满，无法建造");
+            // 进入建造模式
+            EventManager.EventTrigger<BuildConfig>(EventName.BuildBuilding, m_BuildConfig);
+            m_OwnerWindow.Close();
         }
     }
 
@@ -45,7 +55,14 @@ public class UI_BuildWindow_BuildPanel : MonoBehaviour
             int needCount = buildConfig.BuildConfigConditionList[i].Count;
             m_BuildPanelItems[i].Show(id, currCount, needCount);
         }
-        m_DescriptionText.text = ConfigManager.Instance.GetConfig<ItemConfig>(ConfigName.ITEM, buildConfig.TargetID).Description;
+        if (buildConfig.BuildType == BuildType.Weapon)
+        {
+            m_DescriptionText.text = ConfigManager.Instance.GetConfig<ItemConfig>(ConfigName.ITEM, buildConfig.TargetID).Description;
+        }
+        else
+        {
+            m_DescriptionText.text = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, buildConfig.TargetID).Description;
+        }
 
         m_BuildButton.interactable = buildConfig.CheckBuildConfigCondition();
         gameObject.SetActive(true);

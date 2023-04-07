@@ -7,4 +7,5 @@ public static class EventName
     public const string PlayerWeaponAttackSucceed = "PlayerWeaponAttackSucceed";
     public const string AddItem = "AddItem";
     public const string OnMorning = "OnMorning";
+    public const string BuildBuilding = "BuildBuilding";
 }

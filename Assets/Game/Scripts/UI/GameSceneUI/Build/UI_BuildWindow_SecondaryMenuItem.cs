@@ -1,4 +1,5 @@
 using JKFrame;
+using Project_WildernessSurvivalGame;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,7 +24,14 @@ public class UI_BuildWindow_SecondaryMenuItem : MonoBehaviour
         BuildConfig = buildConfig;
         m_OwnerWindow = ownerWindow;
         IsMeetCondition = isMeetCondition;
-        m_IconImage.sprite = ConfigManager.Instance.GetConfig<ItemConfig>(ConfigName.ITEM, buildConfig.TargetID).Icon;
+        if (buildConfig.BuildType == BuildType.Weapon)
+        {
+            m_IconImage.sprite = ConfigManager.Instance.GetConfig<ItemConfig>(ConfigName.ITEM, buildConfig.TargetID).Icon;
+        }
+        else
+        {
+            m_IconImage.sprite = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, buildConfig.TargetID).MapIconSprite;
+        }
         m_IconImage.color = isMeetCondition ? Color.white : Color.black;
         UnSelect();
     }

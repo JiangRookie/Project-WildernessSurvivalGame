@@ -15,7 +15,6 @@ public class InputManager : SingletonMono<InputManager>
     void Update()
     {
         if (GameSceneManager.Instance.IsInitialized == false) return;
-        if (m_NeedToCheck == false) return;
         CheckSelectMapObject();
     }
 
@@ -31,6 +30,8 @@ public class InputManager : SingletonMono<InputManager>
 
     void CheckSelectMapObject()
     {
+        if (m_NeedToCheck == false) return;
+
         bool mouseButtonDown = Input.GetMouseButtonDown(0);
         bool mouseButton = Input.GetMouseButton(0);
 

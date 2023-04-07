@@ -130,6 +130,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1836122227173776993, guid: 35592af50a118a347aef20848bfd00b8, type: 3}
+      propertyPath: m_GraphicRaycaster
+      value: 
+      objectReference: {fileID: 900527397}
     - target: {fileID: 3304632367700951240, guid: 35592af50a118a347aef20848bfd00b8, type: 3}
       propertyPath: m_Name
       value: GameRoot
@@ -193,6 +197,7 @@ GameObject:
   - component: {fileID: 127479098}
   - component: {fileID: 127479096}
   - component: {fileID: 127479099}
+  - component: {fileID: 127479100}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -281,6 +286,22 @@ MonoBehaviour:
   m_GroundLayer:
     serializedVersion: 2
     m_Bits: 128
+--- !u!114 &127479100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 127479094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2966f0a4dc3960646b3a4aeefa9ecf89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_VirtualCellSize: 0.25
+  m_BuildLayerMask:
+    serializedVersion: 2
+    m_Bits: 832
 --- !u!1 &412835110
 GameObject:
   m_ObjectHideFlags: 0
@@ -545,6 +566,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &900527397 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1492594496, guid: 35592af50a118a347aef20848bfd00b8, type: 3}
+  m_PrefabInstance: {fileID: 27693682}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0

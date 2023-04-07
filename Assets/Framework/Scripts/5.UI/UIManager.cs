@@ -48,6 +48,7 @@ namespace JKFrame
 
         [SerializeField] UILayer[] UILayers;
         [SerializeField] UITips UITips; // 提示窗
+        [SerializeField] GraphicRaycaster m_GraphicRaycaster;
         const string TipsLocalizationPackName = "Tips";
 
         public RectTransform DragLayer;
@@ -196,6 +197,16 @@ namespace JKFrame
             {
                 uiElement.objInstance.Close();
             }
+        }
+
+        public void EnableUIGraphicRaycaster()
+        {
+            m_GraphicRaycaster.enabled = true;
+        }
+
+        public void DisableUIGraphicRaycaster()
+        {
+            m_GraphicRaycaster.enabled = false;
         }
     }
 }
