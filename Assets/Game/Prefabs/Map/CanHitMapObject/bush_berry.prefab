@@ -176,8 +176,10 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 006140fa05f203644b1f44aa517e6049, type: 3}
   - {fileID: 8300000, guid: 779fe7d4c7f9574469d9645a1317c646, type: 3}
   m_MaxHp: 3
-  m_LootConfigID: 1
+  m_LootConfigID: 3
   m_MeshRenderer: {fileID: 5415924084177258058}
   m_Materials:
   - {fileID: 2100000, guid: 7b0c2fb0f9ba395479f59e9f5f983e25, type: 2}
   - {fileID: 2100000, guid: a17a0995f74ffba47bda4ec91417108e, type: 2}
+  m_BerryGrowthDays: 2
+  m_Collider: {fileID: 4358601411851533054}

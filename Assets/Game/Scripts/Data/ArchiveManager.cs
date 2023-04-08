@@ -13,6 +13,7 @@ public class ArchiveManager : Singleton<ArchiveManager>
     public PlayerCoreData PlayerCoreData { get; private set; }
     public MapInitData MapInitData { get; private set; }
     public MapData MapData { get; private set; }
+    public SerializableDictionary<ulong, IMapObjectTypeData> MapObjectTypeDataDict { get; private set; }
     public InventoryData InventoryData { get; private set; }
     public TimeData TimeData { get; private set; }
     public bool HasArchived { get; private set; }
@@ -60,6 +61,7 @@ public class ArchiveManager : Singleton<ArchiveManager>
         SavePlayerCoreData();
 
         MapData = new MapData();
+        MapObjectTypeDataDict = new SerializableDictionary<ulong, IMapObjectTypeData>();
         SaveMapData();
 
         InventoryData = new InventoryData(14);
@@ -102,6 +104,7 @@ public class ArchiveManager : Singleton<ArchiveManager>
         MapInitData = SaveManager.LoadObject<MapInitData>();
         PlayerTransformData = SaveManager.LoadObject<PlayerTransformData>();
         MapData = SaveManager.LoadObject<MapData>();
+        MapObjectTypeDataDict = SaveManager.LoadObject<SerializableDictionary<ulong, IMapObjectTypeData>>();
         InventoryData = SaveManager.LoadObject<InventoryData>();
         TimeData = SaveManager.LoadObject<TimeData>();
         PlayerCoreData = SaveManager.LoadObject<PlayerCoreData>();
@@ -111,7 +114,11 @@ public class ArchiveManager : Singleton<ArchiveManager>
 
     public void SavePlayerCoreData() => SaveManager.SaveObject(PlayerCoreData);
 
-    public void SaveMapData() => SaveManager.SaveObject(MapData);
+    public void SaveMapData()
+    {
+        SaveMapObjectTypeData();
+        SaveManager.SaveObject(MapData);
+    }
 
     /// <summary>
     /// Adds and saves a map chunk data
@@ -155,5 +162,30 @@ public class ArchiveManager : Singleton<ArchiveManager>
     public void SaveTimeData()
     {
         SaveManager.SaveObject(TimeData);
+    }
+
+    public IMapObjectTypeData GetMapObjectTypeData(ulong id)
+    {
+        return MapObjectTypeDataDict.Dictionary[id];
+    }
+
+    public bool TryGetMapObjectTypeData(ulong id, out IMapObjectTypeData mapObjectTypeData)
+    {
+        return MapObjectTypeDataDict.Dictionary.TryGetValue(id, out mapObjectTypeData);
+    }
+
+    public void AddMapObjectTypeData(ulong mapObjectID, IMapObjectTypeData mapObjectTypeData)
+    {
+        MapObjectTypeDataDict.Dictionary.Add(mapObjectID, mapObjectTypeData);
+    }
+
+    public void RemoveMapObjectTypeData(ulong mapObjectID)
+    {
+        MapObjectTypeDataDict.Dictionary.Remove(mapObjectID);
+    }
+
+    public void SaveMapObjectTypeData()
+    {
+        SaveManager.SaveObject(MapObjectTypeDataDict);
     }
 }

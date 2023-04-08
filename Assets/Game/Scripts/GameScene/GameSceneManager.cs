@@ -53,15 +53,15 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
         PlayerController.Instance.Init(mapSizeOnWorld); // EventTrigger
         CameraController.Instance.Init(mapSizeOnWorld);
 
+        // 初始化时间
+        TimeManager.Instance.Init(); // EventTrigger
+
         // 初始化地图
         MapManager.Instance.UpdateViewer(PlayerController.Instance.transform);
         MapManager.Instance.Init();
 
         // 初始化快捷栏 UI
         UIManager.Instance.Show<UI_InventoryWindow>();
-
-        // 初始化时间
-        TimeManager.Instance.Init(); // EventTrigger
 
         // 初始化输入管理器
         InputManager.Instance.Init();

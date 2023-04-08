@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class TimeManager : LogicManagerBase<TimeManager>
 {
+    public int CurrentDayNum => m_TimeData.DayNum;
     [SerializeField] Light m_MainLight; // 主灯光
     [SerializeField, Range(0f, 30f)] float m_TimeScale = 1f;
     TimeConfig m_TimeConfig;

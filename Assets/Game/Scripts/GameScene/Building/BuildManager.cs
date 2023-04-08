@@ -7,7 +7,7 @@ using UnityEngine;
 public class BuildManager : SingletonMono<BuildManager>
 {
     [SerializeField] float m_VirtualCellSize = 0.25f;
-    Dictionary<string, BuildingBase> m_BuildingPreviewGameObjDict = new Dictionary<string, BuildingBase>();
+    Dictionary<string, IBuilding> m_BuildingPreviewGameObjDict = new Dictionary<string, IBuilding>();
     [SerializeField] LayerMask m_BuildLayerMask;
 
     public void Init()
@@ -30,13 +30,13 @@ public class BuildManager : SingletonMono<BuildManager>
 
         // 生成预览物体
         GameObject prefab = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, buildConfig.TargetID).Prefab;
-        if (m_BuildingPreviewGameObjDict.TryGetValue(prefab.name, out BuildingBase previewBuilding))
+        if (m_BuildingPreviewGameObjDict.TryGetValue(prefab.name, out IBuilding previewBuilding))
         {
-            previewBuilding.gameObject.SetActive(true);
+            previewBuilding.GameObject.SetActive(true);
         }
         else
         {
-            previewBuilding = Instantiate(prefab, transform).GetComponent<BuildingBase>();
+            previewBuilding = Instantiate(prefab, transform).GetComponent<IBuilding>();
             previewBuilding.InitOnPreview();
             m_BuildingPreviewGameObjDict.Add(prefab.name, previewBuilding);
         }
@@ -46,7 +46,7 @@ public class BuildManager : SingletonMono<BuildManager>
             // 取消建造
             if (Input.GetMouseButtonDown(1))
             {
-                previewBuilding.gameObject.SetActive(false);
+                previewBuilding.GameObject.SetActive(false);
                 UIManager.Instance.EnableUIGraphicRaycaster();
                 InputManager.Instance.SetCheckState(true);
                 yield break;
@@ -62,7 +62,7 @@ public class BuildManager : SingletonMono<BuildManager>
                 virtualCellPos.x = Mathf.RoundToInt(mouseWorldPos.x / m_VirtualCellSize) * m_VirtualCellSize;
                 virtualCellPos.z = Mathf.RoundToInt(mouseWorldPos.z / m_VirtualCellSize) * m_VirtualCellSize;
 
-                previewBuilding.transform.position = virtualCellPos;
+                previewBuilding.GameObject.transform.position = virtualCellPos;
             }
 
             bool isOverlap = true;
@@ -102,12 +102,12 @@ public class BuildManager : SingletonMono<BuildManager>
                 // 确定建造 根据配置扣除物资
                 if (Input.GetMouseButtonDown(0))
                 {
-                    previewBuilding.gameObject.SetActive(false);
+                    previewBuilding.GameObject.SetActive(false);
                     UIManager.Instance.EnableUIGraphicRaycaster();
                     InputManager.Instance.SetCheckState(true);
 
                     // 放置建筑物
-                    MapManager.Instance.SpawnMapObject(buildConfig.TargetID, previewBuilding.transform.position);
+                    MapManager.Instance.SpawnMapObject(buildConfig.TargetID, previewBuilding.GameObject.transform.position);
 
                     // 物资的消耗
                     UI_InventoryWindow.Instance.UpdateItemsForBuild(buildConfig);

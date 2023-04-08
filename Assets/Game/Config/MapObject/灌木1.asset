@@ -24,6 +24,8 @@ MonoBehaviour:
   IsEmpty: 0
   MapVertexType: 1
   Prefab: {fileID: 7390618182150538598, guid: 39a23c8883a0988498034a06f46da4fa, type: 3}
-  MapIconSprite: {fileID: 0}
-  IconSize: 0.5
+  MapIconSprite: {fileID: 21300000, guid: faa831eadc31d684ca65bc52a29daa61, type: 3}
+  IconSize: 1
+  DestroyDays: -1
   Probability: 10
+  Description: "\u8FC7\u4E00\u6BB5\u65F6\u95F4\u4F1A\u957F\u51FA\u53EF\u4EE5\u5403\u7684\u6D46\u679C\u679C\u5B9E\u54E6\uFF01"
