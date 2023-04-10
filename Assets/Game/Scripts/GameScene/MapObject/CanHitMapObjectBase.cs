@@ -11,9 +11,9 @@ public abstract class CanHitMapObjectBase : MapObjectBase
     float m_Hp;
     static readonly int s_Hurt = Animator.StringToHash("Hurt");
 
-    public override void Init(MapChunkController chunk, ulong objectId)
+    public override void Init(MapChunkController chunk, ulong objectId, bool isFromBuild)
     {
-        base.Init(chunk, objectId);
+        base.Init(chunk, objectId, isFromBuild);
         m_Hp = m_MaxHp;
     }
 
@@ -44,7 +44,7 @@ public abstract class CanHitMapObjectBase : MapObjectBase
             {
                 // 生成掉落物品
                 Vector3 spawnPos = transform.position + Vector3.up;
-                MapManager.Instance.SpawnMapObject(mapChunkController, lootConfigModel.LootObjectConfigID, spawnPos);
+                MapManager.Instance.SpawnMapObject(mapChunkController, lootConfigModel.LootObjectConfigID, spawnPos,false);
             }
         }
     }

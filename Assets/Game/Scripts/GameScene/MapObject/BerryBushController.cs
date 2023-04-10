@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using JKFrame;
 using Project_WildernessSurvivalGame;
 using UnityEngine;
 
@@ -24,9 +25,9 @@ public class BerryBushController : BushController, IBuilding
 
     #endregion
 
-    public override void Init(MapChunkController chunk, ulong objectId)
+    public override void Init(MapChunkController chunk, ulong objectId, bool isFromBuild)
     {
-        base.Init(chunk, objectId);
+        base.Init(chunk, objectId, isFromBuild);
 
         // 可能当前没有这个存档
         if (ArchiveManager.Instance.TryGetMapObjectTypeData(objectId, out IMapObjectTypeData typeData))
@@ -38,7 +39,19 @@ public class BerryBushController : BushController, IBuilding
             m_TypeData = new BerryBushTypeData();
             ArchiveManager.Instance.AddMapObjectTypeData(objectId, m_TypeData);
         }
+        if (isFromBuild)
+        {
+            // 来自建筑物建造的情况下，直接是为刚刚采摘（这件事情也需要持久化）
+            m_TypeData.LastPickUpDayNum = TimeManager.Instance.CurrentDayNum;
+        }
         CheckAndSetState();
+        EventManager.AddEventListener(EventName.OnMorning, OnMorning);
+    }
+
+    void OnMorning()
+    {
+        // 如果已经成熟，无需检测
+        if (canPickUp == false) CheckAndSetState();
     }
 
     public override int OnPickUp()

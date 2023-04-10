@@ -23,7 +23,7 @@ public abstract class MapObjectBase : MonoBehaviour
     public bool CanPickUp => canPickUp;
     public int CanPickUpItemConfigID => canPickUpItemConfigID;
 
-    public virtual void Init(MapChunkController chunk, ulong objectId)
+    public virtual void Init(MapChunkController chunk, ulong objectId,bool isFromBuild)
     {
         mapChunkController = chunk;
         id = objectId;

@@ -1,21 +1,18 @@
 using System;
 
 /// <summary>
-/// 物品栏数据
+/// 通用背包数据
 /// </summary>
 [Serializable]
 public class InventoryData
 {
-    // 格子里面装的物品
-    public ItemData[] ItemDatas { get; private set; }
-
-    // 武器格子装的物品
-    public ItemData WeaponSlotItemData { get; private set; }
-
     public InventoryData(int itemCount)
     {
         ItemDatas = new ItemData[itemCount];
     }
+
+    // 格子里面装的物品
+    public ItemData[] ItemDatas { get; protected set; }
 
     public void RemoveItem(int index)
     {
@@ -26,6 +23,18 @@ public class InventoryData
     {
         ItemDatas[index] = itemData;
     }
+}
+
+/// <summary>
+/// 物品栏数据
+/// </summary>
+[Serializable]
+public class MainInventoryData : InventoryData
+{
+    public MainInventoryData(int itemCount) : base(itemCount) { }
+
+    // 武器格子装的物品
+    public ItemData WeaponSlotItemData { get; private set; }
 
     public void RemoveWeaponItem()
     {

@@ -51,7 +51,6 @@ namespace Project_WildernessSurvivalGame
             m_PlayerTransformData.Rotation = PlayerTransform.localRotation.eulerAngles;
             ArchiveManager.Instance.SavePlayerTransformData();
             ArchiveManager.Instance.SavePlayerCoreData();
-            ArchiveManager.Instance.SaveInventoryData();
         }
 
         #region 初始化
@@ -328,7 +327,7 @@ namespace Project_WildernessSurvivalGame
                     if (itemConfigID != -1)
                     {
                         // 背包里面如果数据添加成功 则销毁地图物体
-                        if (UI_InventoryWindow.Instance.AddItem(itemConfigID))
+                        if (InventoryManager.Instance.AddItemToMainInventoryWindow(itemConfigID))
                         {
                             mapObject.OnPickUp();
 

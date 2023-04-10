@@ -55,7 +55,7 @@ namespace Project_WildernessSurvivalGame
                 {
                     foreach (var mapObjectData in MapChunkData.MapObjectDict.Dictionary.Values)
                     {
-                        InstantiateMapObject(mapObjectData);
+                        InstantiateMapObject(mapObjectData, false);
                     }
                 }
                 else // 如果当前地图块为失活状态，则把所有物体放回对象池
@@ -69,16 +69,16 @@ namespace Project_WildernessSurvivalGame
             }
         }
 
-        void InstantiateMapObject(MapObjectData mapObjectData)
+        void InstantiateMapObject(MapObjectData mapObjectData, bool isFromBuild)
         {
             MapObjectConfig config = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, mapObjectData.ConfigID);
             MapObjectBase mapObj = PoolManager.Instance.GetGameObject(config.Prefab, transform).GetComponent<MapObjectBase>();
             mapObj.transform.position = mapObjectData.Position;
-            mapObj.Init(this, mapObjectData.ID);
+            mapObj.Init(this, mapObjectData.ID, isFromBuild);
             m_MapObjectDict.Add(mapObjectData.ID, mapObj);
         }
 
-        public void AddMapObject(MapObjectData mapObjectData)
+        public void AddMapObject(MapObjectData mapObjectData, bool isFromBuild)
         {
             // 添加存档数据
             MapChunkData.MapObjectDict.Dictionary.Add(mapObjectData.ID, mapObjectData);
@@ -87,7 +87,7 @@ namespace Project_WildernessSurvivalGame
             // 实例化物体
             if (m_IsActive)
             {
-                InstantiateMapObject(mapObjectData);
+                InstantiateMapObject(mapObjectData, isFromBuild);
             }
         }
 
@@ -137,7 +137,7 @@ namespace Project_WildernessSurvivalGame
             List<MapObjectData> mapObjectDatas = MapManager.Instance.SpawnMapObjectDataOnMapChunkRefresh(ChunkIndex);
             foreach (var mapObjectData in mapObjectDatas)
             {
-                AddMapObject(mapObjectData);
+                AddMapObject(mapObjectData, false);
             }
         }
     }

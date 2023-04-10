@@ -9,6 +9,7 @@ public class InputManager : SingletonMono<InputManager>
     [SerializeField] LayerMask m_BigMapObjectLayer;
     [SerializeField] LayerMask m_MapObjectLayerForMouseCanInteract; // Map object layer that the mouse can interact with
     [SerializeField] LayerMask m_GroundLayer;
+    [SerializeField] LayerMask m_BuildingLayer;
     bool m_NeedToCheck = false;
     List<RaycastResult> m_RaycastResultList = new();
 
@@ -45,6 +46,24 @@ public class InputManager : SingletonMono<InputManager>
             {
                 // 发给PlayerController去处理
                 PlayerController.Instance.OnSelectMapObject(hitInfo, mouseButtonDown);
+            }
+
+            // 处理建筑物逻辑
+            if (mouseButtonDown && Physics.Raycast(ray, out hitInfo, 100, m_BuildingLayer))
+            {
+                BuildingBase building = hitInfo.collider.GetComponent<BuildingBase>();
+                if (building.TouchDistance >= 0)
+                {
+                    if (Vector3.Distance(PlayerController.Instance.transform.position, building.transform.position) < building.TouchDistance)
+                    {
+                        building.OnSelect();
+                    }
+                    else
+                    {
+                        UIManager.Instance.AddTips("离近一点");
+                        ProjectTool.PlayAudio(AudioType.Fail);
+                    }
+                }
             }
         }
     }

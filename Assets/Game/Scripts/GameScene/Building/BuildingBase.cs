@@ -19,4 +19,6 @@ public class BuildingBase : MapObjectBase, IBuilding
     }
 
     #endregion
+
+    public virtual void OnSelect() { }
 }

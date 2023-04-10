@@ -60,8 +60,7 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
         MapManager.Instance.UpdateViewer(PlayerController.Instance.transform);
         MapManager.Instance.Init();
 
-        // 初始化快捷栏 UI
-        UIManager.Instance.Show<UI_InventoryWindow>();
+        InventoryManager.Instance.Init();
 
         // 初始化输入管理器
         InputManager.Instance.Init();

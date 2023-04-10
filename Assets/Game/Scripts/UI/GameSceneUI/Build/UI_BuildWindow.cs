@@ -45,8 +45,6 @@ public class UI_BuildWindow : UI_WindowBase
         if (m_CurrentSelectedMainMenuItem != null) m_CurrentSelectedMainMenuItem.OnUnSelect();
         m_CurrentSelectedMainMenuItem = newMenuItem;
         m_CurrentSelectedMainMenuItem.OnSelect();
-
-        Debug.Log("开启二级菜单：" + m_CurrentSelectedMainMenuItem.BuildType.ToString());
         m_SecondaryMenu.Show(newMenuItem.BuildType);
         m_IsTouch = true;
     }

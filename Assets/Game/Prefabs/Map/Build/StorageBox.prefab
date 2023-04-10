@@ -230,7 +230,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MapObjectType: 6
-  touchDistance: 1
+  touchDistance: 2
   canPickUp: 0
   canPickUpItemConfigID: -1
   m_Collider: {fileID: 6182817579133670695}
+  m_UIWindowGridSize: {x: 2, y: 3}

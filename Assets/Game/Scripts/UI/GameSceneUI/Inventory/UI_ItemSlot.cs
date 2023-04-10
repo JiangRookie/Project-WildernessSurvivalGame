@@ -1,3 +1,4 @@
+using System;
 using JKFrame;
 using Project_WildernessSurvivalGame;
 using UnityEngine;
@@ -7,6 +8,7 @@ using UnityEngine.UI;
 /// <summary>
 /// 物品栏中的一个格子
 /// </summary>
+[Pool]
 public class UI_ItemSlot : MonoBehaviour
 {
     public static UI_ItemSlot CurrentMouseEnterSlot; // 当前鼠标进入的格子
@@ -15,16 +17,16 @@ public class UI_ItemSlot : MonoBehaviour
     [SerializeField] Image m_IconImage;
     [SerializeField] Text m_CountText;
     Transform m_IconTransform;
-    UI_InventoryWindow m_OwnerWindow; // 宿主窗口：物品栏或仓库
+    UI_InventoryWindowBase m_OwnerWindow;
     Transform m_SlotTransform;
     public ItemData ItemData { get; private set; }
     public int Index { get; private set; }
+    Func<int, AudioType> m_OnUseAction;
 
     void Start()
     {
         m_IconTransform = m_IconImage.transform;
         m_SlotTransform = transform;
-        m_BgImage.sprite = m_OwnerWindow.InventoryFrames[0];
 
         // 鼠标交互事件
         this.OnMouseEnter(MouseEnter);
@@ -47,19 +49,21 @@ public class UI_ItemSlot : MonoBehaviour
 
     void CheckMouseRightClick()
     {
-        if (ItemData == null) return;
+        if (ItemData == null || m_OnUseAction == null) return;
         if (m_IsSelect && Input.GetMouseButtonDown(1))
         {
             // 根据使用的情况来播放音效
-            AudioType resultAudioType = m_OwnerWindow.UseItem(Index);
+            AudioType resultAudioType = m_OnUseAction.Invoke(Index);
             ProjectTool.PlayAudio(resultAudioType);
         }
     }
 
-    public void Init(int index, UI_InventoryWindow ownerWindow)
+    public void Init(int index, UI_InventoryWindowBase ownerWindow, Func<int, AudioType> onUseAction = null)
     {
         Index = index;
         m_OwnerWindow = ownerWindow;
+        m_OnUseAction = onUseAction;
+        m_BgImage.sprite = m_OwnerWindow.InventoryFrames[0];
     }
 
     public void InitData(ItemData itemData = null)
@@ -143,6 +147,7 @@ public class UI_ItemSlot : MonoBehaviour
         // 格子归位
         m_IconTransform.SetParent(m_SlotTransform);
         m_IconTransform.localPosition = Vector3.zero;
+        m_IconTransform.localScale = Vector3.one;
 
         // 如果当前鼠标进入的格子是自己，不执行任何操作
         if (CurrentMouseEnterSlot == this) return;
@@ -159,7 +164,7 @@ public class UI_ItemSlot : MonoBehaviour
             {
                 // 在地面生成物品
                 mouseWorldPos.y = 1;
-                MapManager.Instance.SpawnMapObject(ItemData.Config.MapObjectConfigID, mouseWorldPos);
+                MapManager.Instance.SpawnMapObject(ItemData.Config.MapObjectConfigID, mouseWorldPos, false);
 
                 // 丢弃一件物品
                 m_OwnerWindow.DiscardItem(Index);

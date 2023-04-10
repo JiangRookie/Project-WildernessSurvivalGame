@@ -22,10 +22,10 @@ public class UI_BuildWindow_BuildPanel : MonoBehaviour
     {
         if (m_BuildConfig.BuildType == BuildType.Weapon)
         {
-            if (UI_InventoryWindow.Instance.AddItemAndPlayAudio(m_BuildConfig.TargetID))
+            if (InventoryManager.Instance.AddItemAndPlayAudioToMainInventoryWindow(m_BuildConfig.TargetID))
             {
                 // 根据建造配置减少材料
-                UI_InventoryWindow.Instance.UpdateItemsForBuild(m_BuildConfig);
+                InventoryManager.Instance.UpdateMainInventoryWindowItemsForBuild(m_BuildConfig);
 
                 // 刷新当前界面状态
                 RefreshView();
@@ -51,7 +51,7 @@ public class UI_BuildWindow_BuildPanel : MonoBehaviour
         for (var i = 0; i < buildConfig.BuildConfigConditionList.Count; i++)
         {
             int id = buildConfig.BuildConfigConditionList[i].ItemID;
-            int currCount = UI_InventoryWindow.Instance.GetItemCount(id);
+            int currCount = InventoryManager.Instance.GetMainInventoryWindowItemCount(id);
             int needCount = buildConfig.BuildConfigConditionList[i].Count;
             m_BuildPanelItems[i].Show(id, currCount, needCount);
         }

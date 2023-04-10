@@ -14,7 +14,7 @@ public class BuildConfig : ConfigBase
     {
         foreach (var condition in BuildConfigConditionList)
         {
-            int currCount = UI_InventoryWindow.Instance.GetItemCount(condition.ItemID);
+            int currCount = InventoryManager.Instance.GetMainInventoryWindowItemCount(condition.ItemID);
 
             // 检查当前数量是否满足这个条件
             if (currCount < condition.Count) return false;

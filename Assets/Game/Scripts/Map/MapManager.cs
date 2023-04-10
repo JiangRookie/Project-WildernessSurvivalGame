@@ -337,14 +337,15 @@ namespace Project_WildernessSurvivalGame
         /// <param name="mapChunkController"></param>
         /// <param name="mapObjectConfigID"></param>
         /// <param name="spawnPos"></param>
-        public void SpawnMapObject(MapChunkController mapChunkController, int mapObjectConfigID, Vector3 spawnPos)
+        /// <param name="isFromBuild"></param>
+        public void SpawnMapObject(MapChunkController mapChunkController, int mapObjectConfigID, Vector3 spawnPos, bool isFromBuild)
         {
             // 生成数据
             MapObjectData mapObjectData = m_MapGenerator.GenerateMapObjectData(mapObjectConfigID, spawnPos);
             if (mapObjectData == null) return;
 
             // 交给地图块
-            mapChunkController.AddMapObject(mapObjectData);
+            mapChunkController.AddMapObject(mapObjectData, isFromBuild);
 
             // 处理Icon
             if (m_MapUI != null)
@@ -358,10 +359,11 @@ namespace Project_WildernessSurvivalGame
         /// </summary>
         /// <param name="mapObjectConfigID"></param>
         /// <param name="spawnPos"></param>
-        public void SpawnMapObject(int mapObjectConfigID, Vector3 spawnPos)
+        /// <param name="isFromBuild"></param>
+        public void SpawnMapObject(int mapObjectConfigID, Vector3 spawnPos, bool isFromBuild)
         {
             Vector2Int chunkIndex = GetMapChunkIndex(spawnPos);
-            SpawnMapObject(m_MapChunkDict[chunkIndex], mapObjectConfigID, spawnPos);
+            SpawnMapObject(m_MapChunkDict[chunkIndex], mapObjectConfigID, spawnPos, isFromBuild);
         }
 
         public List<MapObjectData> SpawnMapObjectDataOnMapChunkRefresh(Vector2Int chunkIndex)

@@ -107,10 +107,10 @@ public class BuildManager : SingletonMono<BuildManager>
                     InputManager.Instance.SetCheckState(true);
 
                     // 放置建筑物
-                    MapManager.Instance.SpawnMapObject(buildConfig.TargetID, previewBuilding.GameObject.transform.position);
+                    MapManager.Instance.SpawnMapObject(buildConfig.TargetID, previewBuilding.GameObject.transform.position, true);
 
                     // 物资的消耗
-                    UI_InventoryWindow.Instance.UpdateItemsForBuild(buildConfig);
+                    InventoryManager.Instance.UpdateMainInventoryWindowItemsForBuild(buildConfig);
                     yield break;
                 }
             }
