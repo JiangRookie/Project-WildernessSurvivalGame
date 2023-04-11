@@ -235,7 +235,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MainLight: {fileID: 705507994}
-  m_TimeScale: 1
+  TimeScale: 1
 --- !u!114 &127479097
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -266,7 +266,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsTest: 1
-  IsCreateNewArchive: 0
+  IsCreateNewArchive: 1
 --- !u!114 &127479099
 MonoBehaviour:
   m_ObjectHideFlags: 0

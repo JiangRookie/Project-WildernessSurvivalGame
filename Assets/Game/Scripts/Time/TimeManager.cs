@@ -6,7 +6,7 @@ public class TimeManager : LogicManagerBase<TimeManager>
 {
     public int CurrentDayNum => m_TimeData.DayNum;
     [SerializeField] Light m_MainLight; // 主灯光
-    [SerializeField, Range(0f, 30f)] float m_TimeScale = 1f;
+    [SerializeField, Range(0f, 30f)] public float TimeScale = 1f;
     TimeConfig m_TimeConfig;
     TimeData m_TimeData;
     int m_NextStateIndex;
@@ -35,7 +35,7 @@ public class TimeManager : LogicManagerBase<TimeManager>
 
     public void InitState()
     {
-        m_NextStateIndex = m_TimeData.StateIndex + 1;
+        m_NextStateIndex = m_TimeData.StateIndex + 1 >= m_TimeConfig.TimeStateConfigs.Length ? 0 : m_TimeData.StateIndex + 1;
         RenderSettings.fog = m_TimeConfig.TimeStateConfigs[m_TimeData.StateIndex].Fog;
         if (m_TimeConfig.TimeStateConfigs[m_TimeData.StateIndex].BgAudioClip != null)
         {
@@ -51,7 +51,7 @@ public class TimeManager : LogicManagerBase<TimeManager>
 
     void UpdateTime()
     {
-        m_TimeData.CalculateTime -= Time.deltaTime * m_TimeScale; // 时间流逝 -> 当前阶段剩余时间减少
+        m_TimeData.CalculateTime -= Time.deltaTime * TimeScale; // 时间流逝 -> 当前阶段剩余时间减少
 
         if (m_TimeConfig.TimeStateConfigs[m_TimeData.StateIndex].CheckAndCalculateTime(
             m_TimeData.CalculateTime, m_TimeConfig.TimeStateConfigs[m_NextStateIndex]
@@ -68,9 +68,7 @@ public class TimeManager : LogicManagerBase<TimeManager>
         m_TimeData.StateIndex = m_NextStateIndex; // 切换下一个状态
 
         // 检查边界，超过就从0开始
-        m_NextStateIndex = m_TimeData.StateIndex + 1 >= m_TimeConfig.TimeStateConfigs.Length
-            ? 0
-            : m_TimeData.StateIndex + 1;
+        m_NextStateIndex = m_TimeData.StateIndex + 1 >= m_TimeConfig.TimeStateConfigs.Length ? 0 : m_TimeData.StateIndex + 1;
 
         if (m_TimeData.StateIndex == 0) // m_CurrStateIndex == 0 意味着新的一天开始了
         {

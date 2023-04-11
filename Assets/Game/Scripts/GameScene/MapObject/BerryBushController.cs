@@ -23,6 +23,8 @@ public class BerryBushController : BushController, IBuilding
         set => m_MaterialList = value;
     }
 
+    public void OnPreview() { }
+
     #endregion
 
     public override void Init(MapChunkController chunk, ulong objectId, bool isFromBuild)

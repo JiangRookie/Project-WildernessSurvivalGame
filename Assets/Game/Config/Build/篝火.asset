@@ -59,4 +59,5 @@ MonoBehaviour:
       Entry: 8
       Data: 
   BuildType: 1
-  TargetID: 6
+  PreconditionScienceIDList: 
+  TargetID: 29

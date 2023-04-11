@@ -8,6 +8,7 @@ public interface IBuilding
     public static Color Red = new Color(1, 0, 0, 0.5f);
     public static Color Green = new Color(0, 1, 0, 0.5f);
     public List<Material> MaterialList { get; set; }
+    public void OnPreview();
 
     public void InitOnPreview()
     {
@@ -23,6 +24,7 @@ public interface IBuilding
             material.color = Red;
             ProjectTool.SetMaterialRenderingMode(material, ProjectTool.RenderingMode.Fade);
         }
+        OnPreview();
     }
 
     public void SetColorOnPreview(bool isRed)

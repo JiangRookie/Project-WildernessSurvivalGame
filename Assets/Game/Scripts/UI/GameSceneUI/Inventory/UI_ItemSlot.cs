@@ -139,15 +139,20 @@ public class UI_ItemSlot : MonoBehaviour
     void EndDrag(PointerEventData eventData, object[] arg2)
     {
         if (ItemData == null) return;
-        if (CurrentMouseEnterSlot == null)
+
+        // 格子和建筑物的交互
+        if (m_OnUseAction != null && InputManager.Instance.CheckSlotEndDragOnBuilding(ItemData.ConfigID))
         {
-            GameManager.Instance.SetCursorState(CursorState.Normal);
+            ResetIcon();
+            ProjectTool.PlayAudio(AudioType.Bag);
+            m_OwnerWindow.DiscardItem(Index);
+            return;
         }
 
-        // 格子归位
-        m_IconTransform.SetParent(m_SlotTransform);
-        m_IconTransform.localPosition = Vector3.zero;
-        m_IconTransform.localScale = Vector3.one;
+        if (CurrentMouseEnterSlot == null) GameManager.Instance.SetCursorState(CursorState.Normal);
+
+        // 当前拖拽中的Icon归位
+        ResetIcon();
 
         // 如果当前鼠标进入的格子是自己，不执行任何操作
         if (CurrentMouseEnterSlot == this) return;
@@ -221,6 +226,14 @@ public class UI_ItemSlot : MonoBehaviour
                 ProjectTool.PlayAudio(AudioType.Bag);
             }
         }
+    }
+
+    void ResetIcon()
+    {
+        // 格子归位
+        m_IconTransform.SetParent(m_SlotTransform);
+        m_IconTransform.localPosition = Vector3.zero;
+        m_IconTransform.localScale = Vector3.one;
     }
 
     public static void SwapSlotItem(UI_ItemSlot currSlot, UI_ItemSlot targetSlot)

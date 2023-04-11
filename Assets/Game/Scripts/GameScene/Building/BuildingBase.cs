@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Project_WildernessSurvivalGame;
 using UnityEngine;
 
-public class BuildingBase : MapObjectBase, IBuilding
+public abstract class BuildingBase : MapObjectBase, IBuilding
 {
     [SerializeField] protected Collider m_Collider;
     [SerializeField] List<int> m_UnlockedScienceOnBuild;
@@ -20,6 +20,8 @@ public class BuildingBase : MapObjectBase, IBuilding
         set => m_MaterialList = value;
     }
 
+    public virtual void OnPreview() { }
+
     #endregion
 
     public virtual void OnSelect() { }
@@ -35,5 +37,13 @@ public class BuildingBase : MapObjectBase, IBuilding
                 ScienceManager.Instance.AddScience(m_UnlockedScienceOnBuild[i]);
             }
         }
+    }
+
+    /// <summary>
+    /// 当前物品格子结束拖拽时选中
+    /// </summary>
+    public virtual bool OnSlotEndDragSelect(int itemID)
+    {
+        return false;
     }
 }

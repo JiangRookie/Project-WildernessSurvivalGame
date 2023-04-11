@@ -112,4 +112,20 @@ public class InputManager : SingletonMono<InputManager>
     {
         return Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), 1000, m_BigMapObjectLayer);
     }
+
+    /// <summary>
+    /// 检查当格子停止拖拽时是否在建筑物上
+    /// </summary>
+    /// <param name="itemID"></param>
+    /// <returns></returns>
+    public bool CheckSlotEndDragOnBuilding(int itemID)
+    {
+        Ray ray = CameraController.Instance.Camera.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hitInfo, 100, m_BuildingLayer))
+        {
+            BuildingBase building = hitInfo.collider.GetComponent<BuildingBase>();
+            return building.OnSlotEndDragSelect(itemID);
+        }
+        return false;
+    }
 }
