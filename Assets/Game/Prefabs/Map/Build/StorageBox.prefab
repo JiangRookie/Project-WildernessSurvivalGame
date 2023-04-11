@@ -234,4 +234,5 @@ MonoBehaviour:
   canPickUp: 0
   canPickUpItemConfigID: -1
   m_Collider: {fileID: 6182817579133670695}
+  m_UnlockedScienceOnBuild: 19000000
   m_UIWindowGridSize: {x: 2, y: 3}

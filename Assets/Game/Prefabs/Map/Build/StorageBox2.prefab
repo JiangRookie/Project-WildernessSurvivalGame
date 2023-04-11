@@ -9,7 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2376284674537645281}
-  m_Layer: 0
+  - component: {fileID: 2597334742251369949}
+  - component: {fileID: 4173981862329893127}
+  m_Layer: 9
   m_Name: StorageBox2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33,6 +35,38 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &2597334742251369949
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3148459237847678555}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.8331622, y: 0.4258816, z: 0.4700447}
+  m_Center: {x: 0, y: 0.24780326, z: 0.000000044703484}
+--- !u!114 &4173981862329893127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3148459237847678555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a05951b1cec55634688908ea8437e264, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_MapObjectType: 6
+  touchDistance: 2
+  canPickUp: 0
+  canPickUpItemConfigID: -1
+  m_Collider: {fileID: 2597334742251369949}
+  m_UnlockedScienceOnBuild: 
+  m_UIWindowGridSize: {x: 3, y: 4}
 --- !u!1 &5446027264616565361
 GameObject:
   m_ObjectHideFlags: 0
@@ -44,7 +78,7 @@ GameObject:
   - component: {fileID: 1576139825689261833}
   - component: {fileID: 5092269217507714967}
   - component: {fileID: 1334634843045208314}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: "\u8EAB\u4F53"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -59,7 +93,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5446027264616565361}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: -0, y: 0, z: 0}
+  m_LocalPosition: {x: -0, y: 0.108, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -128,7 +162,7 @@ GameObject:
   - component: {fileID: 2254861944712229798}
   - component: {fileID: 6829713948808534376}
   - component: {fileID: 2715023570173075644}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: "\u76D6\u5B50"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -143,7 +177,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6052330768566805585}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: 0.12308832, z: 0.202}
+  m_LocalPosition: {x: 0, y: 0.23108833, z: 0.202}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

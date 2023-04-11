@@ -52,7 +52,7 @@ public class InputManager : SingletonMono<InputManager>
             if (mouseButtonDown && Physics.Raycast(ray, out hitInfo, 100, m_BuildingLayer))
             {
                 BuildingBase building = hitInfo.collider.GetComponent<BuildingBase>();
-                if (building.TouchDistance >= 0)
+                if (building.TouchDistance > 0)
                 {
                     if (Vector3.Distance(PlayerController.Instance.transform.position, building.transform.position) < building.TouchDistance)
                     {

@@ -7,6 +7,7 @@ using UnityEngine;
 public class BuildConfig : ConfigBase
 {
     [LabelText("合成类型")] public BuildType BuildType;
+    [LabelText("前置科技")] public List<int> PreconditionScienceIDList;
     [LabelText("合成条件")] public List<BuildConfigCondition> BuildConfigConditionList = new List<BuildConfigCondition>();
     [LabelText("合成产物")] public int TargetID;
 

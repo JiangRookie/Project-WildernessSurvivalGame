@@ -126,6 +126,9 @@ namespace Project_WildernessSurvivalGame
                     GameSceneManager.Instance.UpdateMapProgress(i, 10);
                 }
             }
+            // 显示一次MapUI，做好初始化后再关闭掉
+            ShowMapUI();
+            CloseMapUI();
         }
 
         static Mesh GenerateGroundMesh(float width, float height)

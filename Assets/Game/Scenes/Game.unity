@@ -199,6 +199,7 @@ GameObject:
   - component: {fileID: 127479099}
   - component: {fileID: 127479100}
   - component: {fileID: 127479101}
+  - component: {fileID: 127479102}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -280,7 +281,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_BigMapObjectLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 576
   m_MapObjectLayerForMouseCanInteract:
     serializedVersion: 2
     m_Bits: 320
@@ -316,6 +317,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf299fe82c05d6046b527f7d857d4a9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &127479102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 127479094}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81b3a963487124c4e966535fdf6558cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &412835110

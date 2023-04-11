@@ -28,6 +28,11 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
         StartGame();
     }
 
+    void OnDestroy()
+    {
+        ArchiveManager.Instance.SaveScienceData();
+    }
+
     protected override void RegisterEventListener() { }
 
     protected override void CancelEventListener() { }
@@ -67,6 +72,9 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
 
         // 初始化建造面板
         BuildManager.Instance.Init();
+
+        // 初始化科技管理器
+        ScienceManager.Instance.Init();
     }
 
     #region 测试逻辑

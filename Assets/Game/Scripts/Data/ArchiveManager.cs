@@ -16,6 +16,7 @@ public class ArchiveManager : Singleton<ArchiveManager>
     public SerializableDictionary<ulong, IMapObjectTypeData> MapObjectTypeDataDict { get; private set; }
     public MainInventoryData MainInventoryData { get; private set; }
     public TimeData TimeData { get; private set; }
+    public ScienceData ScienceData { get; private set; }
     public bool HasArchived { get; private set; }
 
     public void LoadArchiveData()
@@ -94,6 +95,10 @@ public class ArchiveManager : Singleton<ArchiveManager>
           , DayNum = 0
         };
         SaveTimeData();
+
+        // 科技数据
+        ScienceData = new ScienceData();
+        SaveScienceData();
     }
 
     /// <summary>
@@ -108,6 +113,7 @@ public class ArchiveManager : Singleton<ArchiveManager>
         MainInventoryData = SaveManager.LoadObject<MainInventoryData>();
         TimeData = SaveManager.LoadObject<TimeData>();
         PlayerCoreData = SaveManager.LoadObject<PlayerCoreData>();
+        ScienceData = SaveManager.LoadObject<ScienceData>();
     }
 
     public void SavePlayerTransformData() => SaveManager.SaveObject(PlayerTransformData);
@@ -118,6 +124,11 @@ public class ArchiveManager : Singleton<ArchiveManager>
     {
         SaveMapObjectTypeData();
         SaveManager.SaveObject(MapData);
+    }
+
+    public void SaveScienceData()
+    {
+        SaveManager.SaveObject(ScienceData);
     }
 
     /// <summary>

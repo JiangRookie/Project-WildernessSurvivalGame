@@ -29,8 +29,10 @@ public class UI_BuildWindow_SecondaryMenu : MonoBehaviour
             m_BuildConfigDict[buildConfig.BuildType].Add(buildConfig);
         }
         m_CurrEffectAllSecondaryMenuItemList = new List<UI_BuildWindow_SecondaryMenuItem>(10);
+
         m_MeetTheConditionConfigList = new List<BuildConfig>();
         m_NotMeetTheConditionConfigList = new List<BuildConfig>();
+
         m_BuildPanel.Init(this);
         Close();
     }
@@ -66,11 +68,27 @@ public class UI_BuildWindow_SecondaryMenu : MonoBehaviour
 
         foreach (BuildConfig buildConfig in buildConfigList)
         {
-            bool isMeet = buildConfig.CheckBuildConfigCondition();
-            if (isMeet)
-                m_MeetTheConditionConfigList.Add(buildConfig);
-            else
-                m_NotMeetTheConditionConfigList.Add(buildConfig);
+            // 科技判断
+            bool scienceUnlocked = true;
+            if (buildConfig.PreconditionScienceIDList != null)
+            {
+                foreach (int id in buildConfig.PreconditionScienceIDList)
+                {
+                    if (ScienceManager.Instance.CheckUnlock(id) == false)
+                    {
+                        scienceUnlocked = false;
+                    }
+                }
+            }
+
+            if (scienceUnlocked)
+            {
+                bool isMeet = buildConfig.CheckBuildConfigCondition();
+                if (isMeet)
+                    m_MeetTheConditionConfigList.Add(buildConfig);
+                else
+                    m_NotMeetTheConditionConfigList.Add(buildConfig);
+            }
         }
 
         // 对配置进行分类，满足条件/不满足条件
