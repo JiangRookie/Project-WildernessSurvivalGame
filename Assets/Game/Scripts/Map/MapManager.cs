@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using JKFrame;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace Project_WildernessSurvivalGame
 {
@@ -27,7 +28,8 @@ namespace Project_WildernessSurvivalGame
         #region 配置
 
         MapConfig m_MapConfig;
-        Dictionary<MapVertexType, List<int>> m_SpawnConfigDict; // 某个类型可以生成哪些地图对象配置的ID
+        Dictionary<MapVertexType, List<int>> m_SpawnMapObjectConfigDict; // 某个类型可以生成哪些地图对象配置的ID
+        Dictionary<MapVertexType, List<int>> m_SpawnAIConfigDict;        // 某个类型可以生成哪些地图对象配置的ID
 
         #endregion
 
@@ -35,6 +37,14 @@ namespace Project_WildernessSurvivalGame
 
         MapInitData m_MapInitData;
         MapData m_MapData;
+
+        #endregion
+
+        #region NavMesh
+
+        [SerializeField] NavMeshSurface m_NavMeshSurface;
+
+        public void BakeNavMesh() => m_NavMeshSurface.BuildNavMesh();
 
         #endregion
 
@@ -75,18 +85,29 @@ namespace Project_WildernessSurvivalGame
             // 确定配置 获取地图物品配置，初始化地图生成对象配置字典
             m_MapConfig = ConfigManager.Instance.GetConfig<MapConfig>(ConfigName.MAP);
             Dictionary<int, ConfigBase> mapConfigDict = ConfigManager.Instance.GetConfigs(ConfigName.MapObject);
-            m_SpawnConfigDict = new Dictionary<MapVertexType, List<int>>();
-            m_SpawnConfigDict.Add(MapVertexType.Forest, new List<int>());
-            m_SpawnConfigDict.Add(MapVertexType.Marsh, new List<int>());
+            m_SpawnMapObjectConfigDict = new Dictionary<MapVertexType, List<int>>();
+            m_SpawnMapObjectConfigDict.Add(MapVertexType.Forest, new List<int>());
+            m_SpawnMapObjectConfigDict.Add(MapVertexType.Marsh, new List<int>());
             foreach ((int id, ConfigBase config) in mapConfigDict)
             {
                 MapVertexType mapVertexType = ((MapObjectConfig)config).MapVertexType;
                 if (mapVertexType == MapVertexType.None) continue;
-                m_SpawnConfigDict[mapVertexType].Add(id); // 将相同的顶点类型的Id放在同一个列表中
+                m_SpawnMapObjectConfigDict[mapVertexType].Add(id); // 将相同的顶点类型的Id放在同一个列表中
+            }
+
+            mapConfigDict = ConfigManager.Instance.GetConfigs(ConfigName.AI);
+            m_SpawnAIConfigDict = new Dictionary<MapVertexType, List<int>>();
+            m_SpawnAIConfigDict.Add(MapVertexType.Forest, new List<int>());
+            m_SpawnAIConfigDict.Add(MapVertexType.Marsh, new List<int>());
+            foreach ((int id, ConfigBase config) in mapConfigDict)
+            {
+                MapVertexType mapVertexType = ((AIConfig)config).MapVertexType;
+                if (mapVertexType == MapVertexType.None) continue;
+                m_SpawnAIConfigDict[mapVertexType].Add(id); // 将相同的顶点类型的Id放在同一个列表中
             }
 
             // 初始化地图生成器
-            m_MapGenerator = new MapGenerator(m_MapConfig, m_MapInitData, m_MapData, m_SpawnConfigDict);
+            m_MapGenerator = new MapGenerator(m_MapConfig, m_MapInitData, m_MapData, m_SpawnMapObjectConfigDict, m_SpawnAIConfigDict);
             m_MapGenerator.GenerateMapData();
 
             // 初始化地图块字典
@@ -97,6 +118,9 @@ namespace Project_WildernessSurvivalGame
 
             // 生成地面碰撞体
             m_MeshCollider.sharedMesh = GenerateGroundMesh(m_MapSizeOnWorld, m_MapSizeOnWorld);
+
+            // 烘焙导航网格
+            BakeNavMesh();
 
             int mapChunkCount = m_MapData.MapChunkIndexList.Count;
             if (mapChunkCount > 0) // 旧存档
@@ -126,6 +150,7 @@ namespace Project_WildernessSurvivalGame
                     GameSceneManager.Instance.UpdateMapProgress(i, 10);
                 }
             }
+
             // 显示一次MapUI，做好初始化后再关闭掉
             ShowMapUI();
             CloseMapUI();

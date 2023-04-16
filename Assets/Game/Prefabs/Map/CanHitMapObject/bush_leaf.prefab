@@ -116,6 +116,7 @@ GameObject:
   - component: {fileID: 6242886789853612538}
   - component: {fileID: 5005691747710446768}
   - component: {fileID: 4505642131797801530}
+  - component: {fileID: 2543128642805300974}
   m_Layer: 6
   m_Name: bush_leaf
   m_TagString: Untagged
@@ -178,3 +179,19 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 779fe7d4c7f9574469d9645a1317c646, type: 3}
   m_MaxHp: 3
   m_LootConfigID: 1
+--- !u!208 &2543128642805300974
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6987451015320763369}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 0
+  m_Extents: {x: 0.3574306, y: 0.407475, z: 0.3574306}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.0941564, y: 0.4051747, z: 0.0534421}
+  m_TimeToStationary: 0.5

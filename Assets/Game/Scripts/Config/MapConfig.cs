@@ -20,5 +20,11 @@ namespace Project_WildernessSurvivalGame
 
         [LabelText("玩家可视距离")] public int ViewDistance;
         [LabelText("地图早晨刷新概率 1/x")] public int RefreshProbability;
+
+        [Header("AI")]
+        [LabelText("地图块AI数量限制")]
+        public int MaxAiCountOnChunk;
+
+        [LabelText("地图块森林/沼泽生成AI的最小顶点数")] public int GenerateAiMinVertexCountOnChunk;
     }
 }

@@ -116,6 +116,7 @@ GameObject:
   - component: {fileID: 8507057867137810246}
   - component: {fileID: 8630883547723040867}
   - component: {fileID: 4773876151697970813}
+  - component: {fileID: 5032778306205154284}
   m_Layer: 6
   m_Name: stone_02
   m_TagString: Untagged
@@ -177,3 +178,19 @@ MonoBehaviour:
   - {fileID: 8300000, guid: ea654757194051b43b2c0d2710f32f3b, type: 3}
   m_MaxHp: 10
   m_LootConfigID: 2
+--- !u!208 &5032778306205154284
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4635468275116281173}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.29175925, y: 0.30674225, z: 0.28108376}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.063299, y: 0.29837194, z: 0.029911475}
+  m_TimeToStationary: 0.5

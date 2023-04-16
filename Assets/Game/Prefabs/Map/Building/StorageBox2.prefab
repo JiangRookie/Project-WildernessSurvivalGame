@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2376284674537645281}
   - component: {fileID: 2597334742251369949}
   - component: {fileID: 4173981862329893127}
+  - component: {fileID: 8637431037501767907}
   m_Layer: 9
   m_Name: StorageBox2
   m_TagString: Untagged
@@ -67,6 +68,22 @@ MonoBehaviour:
   m_Collider: {fileID: 2597334742251369949}
   m_UnlockedScienceOnBuild: 
   m_UIWindowGridSize: {x: 3, y: 4}
+--- !u!208 &8637431037501767907
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3148459237847678555}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.4165811, y: 0.2129408, z: 0.23502235}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0.24780326, z: 0.000000044703484}
+  m_TimeToStationary: 0.5
 --- !u!1 &5446027264616565361
 GameObject:
   m_ObjectHideFlags: 0

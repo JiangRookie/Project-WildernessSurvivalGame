@@ -1,5 +1,7 @@
 using Project_WildernessSurvivalGame;
+using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.AI;
 
 public enum MapObjectType
 {
@@ -23,7 +25,7 @@ public abstract class MapObjectBase : MonoBehaviour
     public bool CanPickUp => canPickUp;
     public int CanPickUpItemConfigID => canPickUpItemConfigID;
 
-    public virtual void Init(MapChunkController chunk, ulong objectId,bool isFromBuild)
+    public virtual void Init(MapChunkController chunk, ulong objectId, bool isFromBuild)
     {
         mapChunkController = chunk;
         id = objectId;
@@ -39,4 +41,40 @@ public abstract class MapObjectBase : MonoBehaviour
         RemoveOnMap(); // 从地图上消失
         return canPickUpItemConfigID;
     }
+
+    #region Editor
+
+#if UNITY_EDITOR
+
+    [Button]
+    public void AddNavMeshObstacle()
+    {
+        NavMeshObstacle navMeshObstacle = transform.gameObject.AddComponent<NavMeshObstacle>();
+
+        BoxCollider boxCollider = GetComponent<BoxCollider>();
+        CapsuleCollider capsuleCollider = GetComponent<CapsuleCollider>();
+
+        if (boxCollider != null)
+        {
+            navMeshObstacle.shape = NavMeshObstacleShape.Box;
+            navMeshObstacle.center = boxCollider.center;
+            navMeshObstacle.size = boxCollider.size;
+
+            // navMeshObstacle.carving = true;
+        }
+        else if (capsuleCollider != null)
+        {
+            navMeshObstacle.shape = NavMeshObstacleShape.Capsule;
+            navMeshObstacle.center = capsuleCollider.center;
+            navMeshObstacle.height = capsuleCollider.height;
+            navMeshObstacle.radius = capsuleCollider.radius;
+
+            // navMeshObstacle.carving = true;
+        }
+        navMeshObstacle.carving = true;
+    }
+
+#endif
+
+    #endregion
 }

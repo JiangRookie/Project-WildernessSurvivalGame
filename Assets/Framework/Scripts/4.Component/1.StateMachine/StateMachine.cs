@@ -80,13 +80,16 @@ namespace JKFrame
         /// </summary>
         public void Stop()
         {
-            // 处理当前状态的额外逻辑
-            m_CurrStateObj.Exit();
-            m_CurrStateObj.RemoveUpdate(m_CurrStateObj.Update);
-            m_CurrStateObj.RemoveLateUpdate(m_CurrStateObj.LateUpdate);
-            m_CurrStateObj.RemoveFixedUpdate(m_CurrStateObj.FixedUpdate);
-            CurrStateType = -1;
-            m_CurrStateObj = null;
+            if (m_CurrStateObj != null)
+            {
+                // 处理当前状态的额外逻辑
+                m_CurrStateObj.Exit();
+                m_CurrStateObj.RemoveUpdate(m_CurrStateObj.Update);
+                m_CurrStateObj.RemoveLateUpdate(m_CurrStateObj.LateUpdate);
+                m_CurrStateObj.RemoveFixedUpdate(m_CurrStateObj.FixedUpdate);
+                CurrStateType = -1;
+                m_CurrStateObj = null;
+            }
 
             // 处理缓存中所有状态的逻辑
             var enumerator = m_StateDic.GetEnumerator();

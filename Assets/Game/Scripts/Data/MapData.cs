@@ -32,8 +32,12 @@ namespace Project_WildernessSurvivalGame
     [Serializable]
     public class MapChunkData
     {
-        [Tooltip("地图块中的各种地图对象组合成的列表")]
-        public SerializableDictionary<ulong, MapObjectData> MapObjectDict = new SerializableDictionary<ulong, MapObjectData>();
+        [Tooltip("地图块中的各种地图对象组合成的列表")] public SerializableDictionary<ulong, MapObjectData> MapObjectDict;
+
+        public SerializableDictionary<ulong, MapObjectData> AIDataDict;
+
+        [NonSerialized] public List<MapVertex> ForestVertexList;
+        [NonSerialized] public List<MapVertex> MarshVertexList;
     }
 
     /// <summary>

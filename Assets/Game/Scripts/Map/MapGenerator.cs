@@ -19,15 +19,18 @@ namespace Project_WildernessSurvivalGame
         MapGrid m_MapGrid;
         Material m_MarshMaterial;
         Mesh m_ChunkMesh;
-        int m_ForestSpawnWeightTotal; // 森林生成物品的权重总和
-        int m_MarshSpawnWeightTotal;  // 沼泽生成物品的权重总和
+        int m_MapObjectForestWeightTotal; // 森林生成物品的权重总和
+        int m_MapObjectMarshWeightTotal;  // 沼泽生成物品的权重总和
+        int m_AIForestWeightTotal;        // 森林生成物品的权重总和
+        int m_AIMarshWeightTotal;         // 沼泽生成物品的权重总和
         static readonly int s_MainTex = Shader.PropertyToID("_MainTex");
 
         #endregion
 
         #region 配置
 
-        Dictionary<MapVertexType, List<int>> m_SpawnConfigDict;
+        Dictionary<MapVertexType, List<int>> m_MapObjectConfigDict;
+        Dictionary<MapVertexType, List<int>> m_AIConfigDict;
         MapConfig m_MapConfig;
 
         #endregion
@@ -41,12 +44,17 @@ namespace Project_WildernessSurvivalGame
 
         #endregion
 
-        public MapGenerator(MapConfig mapConfig, MapInitData mapInitData, MapData mapData, Dictionary<MapVertexType, List<int>> spawnConfigDict)
+        public MapGenerator
+        (
+            MapConfig mapConfig, MapInitData mapInitData, MapData mapData, Dictionary<MapVertexType, List<int>> mapObjectConfigDict
+          , Dictionary<MapVertexType, List<int>> aiConfigDict
+        )
         {
             m_MapConfig = mapConfig;
             m_MapInitData = mapInitData;
             m_MapData = mapData;
-            m_SpawnConfigDict = spawnConfigDict;
+            m_MapObjectConfigDict = mapObjectConfigDict;
+            m_AIConfigDict = aiConfigDict;
         }
 
         /// <summary>
@@ -77,16 +85,28 @@ namespace Project_WildernessSurvivalGame
             // 应用地图随机对象（花草树木）生成种子
             Random.InitState(m_MapInitData.MapObjectRandomSpawnSeed);
 
-            List<int> idList = m_SpawnConfigDict[MapVertexType.Forest];
+            List<int> idList = m_MapObjectConfigDict[MapVertexType.Forest];
             foreach (int id in idList)
             {
-                m_ForestSpawnWeightTotal += ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, id).Probability;
+                m_MapObjectForestWeightTotal += ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, id).Probability;
             }
 
-            idList = m_SpawnConfigDict[MapVertexType.Marsh];
+            idList = m_MapObjectConfigDict[MapVertexType.Marsh];
             foreach (int id in idList)
             {
-                m_MarshSpawnWeightTotal += ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, id).Probability;
+                m_MapObjectMarshWeightTotal += ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, id).Probability;
+            }
+
+            idList = m_AIConfigDict[MapVertexType.Forest];
+            foreach (int id in idList)
+            {
+                m_AIForestWeightTotal += ConfigManager.Instance.GetConfig<AIConfig>(ConfigName.AI, id).Probability;
+            }
+
+            idList = m_AIConfigDict[MapVertexType.Marsh];
+            foreach (int id in idList)
+            {
+                m_AIMarshWeightTotal += ConfigManager.Instance.GetConfig<AIConfig>(ConfigName.AI, id).Probability;
             }
         }
 
@@ -137,13 +157,16 @@ namespace Project_WildernessSurvivalGame
                 // 如果没有指定地图块数据，说明是新建的，需要生成默认数据
                 if (mapChunkData == null)
                 {
-                    mapChunkData = new MapChunkData();
-
                     // 生成场景物体数据
-                    mapChunkData.MapObjectDict = GenerateMapObjectDataDictOnMapChunkInit(chunkIndex);
+                    mapChunkData = GenerateMapChunkData(chunkIndex);
 
                     // 生成后进行持久化保存
                     ArchiveManager.Instance.AddAndSaveMapChunkData(chunkIndex, mapChunkData);
+                }
+                else
+                {
+                    // 恢复VertexList
+                    RecoverMapChunkData(chunkIndex, mapChunkData);
                 }
 
                 // 生成场景物体
@@ -353,10 +376,10 @@ namespace Project_WildernessSurvivalGame
         int GetMapObjectConfigIDForWeight(MapVertexType mapVertexType)
         {
             // 根据概率配置随机
-            List<int> spawnConfigIdList = m_SpawnConfigDict[mapVertexType];
+            List<int> spawnConfigIdList = m_MapObjectConfigDict[mapVertexType];
 
             // 确定权重的总和
-            int weightTotal = mapVertexType == MapVertexType.Forest ? m_ForestSpawnWeightTotal : m_MarshSpawnWeightTotal;
+            int weightTotal = mapVertexType == MapVertexType.Forest ? m_MapObjectForestWeightTotal : m_MapObjectMarshWeightTotal;
 
             int randomValue = Random.Range(1, weightTotal + 1);
             float probabilitySum = 0; // 概率和
@@ -374,21 +397,60 @@ namespace Project_WildernessSurvivalGame
         }
 
         /// <summary>
+        /// 通过权重获取一个AI的配置ID
+        /// </summary>
+        /// <returns></returns>
+        int GetAIConfigIDForWeight(MapVertexType mapVertexType)
+        {
+            // 根据概率配置随机
+            List<int> spawnConfigIdList = m_AIConfigDict[mapVertexType];
+
+            // 确定权重的总和
+            int weightTotal = mapVertexType == MapVertexType.Forest ? m_AIForestWeightTotal : m_AIMarshWeightTotal;
+
+            int randomValue = Random.Range(1, weightTotal + 1);
+            float probabilitySum = 0; // 概率和
+            foreach (int id in spawnConfigIdList)
+            {
+                probabilitySum += ConfigManager.Instance.GetConfig<AIConfig>(ConfigName.AI, id).Probability;
+
+                if (randomValue < probabilitySum) // 命中
+                {
+                    // 确定到底生成什么地图物品
+                    return id;
+                }
+            }
+            return 0;
+        }
+
+        /// <summary>
         /// 生成地图对象数据，为了地图块初始化准备的
         /// </summary>
         /// <remarks>遍历地图顶点，根据spawnConfig中的配置信息及其概率进行随机生成，并在对应位置实例化物体</remarks>
-        SerializableDictionary<ulong, MapObjectData> GenerateMapObjectDataDictOnMapChunkInit(Vector2Int chunkIndex)
+        MapChunkData GenerateMapChunkData(Vector2Int chunkIndex)
         {
-            SerializableDictionary<ulong, MapObjectData> mapChunkMapObjectDict = new SerializableDictionary<ulong, MapObjectData>();
+            MapChunkData mapChunkData = new MapChunkData();
+            mapChunkData.MapObjectDict = new SerializableDictionary<ulong, MapObjectData>();
+            mapChunkData.AIDataDict = new SerializableDictionary<ulong, MapObjectData>();
+            mapChunkData.ForestVertexList = new List<MapVertex>(m_MapConfig.MapChunkSize * m_MapConfig.MapChunkSize);
+            mapChunkData.MarshVertexList = new List<MapVertex>(m_MapConfig.MapChunkSize * m_MapConfig.MapChunkSize);
+
             int offsetX = chunkIndex.x * m_MapConfig.MapChunkSize;
             int offsetZ = chunkIndex.y * m_MapConfig.MapChunkSize;
 
-            // 遍历地图顶点
             for (int x = 1; x < m_MapConfig.MapChunkSize; x++)
             {
                 for (int y = 1; y < m_MapConfig.MapChunkSize; y++)
                 {
                     MapVertex mapVertex = m_MapGrid.GetVertex(x + offsetX, y + offsetZ);
+                    if (mapVertex.VertexType == MapVertexType.Forest)
+                    {
+                        mapChunkData.ForestVertexList.Add(mapVertex);
+                    }
+                    else if (mapVertex.VertexType == MapVertexType.Marsh)
+                    {
+                        mapChunkData.MarshVertexList.Add(mapVertex);
+                    }
 
                     // 通过权重获取一个地图对象的配置ID
                     int configID = GetMapObjectConfigIDForWeight(mapVertex.VertexType);
@@ -400,12 +462,64 @@ namespace Project_WildernessSurvivalGame
 
                         mapVertex.MapObjectID = m_MapData.CurrentID;
 
-                        mapChunkMapObjectDict.Dictionary.Add(
-                            m_MapData.CurrentID, GenerateMapObjectData(configID, position, objectConfig.DestroyDays));
+                        mapChunkData.MapObjectDict.Dictionary.Add(m_MapData.CurrentID
+                                                                , GenerateMapObjectData(configID, position, objectConfig.DestroyDays));
                     }
                 }
             }
-            return mapChunkMapObjectDict;
+
+            // 生成Ai数据 一个地图块 森林或沼泽的顶点数要超过配置的才生成
+            if (mapChunkData.ForestVertexList.Count > m_MapConfig.GenerateAiMinVertexCountOnChunk)
+            {
+                for (int i = 0; i < m_MapConfig.MaxAiCountOnChunk; i++)
+                {
+                    int configID = GetAIConfigIDForWeight(MapVertexType.Forest);
+                    AIConfig config = ConfigManager.Instance.GetConfig<AIConfig>(ConfigName.AI, configID);
+                    if (config.IsEmpty == false)
+                    {
+                        mapChunkData.AIDataDict.Dictionary.Add(m_MapData.CurrentID, GenerateMapObjectData(configID, Vector3.zero, -1));
+                    }
+                }
+            }
+            if (mapChunkData.MarshVertexList.Count > m_MapConfig.GenerateAiMinVertexCountOnChunk)
+            {
+                for (int i = 0; i < m_MapConfig.MaxAiCountOnChunk; i++)
+                {
+                    int configID = GetAIConfigIDForWeight(MapVertexType.Marsh);
+                    AIConfig config = ConfigManager.Instance.GetConfig<AIConfig>(ConfigName.AI, configID);
+                    if (config.IsEmpty == false)
+                    {
+                        mapChunkData.AIDataDict.Dictionary.Add(m_MapData.CurrentID, GenerateMapObjectData(configID, Vector3.zero, -1));
+                    }
+                }
+            }
+
+            return mapChunkData;
+        }
+
+        void RecoverMapChunkData(Vector2Int chunkIndex, MapChunkData mapChunkData)
+        {
+            mapChunkData.ForestVertexList = new List<MapVertex>(m_MapConfig.MapChunkSize * m_MapConfig.MapChunkSize);
+            mapChunkData.MarshVertexList = new List<MapVertex>(m_MapConfig.MapChunkSize * m_MapConfig.MapChunkSize);
+
+            int offsetX = chunkIndex.x * m_MapConfig.MapChunkSize;
+            int offsetZ = chunkIndex.y * m_MapConfig.MapChunkSize;
+
+            for (int x = 1; x < m_MapConfig.MapChunkSize; x++)
+            {
+                for (int y = 1; y < m_MapConfig.MapChunkSize; y++)
+                {
+                    MapVertex mapVertex = m_MapGrid.GetVertex(x + offsetX, y + offsetZ);
+                    if (mapVertex.VertexType == MapVertexType.Forest)
+                    {
+                        mapChunkData.ForestVertexList.Add(mapVertex);
+                    }
+                    else if (mapVertex.VertexType == MapVertexType.Marsh)
+                    {
+                        mapChunkData.MarshVertexList.Add(mapVertex);
+                    }
+                }
+            }
         }
 
         List<MapObjectData> m_MapObjectDataList = new List<MapObjectData>(); // 用来避免每次都返回一个新的 List 对象

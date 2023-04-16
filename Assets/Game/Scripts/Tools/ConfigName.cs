@@ -8,4 +8,5 @@ public static class ConfigName
     public const string PLAYER = "Player";
     public const string LOOT = "Loot";
     public const string Build = "Build";
+    public const string AI = "AI";
 }

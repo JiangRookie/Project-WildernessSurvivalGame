@@ -116,6 +116,7 @@ GameObject:
   - component: {fileID: 5821916047815915381}
   - component: {fileID: 4358601411851533054}
   - component: {fileID: 7758429438081248414}
+  - component: {fileID: 6328915005097053819}
   m_Layer: 6
   m_Name: bush_berry
   m_TagString: Untagged
@@ -183,3 +184,19 @@ MonoBehaviour:
   - {fileID: 2100000, guid: a17a0995f74ffba47bda4ec91417108e, type: 2}
   m_BerryGrowthDays: 2
   m_Collider: {fileID: 4358601411851533054}
+--- !u!208 &6328915005097053819
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7390618182150538598}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5078004, y: 0.28183874, z: 0.59553975}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.026552334, y: 0.25318345, z: -0.056970537}
+  m_TimeToStationary: 0.5

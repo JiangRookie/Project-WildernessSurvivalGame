@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using JKFrame;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace Project_WildernessSurvivalGame
 {
@@ -8,6 +9,7 @@ namespace Project_WildernessSurvivalGame
     {
         bool m_IsActive = false;
         Dictionary<ulong, MapObjectBase> m_MapObjectDict;
+        Dictionary<ulong, AIBase> m_AIObjectDict;
         Dictionary<ulong, MapObjectData> m_WantToDestroyMapObjectDict;
         public MapChunkData MapChunkData { get; private set; }
         public Vector2Int ChunkIndex { get; private set; }
@@ -35,6 +37,7 @@ namespace Project_WildernessSurvivalGame
             MapChunkData = mapChunkData;
 
             m_MapObjectDict = new Dictionary<ulong, MapObjectBase>(mapChunkData.MapObjectDict.Dictionary.Count);
+            m_AIObjectDict = new Dictionary<ulong, AIBase>(mapChunkData.AIDataDict.Dictionary.Count);
             IsInitializedMapUI = true;
             m_WantToDestroyMapObjectDict = new Dictionary<ulong, MapObjectData>();
             foreach (MapObjectData data in MapChunkData.MapObjectDict.Dictionary.Values)
@@ -53,21 +56,35 @@ namespace Project_WildernessSurvivalGame
                 gameObject.SetActive(m_IsActive);
                 if (m_IsActive) // 如果当前地图块为激活状态，则从对象池中获取所有物体
                 {
-                    foreach (var mapObjectData in MapChunkData.MapObjectDict.Dictionary.Values)
+                    // 处理地图对象
+                    foreach (MapObjectData mapObjectData in MapChunkData.MapObjectDict.Dictionary.Values)
                     {
                         InstantiateMapObject(mapObjectData, false);
+                    }
+
+                    // 处理AI对象
+                    foreach (MapObjectData aiData in MapChunkData.AIDataDict.Dictionary.Values)
+                    {
+                        InstantiateAIObject(aiData);
                     }
                 }
                 else // 如果当前地图块为失活状态，则把所有物体放回对象池
                 {
-                    foreach (var mapObject in m_MapObjectDict.Values)
+                    foreach (MapObjectBase mapObject in m_MapObjectDict.Values)
                     {
                         mapObject.JKGameObjectPushPool();
                     }
+                    foreach (AIBase ai in m_AIObjectDict.Values)
+                    {
+                        ai.Destroy();
+                    }
                     m_MapObjectDict.Clear();
+                    m_AIObjectDict.Clear();
                 }
             }
         }
+
+        #region MapObject
 
         void InstantiateMapObject(MapObjectData mapObjectData, bool isFromBuild)
         {
@@ -110,6 +127,47 @@ namespace Project_WildernessSurvivalGame
             // UI地图层面移除
             MapManager.Instance.RemoveMapObject(mapObjectID);
         }
+
+        #endregion
+
+        #region AI
+
+        void InstantiateAIObject(MapObjectData aiData)
+        {
+            AIConfig aiConfig = ConfigManager.Instance.GetConfig<AIConfig>(ConfigName.AI, aiData.ConfigID);
+            AIBase ai = PoolManager.Instance.GetGameObject(aiConfig.Prefab, transform).GetComponent<AIBase>();
+            if (aiData.Position == Vector3.zero)
+            {
+                aiData.Position = GetAIRandomPoint(aiConfig.MapVertexType);
+            }
+            ai.Init(this, aiData);
+            m_AIObjectDict.Add(aiData.ID, ai);
+        }
+
+        public Vector3 GetAIRandomPoint(MapVertexType vertexType)
+        {
+            List<MapVertex> vertices = null;
+            if (vertexType == MapVertexType.Forest)
+            {
+                vertices = MapChunkData.ForestVertexList;
+            }
+            else if (vertexType == MapVertexType.Marsh)
+            {
+                vertices = MapChunkData.MarshVertexList;
+            }
+
+            if (vertices != null)
+            {
+                int index = Random.Range(0, vertices.Count);
+                if (NavMesh.SamplePosition(vertices[index].Position, out NavMeshHit hitInfo, 1, NavMesh.AllAreas))
+                {
+                    return hitInfo.position;
+                }
+            }
+            return GetAIRandomPoint(vertexType);
+        }
+
+        #endregion
 
         static List<ulong> s_ExecuteDestroyMapObjectList = new List<ulong>(20); // 执行销毁的地图对象列表
 
