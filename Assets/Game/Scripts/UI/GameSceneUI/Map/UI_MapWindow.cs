@@ -23,7 +23,8 @@ namespace Project_WildernessSurvivalGame
         float m_MapChunkImageSize;
         float m_MapSizeOnWorld;
         Sprite m_ForestSprite;
-        Dictionary<ulong, Image> m_MapObjectIconDict = new Dictionary<ulong, Image>(); // 所有的地图物体的Icon字典
+        Dictionary<ulong, Image> m_MapObjectIconDict = new Dictionary<ulong, Image>();           // 所有的地图物体的Icon字典
+        Dictionary<Vector2Int, Image> m_MapChunkImageDict = new Dictionary<Vector2Int, Image>(); // 所有的地图物体的Icon字典
         float m_ScrollValue;
         float m_MinScaleFactor;
 
@@ -95,6 +96,7 @@ namespace Project_WildernessSurvivalGame
             mapChunkRect.sizeDelta = new Vector2(m_MapChunkImageSize, m_MapChunkImageSize);
 
             var mapChunkImage = mapChunkRect.GetComponent<Image>();
+            m_MapChunkImageDict.Add(chunkIndex, mapChunkImage);
             if (texture == null) // 森林的情况
             {
                 mapChunkImage.type = Image.Type.Tiled; // 将图片类型设置为平铺类型
@@ -160,6 +162,21 @@ namespace Project_WildernessSurvivalGame
             // 玩家的 Icon 完全放在 Content 的中心点
             // anchoredPosition：这个RectTransform的中心点相对于锚点参考点的位置。
             m_PlayerIcon.anchoredPosition3D = m_Content.anchoredPosition;
+        }
+
+        public void ResetWindow()
+        {
+            foreach (Image image in m_MapObjectIconDict.Values)
+            {
+                image.JKGameObjectPushPool();
+            }
+
+            foreach (Image image in m_MapChunkImageDict.Values)
+            {
+                Destroy(image.gameObject);
+            }
+            m_MapObjectIconDict.Clear();
+            m_MapChunkImageDict.Clear();
         }
     }
 }

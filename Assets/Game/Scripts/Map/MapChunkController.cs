@@ -17,9 +17,14 @@ namespace Project_WildernessSurvivalGame
         public bool IsAllForest { get; private set; }
         public bool IsInitializedMapUI { get; private set; } = false;
 
-        void OnDestroy()
+        void OnGameSave()
         {
             ArchiveManager.Instance.SaveMapChunkData(ChunkIndex, MapChunkData);
+        }
+
+        public void OnCloseGameScene()
+        {
+            SetActive(false);
         }
 
         /// <summary>
@@ -45,6 +50,7 @@ namespace Project_WildernessSurvivalGame
                 if (data.DestroyDays > 0) m_WantToDestroyMapObjectDict.Add(data.ID, data);
             }
             EventManager.AddEventListener(EventName.OnMorning, OnMorning);
+            EventManager.AddEventListener(EventName.SaveGame, OnGameSave);
         }
 
         /// <param name="active">是否激活</param>

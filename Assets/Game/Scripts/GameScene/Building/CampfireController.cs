@@ -9,6 +9,7 @@ public class CampfireController : BuildingBase
 {
     [SerializeField] Light m_Light;
     [SerializeField] GameObject m_Fire;
+    [SerializeField] AudioSource m_AudioSource;
     CampfireConfig m_CampfireConfig;
     CampfireData m_CampfireData;
     bool m_IsOnGround;
@@ -69,11 +70,13 @@ public class CampfireController : BuildingBase
     {
         m_Light.gameObject.SetActive(fuelValue != 0);
         m_Fire.gameObject.SetActive(fuelValue != 0);
+        m_AudioSource.gameObject.SetActive(fuelValue != 0);
         if (fuelValue != 0)
         {
             float value = fuelValue / m_CampfireConfig.MaxFuelValue;
             m_Light.intensity = Mathf.Lerp(0, m_CampfireConfig.MaxLightIntensity, value);
             m_Light.range = Mathf.Lerp(0, m_CampfireConfig.MaxLightRange, value);
+            m_AudioSource.volume = value;
         }
     }
 

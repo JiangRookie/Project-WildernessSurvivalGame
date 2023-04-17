@@ -67,13 +67,26 @@ namespace Project_WildernessSurvivalGame
             if (m_IsShowingMap) UpdateMapUI();
         }
 
-        void OnDestroy()
+        void OnGameSave()
         {
             ArchiveManager.Instance.SaveMapData();
         }
 
+        // 保留当前场景中的资源
+        public void OnCloseGameScene()
+        {
+            m_MapUI.ResetWindow();
+
+            // chunk
+            foreach (MapChunkController mapChunk in m_MapChunkDict.Values)
+            {
+                mapChunk.OnCloseGameScene();
+            }
+        }
+
         public void Init()
         {
+            EventManager.AddEventListener(EventName.SaveGame, OnGameSave);
             StartCoroutine(DoInit());
         }
 

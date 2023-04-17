@@ -18,6 +18,7 @@ MonoBehaviour:
     ReferencedUnityObjects:
     - {fileID: 8039767788146889838, guid: aa93bbf2475b674419b45a5bc7a88485, type: 3}
     - {fileID: 3949864808349845485, guid: 5a979e20ec40f7142aeb84d32be77017, type: 3}
+    - {fileID: 7598309702700124419, guid: 9666728acf3a78045b4622653ebf83a9, type: 3}
     - {fileID: 4260069446687021677, guid: 214d7a0a2599c8148ae8acff91be250c, type: 3}
     - {fileID: 2786686680103941418, guid: 838319f66f04ebf4c88532ecdcdc9acd, type: 3}
     - {fileID: 8906993709415993066, guid: aad8817a18373f1439d18c92066b522f, type: 3}
@@ -42,13 +43,31 @@ MonoBehaviour:
       Data: 
     - Name: 
       Entry: 12
-      Data: 1
+      Data: 2
     - Name: 
       Entry: 7
       Data: 
     - Name: $k
       Entry: 7
       Data: 2|System.RuntimeType, mscorlib
+    - Name: 
+      Entry: 1
+      Data: UI_ItemSlot, Assembly-CSharp
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: $v
+      Entry: 5
+      Data: true
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 7
+      Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
       Data: JKFrame.StateMachine, Framework
@@ -69,24 +88,24 @@ MonoBehaviour:
       Data: 
     - Name: UIElementDic
       Entry: 7
-      Data: 3|System.Collections.Generic.Dictionary`2[[System.Type, mscorlib],[JKFrame.UIElement,
+      Data: 4|System.Collections.Generic.Dictionary`2[[System.Type, mscorlib],[JKFrame.UIElement,
         Framework]], mscorlib
     - Name: comparer
       Entry: 7
-      Data: 4|System.Collections.Generic.ObjectEqualityComparer`1[[System.Type, mscorlib]],
+      Data: 5|System.Collections.Generic.ObjectEqualityComparer`1[[System.Type, mscorlib]],
         mscorlib
     - Name: 
       Entry: 8
       Data: 
     - Name: 
       Entry: 12
-      Data: 8
+      Data: 10
     - Name: 
       Entry: 7
       Data: 
     - Name: $k
       Entry: 7
-      Data: 5|System.RuntimeType, mscorlib
+      Data: 6|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
       Data: UI_BuildWindow, Assembly-CSharp
@@ -95,7 +114,7 @@ MonoBehaviour:
       Data: 
     - Name: $v
       Entry: 7
-      Data: 6|JKFrame.UIElement, Framework
+      Data: 7|JKFrame.UIElement, Framework
     - Name: isCache
       Entry: 5
       Data: false
@@ -119,19 +138,19 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 7
-      Data: 7|System.RuntimeType, mscorlib
+      Data: 8|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: UI_InventoryWindow, Assembly-CSharp
+      Data: UI_MainInventoryWindow, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
     - Name: $v
       Entry: 7
-      Data: 8|JKFrame.UIElement, Framework
+      Data: 9|JKFrame.UIElement, Framework
     - Name: isCache
       Entry: 5
-      Data: true
+      Data: false
     - Name: prefab
       Entry: 10
       Data: 1
@@ -152,7 +171,40 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 7
-      Data: 9|System.RuntimeType, mscorlib
+      Data: 10|System.RuntimeType, mscorlib
+    - Name: 
+      Entry: 1
+      Data: UI_StorageBoxInventoryWindow, Assembly-CSharp
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: $v
+      Entry: 7
+      Data: 11|JKFrame.UIElement, Framework
+    - Name: isCache
+      Entry: 5
+      Data: true
+    - Name: prefab
+      Entry: 10
+      Data: 2
+    - Name: layerNum
+      Entry: 3
+      Data: 1
+    - Name: objInstance
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 7
+      Data: 12|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
       Data: UI_MainInfoWindow, Assembly-CSharp
@@ -161,13 +213,13 @@ MonoBehaviour:
       Data: 
     - Name: $v
       Entry: 7
-      Data: 10|JKFrame.UIElement, Framework
+      Data: 13|JKFrame.UIElement, Framework
     - Name: isCache
       Entry: 5
       Data: false
     - Name: prefab
       Entry: 10
-      Data: 2
+      Data: 3
     - Name: layerNum
       Entry: 3
       Data: 0
@@ -185,7 +237,40 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 7
-      Data: 11|System.RuntimeType, mscorlib
+      Data: 14|System.RuntimeType, mscorlib
+    - Name: 
+      Entry: 1
+      Data: UI_PauseWindow, Assembly-CSharp
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: $v
+      Entry: 7
+      Data: 15|JKFrame.UIElement, Framework
+    - Name: isCache
+      Entry: 5
+      Data: false
+    - Name: prefab
+      Entry: 6
+      Data: 
+    - Name: layerNum
+      Entry: 3
+      Data: 4
+    - Name: objInstance
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 7
+      Data: 16|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
       Data: UI_GameLoadingWindow, Assembly-CSharp
@@ -194,13 +279,13 @@ MonoBehaviour:
       Data: 
     - Name: $v
       Entry: 7
-      Data: 12|JKFrame.UIElement, Framework
+      Data: 17|JKFrame.UIElement, Framework
     - Name: isCache
       Entry: 5
       Data: true
     - Name: prefab
       Entry: 10
-      Data: 3
+      Data: 4
     - Name: layerNum
       Entry: 3
       Data: 4
@@ -218,7 +303,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 7
-      Data: 13|System.RuntimeType, mscorlib
+      Data: 18|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
       Data: UI_MenuSceneMainWindow, Assembly-CSharp
@@ -227,40 +312,7 @@ MonoBehaviour:
       Data: 
     - Name: $v
       Entry: 7
-      Data: 14|JKFrame.UIElement, Framework
-    - Name: isCache
-      Entry: 5
-      Data: false
-    - Name: prefab
-      Entry: 10
-      Data: 4
-    - Name: layerNum
-      Entry: 3
-      Data: 1
-    - Name: objInstance
-      Entry: 6
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 7
-      Data: 15|System.RuntimeType, mscorlib
-    - Name: 
-      Entry: 1
-      Data: UI_NewGameWindow, Assembly-CSharp
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: $v
-      Entry: 7
-      Data: 16|JKFrame.UIElement, Framework
+      Data: 19|JKFrame.UIElement, Framework
     - Name: isCache
       Entry: 5
       Data: false
@@ -284,7 +336,40 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 7
-      Data: 17|System.RuntimeType, mscorlib
+      Data: 20|System.RuntimeType, mscorlib
+    - Name: 
+      Entry: 1
+      Data: UI_NewGameWindow, Assembly-CSharp
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: $v
+      Entry: 7
+      Data: 21|JKFrame.UIElement, Framework
+    - Name: isCache
+      Entry: 5
+      Data: false
+    - Name: prefab
+      Entry: 10
+      Data: 6
+    - Name: layerNum
+      Entry: 3
+      Data: 1
+    - Name: objInstance
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 7
+      Data: 22|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
       Data: Project_WildernessSurvivalGame.UI_MapWindow, Assembly-CSharp
@@ -293,13 +378,13 @@ MonoBehaviour:
       Data: 
     - Name: $v
       Entry: 7
-      Data: 18|JKFrame.UIElement, Framework
+      Data: 23|JKFrame.UIElement, Framework
     - Name: isCache
       Entry: 5
       Data: true
     - Name: prefab
       Entry: 10
-      Data: 6
+      Data: 7
     - Name: layerNum
       Entry: 3
       Data: 4
@@ -317,7 +402,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 7
-      Data: 19|System.RuntimeType, mscorlib
+      Data: 24|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
       Data: JKFrame.UILoadingWindow, Framework
@@ -326,13 +411,13 @@ MonoBehaviour:
       Data: 
     - Name: $v
       Entry: 7
-      Data: 20|JKFrame.UIElement, Framework
+      Data: 25|JKFrame.UIElement, Framework
     - Name: isCache
       Entry: 5
       Data: true
     - Name: prefab
       Entry: 10
-      Data: 7
+      Data: 8
     - Name: layerNum
       Entry: 3
       Data: 4

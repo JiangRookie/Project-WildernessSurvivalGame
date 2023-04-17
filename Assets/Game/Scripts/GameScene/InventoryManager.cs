@@ -9,6 +9,7 @@ public class InventoryManager : SingletonMono<InventoryManager>
     {
         m_MainInventoryWindow = UIManager.Instance.Show<UI_MainInventoryWindow>();
         m_MainInventoryWindow.InitData();
+        EventManager.AddEventListener(EventName.SaveGame, OnGameSave);
     }
 
     #region 快捷栏
@@ -35,7 +36,7 @@ public class InventoryManager : SingletonMono<InventoryManager>
 
     #endregion
 
-    void OnDestroy()
+    void OnGameSave()
     {
         // 保存住背包数据
         ArchiveManager.Instance.SaveMainInventoryData();

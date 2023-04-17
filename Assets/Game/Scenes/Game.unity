@@ -341,9 +341,9 @@ GameObject:
   m_Component:
   - component: {fileID: 412835112}
   - component: {fileID: 412835111}
-  - component: {fileID: 412835113}
   - component: {fileID: 412835115}
   - component: {fileID: 412835114}
+  - component: {fileID: 412835113}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -364,8 +364,8 @@ CharacterController:
   serializedVersion: 2
   m_Height: 1
   m_Radius: 0.3
-  m_SlopeLimit: 0.1
-  m_StepOffset: 0.1
+  m_SlopeLimit: 0
+  m_StepOffset: 0
   m_SkinWidth: 0.0001
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.5, z: 0}
@@ -399,6 +399,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CharacterController: {fileID: 412835111}
   m_Animator: {fileID: 41619144262961730}
+  m_Collider: {fileID: 412835115}
   m_PlayerModel: {fileID: 130327591116645115}
   PositionXScope: {x: 0, y: 0}
   PositionZScope: {x: 0, y: 0}

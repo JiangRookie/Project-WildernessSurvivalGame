@@ -8,7 +8,7 @@ public class PlayerIdle : PlayerStateBase
 {
     public override void Enter()
     {
-        PlayerCtrl.PlayerAnimation("Idle");
+        m_PlayerCtrl.PlayerAnimation("Idle");
     }
 
     public override void Update()
@@ -17,7 +17,7 @@ public class PlayerIdle : PlayerStateBase
         float vertical = Input.GetAxis("Vertical");
         if (horizontal != 0 || vertical != 0)
         {
-            PlayerCtrl.ChangeState(PlayerState.Move);
+            m_PlayerCtrl.ChangeState(PlayerState.Move);
         }
     }
 }

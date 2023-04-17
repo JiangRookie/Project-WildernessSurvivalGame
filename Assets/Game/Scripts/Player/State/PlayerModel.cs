@@ -7,15 +7,22 @@ public class PlayerModel : MonoBehaviour
     Action m_StartHitAction;
     Action m_StopHitAction;
     Action m_AttackOverAction;
+    Action m_HurtOverAction;
+    Action m_DeadOverAction;
     [SerializeField] Transform m_WeaponRoot;
     public Transform WeaponRoot => m_WeaponRoot;
 
-    public void Init(Action<int> footstepAction, Action startHitAction, Action stopHitAction, Action attackOverAction)
+    public void Init
+    (
+        Action<int> footstepAction, Action startHitAction, Action stopHitAction, Action attackOverAction, Action hurtOverAction, Action deadOverAction
+    )
     {
         m_FootstepAction = footstepAction;
         m_StartHitAction = startHitAction;
         m_StopHitAction = stopHitAction;
         m_AttackOverAction = attackOverAction;
+        m_HurtOverAction = hurtOverAction;
+        m_DeadOverAction = deadOverAction;
     }
 
     #region 动画事件
@@ -41,6 +48,16 @@ public class PlayerModel : MonoBehaviour
     void AttackOver()
     {
         m_AttackOverAction?.Invoke();
+    }
+
+    void HurtOver()
+    {
+        m_HurtOverAction?.Invoke();
+    }
+
+    void DeadOver()
+    {
+        m_DeadOverAction?.Invoke();
     }
 
     #endregion

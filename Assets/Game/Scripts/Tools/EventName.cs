@@ -8,4 +8,5 @@ public static class EventName
     public const string AddItem = "AddItem";
     public const string OnMorning = "OnMorning";
     public const string BuildBuilding = "BuildBuilding";
+    public const string SaveGame = "SaveGame";
 }

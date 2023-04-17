@@ -19,6 +19,12 @@ public class ArchiveManager : Singleton<ArchiveManager>
     public ScienceData ScienceData { get; private set; }
     public bool HasArchived { get; private set; }
 
+    public void ClearArchive()
+    {
+        SaveManager.Clear();
+        LoadArchiveData();
+    }
+
     public void LoadArchiveData()
     {
         // 单存档机制，所以是获取第0个存档数据

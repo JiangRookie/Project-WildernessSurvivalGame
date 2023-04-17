@@ -48,5 +48,10 @@ public class GameManager : SingletonMono<GameManager>
         SceneManager.LoadScene("Game");
     }
 
+    public void OnEnterMenuScene()
+    {
+        SceneManager.LoadScene("Menu");
+    }
+
     #endregion
 }

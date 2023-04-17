@@ -11,10 +11,7 @@ public class TimeManager : LogicManagerBase<TimeManager>
     TimeData m_TimeData;
     int m_NextStateIndex;
 
-    void OnDestroy()
-    {
-        ArchiveManager.Instance.SaveTimeData();
-    }
+    void OnGameSave() => ArchiveManager.Instance.SaveTimeData();
 
     void Update()
     {
@@ -31,6 +28,7 @@ public class TimeManager : LogicManagerBase<TimeManager>
         m_TimeData = ArchiveManager.Instance.TimeData;
         m_TimeConfig = ConfigManager.Instance.GetConfig<TimeConfig>(ConfigName.TIME);
         InitState();
+        EventManager.AddEventListener(EventName.SaveGame, OnGameSave);
     }
 
     public void InitState()

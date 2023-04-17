@@ -6,12 +6,12 @@ using Project_WildernessSurvivalGame;
 /// </summary>
 public class PlayerStateBase : StateBase
 {
-    protected PlayerController PlayerCtrl;
+    protected PlayerController m_PlayerCtrl;
 
     public override void Init(IStateMachineOwner owner, int stateType, StateMachine stateMachine)
     {
         base.Init(owner, stateType, stateMachine);
-        PlayerCtrl = owner as PlayerController;
+        m_PlayerCtrl = owner as PlayerController;
     }
 
     protected void ChangeState<T>(PlayerState playerState) where T : PlayerStateBase, new()

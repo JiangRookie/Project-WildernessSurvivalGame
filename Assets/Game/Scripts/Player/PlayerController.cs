@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Project_WildernessSurvivalGame
 {
-    public enum PlayerState { Idle, Move, Attack, BeAttack, Dead }
+    public enum PlayerState { Idle, Move, Attack, Hurt, Dead }
 
     public class PlayerController : SingletonMono<PlayerController>, IStateMachineOwner
     {
@@ -12,6 +12,7 @@ namespace Project_WildernessSurvivalGame
 
         public CharacterController CharacterController;
         [SerializeField] Animator m_Animator;
+        [SerializeField] Collider m_Collider;
         [SerializeField] PlayerModel m_PlayerModel;
         [HideInInspector] public Vector2 PositionXScope;
         [HideInInspector] public Vector2 PositionZScope;
@@ -20,8 +21,10 @@ namespace Project_WildernessSurvivalGame
 
         public Transform PlayerTransform { get; private set; }
         public bool CanUseItem { get; private set; } = true;
+        public bool CanPickUpItem { get; private set; } = true;
         public float MoveSpeed => m_PlayerConfig.MoveSpeed;
         public float RotateSpeed => m_PlayerConfig.RotateSpeed;
+        public Collider Collider => m_Collider;
 
         #region 配置
 
@@ -44,7 +47,7 @@ namespace Project_WildernessSurvivalGame
             CalculateHungryOnUpdate();
         }
 
-        void OnDestroy()
+        void OnGameSave()
         {
             // 把存档数据实际写入磁盘
             m_PlayerTransformData.Position = PlayerTransform.localPosition;
@@ -61,7 +64,7 @@ namespace Project_WildernessSurvivalGame
             m_PlayerTransformData = ArchiveManager.Instance.PlayerTransformData;
             m_PlayerCoreData = ArchiveManager.Instance.PlayerCoreData;
 
-            m_PlayerModel.Init(PlayAudioOnFootStep, OnStartHit, OnStopHit, OnAttackOver);
+            m_PlayerModel.Init(PlayAudioOnFootStep, OnStartHit, OnStopHit, OnAttackOver, OnHurtOver, OnDeadOver);
             PlayerTransform = transform;
 
             m_StateMachine = ResManager.Load<StateMachine>();
@@ -77,6 +80,8 @@ namespace Project_WildernessSurvivalGame
 
             TriggerUpdateHpEvent();
             TriggerUpdateHungryEvent();
+
+            EventManager.AddEventListener(EventName.SaveGame, OnGameSave);
         }
 
         /// <summary>
@@ -109,7 +114,7 @@ namespace Project_WildernessSurvivalGame
         }
 
         // 让武器停止伤害检测
-        void OnStopHit()
+        public void OnStopHit()
         {
             m_CurrentWeaponGameObject.transform.RemoveTriggerEnter(OnWeaponTriggerEnter);
             m_LastAttackedMapObjectList.Clear();
@@ -124,14 +129,17 @@ namespace Project_WildernessSurvivalGame
                 // 让武器受损
                 EventManager.EventTrigger(EventName.PlayerWeaponAttackSucceed);
             }
-
-            m_CanAttack = true;
-
-            // 切换状态到待机
             ChangeState(PlayerState.Idle);
+        }
 
-            // 允许使用物品
-            CanUseItem = true;
+        void OnHurtOver()
+        {
+            ChangeState(PlayerState.Idle);
+        }
+
+        void OnDeadOver()
+        {
+            GameSceneManager.Instance.GameOver();
         }
 
         /// <summary>
@@ -166,6 +174,8 @@ namespace Project_WildernessSurvivalGame
             {
                 Item_WeaponInfo weaponInfo = (Item_WeaponInfo)m_CurrentWeaponItemData.Config.ItemTypeInfo;
                 AudioManager.Instance.PlayOneShot(weaponInfo.HitAudio, transform.position);
+                GameObject hitEffect = PoolManager.Instance.GetGameObject(weaponInfo.HitEffect);
+                hitEffect.transform.position = other.ClosestPoint(m_CurrentWeaponGameObject.transform.position);
                 aiObject.Hurt(weaponInfo.AttackValue);
                 m_AttackSucceedCount += 1;
             }
@@ -188,16 +198,38 @@ namespace Project_WildernessSurvivalGame
             switch (playerState)
             {
                 case PlayerState.Idle:
+                    m_CanAttack = true;
+                    CanUseItem = true;
+                    CanPickUpItem = true;
                     m_StateMachine.ChangeState<PlayerIdle>((int)playerState);
                     break;
                 case PlayerState.Move:
+                    m_CanAttack = true;
+                    CanUseItem = true;
+                    CanPickUpItem = false;
                     m_StateMachine.ChangeState<PlayerMove>((int)playerState);
                     break;
                 case PlayerState.Attack:
+                    m_CanAttack = false;
+                    CanUseItem = false;
+                    CanPickUpItem = false;
+
                     m_StateMachine.ChangeState<PlayerAttack>((int)playerState);
                     break;
-                case PlayerState.BeAttack: break;
-                case PlayerState.Dead: break;
+                case PlayerState.Hurt:
+                    m_CanAttack = false;
+                    CanUseItem = false;
+                    CanPickUpItem = false;
+
+                    m_StateMachine.ChangeState<PlayerHurt>((int)playerState);
+                    break;
+                case PlayerState.Dead:
+                    m_CanAttack = false;
+                    CanUseItem = false;
+                    CanPickUpItem = false;
+
+                    m_StateMachine.ChangeState<PlayerDead>((int)playerState);
+                    break;
             }
         }
 
@@ -223,9 +255,10 @@ namespace Project_WildernessSurvivalGame
                 if (m_PlayerCoreData.Hp > 0)
                 {
                     m_PlayerCoreData.Hp -= Time.deltaTime * m_PlayerConfig.HpReducingSpeedOnHungryIsZero;
-                    if (m_PlayerCoreData.Hp < 0)
+                    if (m_PlayerCoreData.Hp <= 0)
                     {
                         m_PlayerCoreData.Hp = 0;
+                        ChangeState(PlayerState.Dead);
                     }
                     TriggerUpdateHpEvent();
                 }
@@ -329,6 +362,7 @@ namespace Project_WildernessSurvivalGame
                 // 判断拾取
                 if (mapObject.CanPickUp)
                 {
+                    if (CanPickUpItem == false) return;
                     if (isMouseButtonDown == false) return;
                     m_LastHitMapObject = null;
 
@@ -406,12 +440,10 @@ namespace Project_WildernessSurvivalGame
                 // 交互距离：武器的长度 + AI的半径
                 if (distance < weaponInfo.AttackDistance + aiObject.Radius)
                 {
-                    m_CanAttack = false; // 防止攻击过程中再次攻击
                     var position = transform.position;
                     AttackDirection = Quaternion.LookRotation(aiObject.transform.position - position); // 计算攻击方向
                     AudioManager.Instance.PlayOneShot(weaponInfo.AttackAudio, position);
                     ChangeState(PlayerState.Attack); // 切换状态
-                    CanUseItem = false;              // 禁止使用物品
                 }
             }
 
@@ -426,12 +458,11 @@ namespace Project_WildernessSurvivalGame
             // 能攻击，有武器，武器类型符合要求
             if (weaponInfo.WeaponType == weaponType)
             {
-                m_CanAttack = false; // 防止攻击过程中再次攻击
                 var position = transform.position;
                 AttackDirection = Quaternion.LookRotation(mapObject.transform.position - position); // 计算攻击方向
                 AudioManager.Instance.PlayOneShot(weaponInfo.AttackAudio, position);
                 ChangeState(PlayerState.Attack); // 切换状态
-                CanUseItem = false;              // 禁止使用物品
+
                 return true;
             }
             return false;
@@ -441,7 +472,27 @@ namespace Project_WildernessSurvivalGame
 
         public void Hurt(float damage)
         {
-            Debug.Log("玩家受伤：" + damage);
+            if (m_PlayerCoreData.Hp <= 0) return;
+            m_PlayerCoreData.Hp -= damage;
+            if (m_PlayerCoreData.Hp <= 0)
+            {
+                m_PlayerCoreData.Hp = 0;
+                TriggerUpdateHpEvent();
+                ChangeState(PlayerState.Dead);
+            }
+            else
+            {
+                TriggerUpdateHpEvent();
+                ChangeState(PlayerState.Hurt);
+            }
+        }
+
+        void OnDestroy()
+        {
+            if (m_StateMachine != null)
+            {
+                m_StateMachine.Destroy();
+            }
         }
     }
 }

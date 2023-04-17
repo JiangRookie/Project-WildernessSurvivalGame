@@ -7,9 +7,15 @@ public class ScienceManager : SingletonMono<ScienceManager>
     public void Init()
     {
         m_ScienceData = ArchiveManager.Instance.ScienceData;
+        EventManager.AddEventListener(EventName.SaveGame, OnGameSave);
     }
 
     public bool CheckUnlock(int id) => m_ScienceData.CheckUnlock(id);
 
     public void AddScience(int id) => m_ScienceData.AddScience(id);
+
+    void OnGameSave()
+    {
+        ArchiveManager.Instance.SaveScienceData();
+    }
 }

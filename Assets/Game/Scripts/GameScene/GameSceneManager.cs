@@ -1,9 +1,7 @@
 using JKFrame;
 using Project_WildernessSurvivalGame;
+using UnityEngine;
 
-/// <summary>
-/// 游戏场景管理器
-/// </summary>
 public class GameSceneManager : LogicManagerBase<GameSceneManager>
 {
     bool m_IsGameOver = false;
@@ -35,9 +33,33 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
         StartGame();
     }
 
-    void OnDestroy()
+    bool m_IsPause = false;
+
+    void Update()
     {
-        ArchiveManager.Instance.SaveScienceData();
+        if (IsInitialized == false) return;
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            m_IsPause = !m_IsPause;
+            if (m_IsPause)
+                PauseGame();
+            else
+                UnPauseGame();
+        }
+    }
+
+    public void PauseGame()
+    {
+        m_IsPause = true;
+        UIManager.Instance.Show<UI_PauseWindow>();
+        Time.timeScale = 0;
+    }
+
+    public void UnPauseGame()
+    {
+        m_IsPause = false;
+        UIManager.Instance.Close<UI_PauseWindow>();
+        Time.timeScale = 1;
     }
 
     protected override void RegisterEventListener() { }
@@ -130,4 +152,47 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
     }
 
     #endregion
+
+    public void OnEnterMenuScene()
+    {
+        Time.timeScale = 1;
+
+        // 回收场景资源
+        MapManager.Instance.OnCloseGameScene();
+        EventManager.Clear();
+        MonoManager.Instance.StopAllCoroutines();
+        UIManager.Instance.CloseAll();
+
+        // 进入新场景
+        GameManager.Instance.OnEnterMenuScene();
+    }
+
+    public void GameOver()
+    {
+        m_IsGameOver = true;
+
+        // 删除存档
+        ArchiveManager.Instance.ClearArchive();
+
+        // 延迟进入新场景
+        Invoke(nameof(OnEnterMenuScene), 2f);
+    }
+
+    public void CloseAndSave()
+    {
+        // 存档
+        EventManager.EventTrigger(EventName.SaveGame);
+
+        // 进入菜单场景
+        OnEnterMenuScene();
+    }
+
+    void OnApplicationQuit()
+    {
+        if (IsGameOver)
+        {
+            // 紧急存档
+            EventManager.EventTrigger(EventName.SaveGame);
+        }
+    }
 }

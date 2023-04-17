@@ -20,6 +20,7 @@ MonoBehaviour:
     - {fileID: 22100000, guid: 98d1241d14d9ab24eb54d2da5765e4fe, type: 2}
     - {fileID: 8300000, guid: 252ed13875df0f74aa8e6cf2a4b7b3a0, type: 3}
     - {fileID: 8300000, guid: e876ff33b395c0e449e3c51fc8889a4b, type: 3}
+    - {fileID: 3563542151018711910, guid: 7299f30151da25b44b79c8ecb8aeb6e0, type: 3}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -85,6 +86,9 @@ MonoBehaviour:
     - Name: HitAudio
       Entry: 10
       Data: 3
+    - Name: HitEffect
+      Entry: 10
+      Data: 4
     - Name: 
       Entry: 8
       Data: 

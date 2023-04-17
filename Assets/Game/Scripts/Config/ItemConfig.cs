@@ -78,6 +78,7 @@ public class Item_WeaponInfo : IItemTypeInfo
     [LabelText("攻击距离")] public float AttackDistance;
     [LabelText("攻击音效")] public AudioClip AttackAudio;
     [LabelText("命中音效")] public AudioClip HitAudio;
+    [LabelText("命中效果")] public GameObject HitEffect;
 }
 
 /// <summary>

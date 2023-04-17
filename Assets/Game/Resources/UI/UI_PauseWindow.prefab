@@ -171,8 +171,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8eeaa7540f61a0c4f8d2ce33d3c019a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  continueButton: {fileID: 7391919119336237024}
-  quitButton: {fileID: 7391919118328341285}
+  m_ContinueButton: {fileID: 7391919119336237024}
+  m_QuitButton: {fileID: 7391919118328341285}
 --- !u!1 &7391919118325924303
 GameObject:
   m_ObjectHideFlags: 0

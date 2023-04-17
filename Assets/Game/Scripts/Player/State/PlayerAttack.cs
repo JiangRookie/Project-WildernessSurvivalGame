@@ -6,16 +6,21 @@ public class PlayerAttack : PlayerStateBase
 
     public override void Enter()
     {
-        AttackDirection = PlayerCtrl.AttackDirection;
-        PlayerCtrl.PlayerAnimation("Attack");
+        AttackDirection = m_PlayerCtrl.AttackDirection;
+        m_PlayerCtrl.PlayerAnimation("Attack");
     }
 
     public override void Update()
     {
         // 旋转到攻击方向
-        PlayerCtrl.PlayerTransform.localRotation = Quaternion.Slerp(
-            PlayerCtrl.PlayerTransform.localRotation
+        m_PlayerCtrl.PlayerTransform.localRotation = Quaternion.Slerp(
+            m_PlayerCtrl.PlayerTransform.localRotation
           , AttackDirection
-          , Time.deltaTime * PlayerCtrl.RotateSpeed * 2);
+          , Time.deltaTime * m_PlayerCtrl.RotateSpeed * 2);
+    }
+
+    public override void Exit()
+    {
+        m_PlayerCtrl.OnStopHit();
     }
 }
