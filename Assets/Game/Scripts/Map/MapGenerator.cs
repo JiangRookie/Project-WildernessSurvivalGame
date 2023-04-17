@@ -171,6 +171,12 @@ namespace Project_WildernessSurvivalGame
 
                 // 生成场景物体
                 mapChunk.Init(chunkIndex, new Vector3(chunkSize / 2, 0, chunkSize / 2), allForest, mapChunkData);
+
+                // 如果目前游戏没有完成初始化，要告诉GameSceneManager更新进度
+                if (GameSceneManager.Instance.IsInitialized == false)
+                {
+                    GameSceneManager.Instance.OnGenerateMapChunkSucceed();
+                }
             }));
 
             return mapChunk;
@@ -468,30 +474,11 @@ namespace Project_WildernessSurvivalGame
                 }
             }
 
-            // 生成Ai数据 一个地图块 森林或沼泽的顶点数要超过配置的才生成
-            if (mapChunkData.ForestVertexList.Count > m_MapConfig.GenerateAiMinVertexCountOnChunk)
+            List<MapObjectData> aiDataList = GenerateAIObjectDataList(mapChunkData);
+
+            foreach (var aiData in aiDataList)
             {
-                for (int i = 0; i < m_MapConfig.MaxAiCountOnChunk; i++)
-                {
-                    int configID = GetAIConfigIDForWeight(MapVertexType.Forest);
-                    AIConfig config = ConfigManager.Instance.GetConfig<AIConfig>(ConfigName.AI, configID);
-                    if (config.IsEmpty == false)
-                    {
-                        mapChunkData.AIDataDict.Dictionary.Add(m_MapData.CurrentID, GenerateMapObjectData(configID, Vector3.zero, -1));
-                    }
-                }
-            }
-            if (mapChunkData.MarshVertexList.Count > m_MapConfig.GenerateAiMinVertexCountOnChunk)
-            {
-                for (int i = 0; i < m_MapConfig.MaxAiCountOnChunk; i++)
-                {
-                    int configID = GetAIConfigIDForWeight(MapVertexType.Marsh);
-                    AIConfig config = ConfigManager.Instance.GetConfig<AIConfig>(ConfigName.AI, configID);
-                    if (config.IsEmpty == false)
-                    {
-                        mapChunkData.AIDataDict.Dictionary.Add(m_MapData.CurrentID, GenerateMapObjectData(configID, Vector3.zero, -1));
-                    }
-                }
+                mapChunkData.AIDataDict.Dictionary.Add(aiData.ID, aiData);
             }
 
             return mapChunkData;
@@ -558,6 +545,43 @@ namespace Project_WildernessSurvivalGame
                     }
                 }
             }
+            return m_MapObjectDataList;
+        }
+
+        public List<MapObjectData> GenerateAIObjectDataList(MapChunkData mapChunkData)
+        {
+            m_MapObjectDataList.Clear();
+
+            // 最多生成的数量
+            int maxCount = m_MapConfig.MaxAiCountOnChunk - mapChunkData.AIDataDict.Dictionary.Count;
+
+            // 生成Ai数据 一个地图块 森林或沼泽的顶点数要超过配置的才生成
+            if (mapChunkData.ForestVertexList.Count > m_MapConfig.GenerateAiMinVertexCountOnChunk)
+            {
+                for (int i = 0; i < maxCount; i++)
+                {
+                    int configID = GetAIConfigIDForWeight(MapVertexType.Forest);
+                    AIConfig config = ConfigManager.Instance.GetConfig<AIConfig>(ConfigName.AI, configID);
+                    if (config.IsEmpty == false)
+                    {
+                        m_MapObjectDataList.Add(GenerateMapObjectData(configID, Vector3.zero, -1));
+                        maxCount--;
+                    }
+                }
+            }
+            if (mapChunkData.MarshVertexList.Count > m_MapConfig.GenerateAiMinVertexCountOnChunk)
+            {
+                for (int i = 0; i < maxCount; i++)
+                {
+                    int configID = GetAIConfigIDForWeight(MapVertexType.Marsh);
+                    AIConfig config = ConfigManager.Instance.GetConfig<AIConfig>(ConfigName.AI, configID);
+                    if (config.IsEmpty == false)
+                    {
+                        m_MapObjectDataList.Add(GenerateMapObjectData(configID, Vector3.zero, -1));
+                    }
+                }
+            }
+
             return m_MapObjectDataList;
         }
 

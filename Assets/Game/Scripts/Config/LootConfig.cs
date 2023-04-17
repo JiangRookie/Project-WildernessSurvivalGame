@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using JKFrame;
+using Project_WildernessSurvivalGame;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -10,6 +11,19 @@ using UnityEngine;
 public class LootConfig : ConfigBase
 {
     [LabelText("掉落配置列表")] public List<LootConfigModel> LootConfigList;
+
+    public void GenerateMapObject(MapChunkController mapChunk, Vector3 position)
+    {
+        foreach (var lootConfigModel in LootConfigList)
+        {
+            int randomValue = Random.Range(1, 101);
+            if (randomValue < lootConfigModel.Probability)
+            {
+                // 生成掉落物品
+                MapManager.Instance.SpawnMapObject(mapChunk, lootConfigModel.LootObjectConfigID, position, false);
+            }
+        }
+    }
 }
 
 public class LootConfigModel

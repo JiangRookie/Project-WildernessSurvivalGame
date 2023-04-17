@@ -36,16 +36,9 @@ public abstract class CanHitMapObjectBase : MapObjectBase
         RemoveOnMap();
         if (m_LootConfigID == -1) return;
         LootConfig lootConfig = ConfigManager.Instance.GetConfig<LootConfig>(ConfigName.LOOT, m_LootConfigID);
-        if (lootConfig == null) return;
-        foreach (var lootConfigModel in lootConfig.LootConfigList)
+        if (lootConfig != null)
         {
-            int randomValue = Random.Range(1, 101);
-            if (randomValue < lootConfigModel.Probability)
-            {
-                // 生成掉落物品
-                Vector3 spawnPos = transform.position + Vector3.up;
-                MapManager.Instance.SpawnMapObject(mapChunkController, lootConfigModel.LootObjectConfigID, spawnPos,false);
-            }
+            lootConfig.GenerateMapObject(m_MapChunk, transform.position + Vector3.up);
         }
     }
 }

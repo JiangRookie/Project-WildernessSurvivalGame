@@ -132,39 +132,85 @@ namespace Project_WildernessSurvivalGame
 
         #region AI
 
+        public void AddAIObject(MapObjectData aiData)
+        {
+            // 添加存档数据
+            MapChunkData.AIDataDict.Dictionary.Add(aiData.ID, aiData);
+
+            // 实例化物体
+            if (m_IsActive) InstantiateAIObject(aiData);
+        }
+
         void InstantiateAIObject(MapObjectData aiData)
         {
             AIConfig aiConfig = ConfigManager.Instance.GetConfig<AIConfig>(ConfigName.AI, aiData.ConfigID);
-            AIBase ai = PoolManager.Instance.GetGameObject(aiConfig.Prefab, transform).GetComponent<AIBase>();
+            AIBase aiObj = PoolManager.Instance.GetGameObject(aiConfig.Prefab, transform).GetComponent<AIBase>();
             if (aiData.Position == Vector3.zero)
             {
                 aiData.Position = GetAIRandomPoint(aiConfig.MapVertexType);
             }
-            ai.Init(this, aiData);
-            m_AIObjectDict.Add(aiData.ID, ai);
+            aiObj.Init(this, aiData);
+            m_AIObjectDict.Add(aiData.ID, aiObj);
         }
 
         public Vector3 GetAIRandomPoint(MapVertexType vertexType)
         {
-            List<MapVertex> vertices = null;
-            if (vertexType == MapVertexType.Forest)
+            // if (vertexType == MapVertexType.Forest)
+            // {
+            //     // 如果格子不够，依然用另外一个类型
+            //     vertexList = MapChunkData.ForestVertexList.Count < MapManager.Instance.MapConfig.GenerateAiMinVertexCountOnChunk
+            //         ? MapChunkData.MarshVertexList
+            //         : MapChunkData.ForestVertexList;
+            // }
+            // else if (vertexType == MapVertexType.Marsh)
+            // {
+            //     vertexList = MapChunkData.ForestVertexList.Count < MapManager.Instance.MapConfig.GenerateAiMinVertexCountOnChunk
+            //         ? MapChunkData.ForestVertexList
+            //         : MapChunkData.MarshVertexList;
+            // }
+
+            List<MapVertex> vertexList = vertexType switch
             {
-                vertices = MapChunkData.ForestVertexList;
-            }
-            else if (vertexType == MapVertexType.Marsh)
+                MapVertexType.Forest => MapChunkData.ForestVertexList.Count < MapManager.Instance.MapConfig.GenerateAiMinVertexCountOnChunk
+                    ? MapChunkData.MarshVertexList
+                    : MapChunkData.ForestVertexList
+              , MapVertexType.Marsh => MapChunkData.ForestVertexList.Count < MapManager.Instance.MapConfig.GenerateAiMinVertexCountOnChunk
+                    ? MapChunkData.ForestVertexList
+                    : MapChunkData.MarshVertexList
+              , _ => null
+            };
+
+            int index = Random.Range(0, vertexList.Count);
+            if (NavMesh.SamplePosition(vertexList[index].Position, out NavMeshHit hitInfo, 1, NavMesh.AllAreas))
             {
-                vertices = MapChunkData.MarshVertexList;
+                return hitInfo.position;
             }
 
-            if (vertices != null)
-            {
-                int index = Random.Range(0, vertices.Count);
-                if (NavMesh.SamplePosition(vertices[index].Position, out NavMeshHit hitInfo, 1, NavMesh.AllAreas))
-                {
-                    return hitInfo.position;
-                }
-            }
             return GetAIRandomPoint(vertexType);
+        }
+
+        public void RemoveAIObjectOnTransfer(ulong aiObjectID)
+        {
+            MapChunkData.AIDataDict.Dictionary.Remove(aiObjectID);
+            m_AIObjectDict.Remove(aiObjectID);
+        }
+
+        public void RemoveAIObject(ulong aiObjectID)
+        {
+            MapChunkData.AIDataDict.Dictionary.Remove(aiObjectID, out MapObjectData aiData);
+            aiData.JKObjectPushPool();
+            if (m_AIObjectDict.Remove(aiObjectID, out AIBase aiObject))
+            {
+                aiObject.Destroy();
+            }
+        }
+
+        public void AddAIObjectOnTransfer(MapObjectData aiObjectData, AIBase aiObject)
+        {
+            MapChunkData.AIDataDict.Dictionary.Add(aiObjectData.ID, aiObjectData);
+            m_AIObjectDict.Add(aiObjectData.ID, aiObject);
+            aiObject.transform.SetParent(transform);
+            aiObject.InitOnTransfer(this);
         }
 
         #endregion
@@ -192,10 +238,20 @@ namespace Project_WildernessSurvivalGame
             s_ExecuteDestroyMapObjectList.Clear();
 
             // 得到新增的地图对象数据
-            List<MapObjectData> mapObjectDatas = MapManager.Instance.SpawnMapObjectDataOnMapChunkRefresh(ChunkIndex);
-            foreach (var mapObjectData in mapObjectDatas)
+            List<MapObjectData> mapObjectDataList = MapManager.Instance.SpawnMapObjectDataOnMapChunkRefresh(ChunkIndex);
+            foreach (var mapObjectData in mapObjectDataList)
             {
                 AddMapObject(mapObjectData, false);
+            }
+
+            // 每三天刷新一次AI
+            if (TimeManager.Instance.CurrentDayNum % 3 == 0)
+            {
+                mapObjectDataList = MapManager.Instance.SpawnMapObjectDataOnMapChunkRefresh(MapChunkData);
+                foreach (var mapObjectData in mapObjectDataList)
+                {
+                    AddAIObject(mapObjectData);
+                }
             }
         }
     }

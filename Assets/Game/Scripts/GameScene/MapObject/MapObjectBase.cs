@@ -17,8 +17,8 @@ public abstract class MapObjectBase : MonoBehaviour
     [SerializeField] protected float touchDistance; // 交互距离
     [SerializeField] protected bool canPickUp;
     [SerializeField] protected int canPickUpItemConfigID = -1;
-    protected MapChunkController mapChunkController;
-    protected ulong id;
+    protected ulong m_ID;
+    protected MapChunkController m_MapChunk;
 
     public MapObjectType MapObjectType => m_MapObjectType;
     public float TouchDistance => touchDistance;
@@ -27,13 +27,13 @@ public abstract class MapObjectBase : MonoBehaviour
 
     public virtual void Init(MapChunkController chunk, ulong objectId, bool isFromBuild)
     {
-        mapChunkController = chunk;
-        id = objectId;
+        m_MapChunk = chunk;
+        m_ID = objectId;
     }
 
     public virtual void RemoveOnMap()
     {
-        mapChunkController.RemoveMapObject(id);
+        m_MapChunk.RemoveMapObject(m_ID);
     }
 
     public virtual int OnPickUp()

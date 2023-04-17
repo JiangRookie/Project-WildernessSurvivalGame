@@ -18,6 +18,8 @@ MonoBehaviour:
     ReferencedUnityObjects:
     - {fileID: 5828132043207799916, guid: 57ab68b7e4ff33d4785663a8f09fb888, type: 3}
     - {fileID: 22100000, guid: b942d88cab91c0547be22d168c85c04f, type: 2}
+    - {fileID: 8300000, guid: 779fe7d4c7f9574469d9645a1317c646, type: 3}
+    - {fileID: 8300000, guid: e876ff33b395c0e449e3c51fc8889a4b, type: 3}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -74,6 +76,15 @@ MonoBehaviour:
     - Name: AttackDurabilityCost
       Entry: 4
       Data: 1
+    - Name: AttackDistance
+      Entry: 4
+      Data: 1.5
+    - Name: AttackAudio
+      Entry: 10
+      Data: 2
+    - Name: HitAudio
+      Entry: 10
+      Data: 3
     - Name: 
       Entry: 8
       Data: 

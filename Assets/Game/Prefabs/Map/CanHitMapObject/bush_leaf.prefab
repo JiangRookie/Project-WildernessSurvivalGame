@@ -172,11 +172,9 @@ MonoBehaviour:
   canPickUpItemConfigID: -1
   m_Animator: {fileID: 7078677798997910973}
   m_HurtAudioClips:
-  - {fileID: 8300000, guid: 252ed13875df0f74aa8e6cf2a4b7b3a0, type: 3}
-  - {fileID: 8300000, guid: 0d3ae03a6543f454baa995f5e79299db, type: 3}
-  - {fileID: 8300000, guid: 20b9d47e01cf80e46b13f4631191b1dc, type: 3}
-  - {fileID: 8300000, guid: 006140fa05f203644b1f44aa517e6049, type: 3}
-  - {fileID: 8300000, guid: 779fe7d4c7f9574469d9645a1317c646, type: 3}
+  - {fileID: 8300000, guid: 1d582fcb1c4934b448cc055914643387, type: 3}
+  - {fileID: 8300000, guid: ab279d067ebe0f741abb9a79f59108d9, type: 3}
+  - {fileID: 8300000, guid: 24bd1623d7712f64b9cacd3b8eed0942, type: 3}
   m_MaxHp: 3
   m_LootConfigID: 1
 --- !u!208 &2543128642805300974

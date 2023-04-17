@@ -6,6 +6,13 @@ using Project_WildernessSurvivalGame;
 /// </summary>
 public class GameSceneManager : LogicManagerBase<GameSceneManager>
 {
+    bool m_IsGameOver = false;
+
+    public bool IsGameOver => m_IsGameOver;
+
+    int m_CurrMapChunkCount = 0;
+    int m_MaxMapChunkCount = 0;
+
     void Start()
     {
         #region Test
@@ -14,7 +21,7 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
         {
             if (IsCreateNewArchive)
             {
-                ArchiveManager.Instance.CreateNewArchive(10, 1, 1, 0.75f);
+                ArchiveManager.Instance.CreateNewArchive(10, 1, 1, 0.6f);
             }
             else
             {
@@ -109,6 +116,17 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
         {
             m_LoadingWindow.UpdateProgress(currentProgress);
         }
+    }
+
+    public void SetProgressMapChunkCount(int max)
+    {
+        m_MaxMapChunkCount = max;
+    }
+
+    public void OnGenerateMapChunkSucceed()
+    {
+        m_CurrMapChunkCount++;
+        UpdateMapProgress(m_CurrMapChunkCount, m_MaxMapChunkCount);
     }
 
     #endregion

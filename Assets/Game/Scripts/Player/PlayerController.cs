@@ -162,15 +162,23 @@ namespace Project_WildernessSurvivalGame
                         break;
                 }
             }
+            else if (other.TryGetComponent(out AIBase aiObject))
+            {
+                Item_WeaponInfo weaponInfo = (Item_WeaponInfo)m_CurrentWeaponItemData.Config.ItemTypeInfo;
+                AudioManager.Instance.PlayOneShot(weaponInfo.HitAudio, transform.position);
+                aiObject.Hurt(weaponInfo.AttackValue);
+                m_AttackSucceedCount += 1;
+            }
         }
 
         void CheckMapObjectHurt(CanHitMapObjectBase canHitMapObject, WeaponType weaponType)
         {
-            Item_WeaponInfo itemWeaponInfo = (Item_WeaponInfo)m_CurrentWeaponItemData.Config.ItemTypeInfo;
+            Item_WeaponInfo weaponInfo = (Item_WeaponInfo)m_CurrentWeaponItemData.Config.ItemTypeInfo;
 
-            if (itemWeaponInfo.WeaponType == weaponType)
+            if (weaponInfo.WeaponType == weaponType)
             {
-                canHitMapObject.Hurt(itemWeaponInfo.AttackValue);
+                AudioManager.Instance.PlayOneShot(weaponInfo.HitAudio, transform.position);
+                canHitMapObject.Hurt(weaponInfo.AttackValue);
                 m_AttackSucceedCount += 1;
             }
         }
@@ -301,6 +309,8 @@ namespace Project_WildernessSurvivalGame
 
         public void OnSelectMapObject(RaycastHit hitInfo, bool isMouseButtonDown)
         {
+            #region MapObject
+
             if (hitInfo.collider.TryGetComponent(out MapObjectBase mapObject))
             {
                 float distance = Vector3.Distance(PlayerTransform.position, mapObject.transform.position);
@@ -381,23 +391,57 @@ namespace Project_WildernessSurvivalGame
                         }
                         break;
                 }
+                return;
             }
+
+            #endregion
+
+            #region AI
+
+            if (m_CanAttack && m_CurrentWeaponItemData != null && hitInfo.collider.TryGetComponent(out AIBase aiObject))
+            {
+                float distance = Vector3.Distance(PlayerTransform.position, aiObject.transform.position);
+                Item_WeaponInfo weaponInfo = (Item_WeaponInfo)m_CurrentWeaponItemData.Config.ItemTypeInfo;
+
+                // 交互距离：武器的长度 + AI的半径
+                if (distance < weaponInfo.AttackDistance + aiObject.Radius)
+                {
+                    m_CanAttack = false; // 防止攻击过程中再次攻击
+                    var position = transform.position;
+                    AttackDirection = Quaternion.LookRotation(aiObject.transform.position - position); // 计算攻击方向
+                    AudioManager.Instance.PlayOneShot(weaponInfo.AttackAudio, position);
+                    ChangeState(PlayerState.Attack); // 切换状态
+                    CanUseItem = false;              // 禁止使用物品
+                }
+            }
+
+            #endregion
         }
 
         bool CheckHitMapObject(MapObjectBase mapObject, WeaponType weaponType)
         {
+            if (m_CurrentWeaponItemData == null) return false;
+            Item_WeaponInfo weaponInfo = (Item_WeaponInfo)m_CurrentWeaponItemData.Config.ItemTypeInfo;
+
             // 能攻击，有武器，武器类型符合要求
-            if (m_CurrentWeaponItemData != null && ((Item_WeaponInfo)m_CurrentWeaponItemData.Config.ItemTypeInfo).WeaponType == weaponType)
+            if (weaponInfo.WeaponType == weaponType)
             {
-                m_CanAttack = false;                                                                          // 防止攻击过程中再次攻击
-                AttackDirection = Quaternion.LookRotation(mapObject.transform.position - transform.position); // 计算攻击方向
-                ChangeState(PlayerState.Attack);                                                              // 切换状态
-                CanUseItem = false;                                                                           // 禁止使用物品
+                m_CanAttack = false; // 防止攻击过程中再次攻击
+                var position = transform.position;
+                AttackDirection = Quaternion.LookRotation(mapObject.transform.position - position); // 计算攻击方向
+                AudioManager.Instance.PlayOneShot(weaponInfo.AttackAudio, position);
+                ChangeState(PlayerState.Attack); // 切换状态
+                CanUseItem = false;              // 禁止使用物品
                 return true;
             }
             return false;
         }
 
         #endregion
+
+        public void Hurt(float damage)
+        {
+            Debug.Log("玩家受伤：" + damage);
+        }
     }
 }

@@ -28,6 +28,7 @@ namespace Project_WildernessSurvivalGame
         #region 配置
 
         MapConfig m_MapConfig;
+        public MapConfig MapConfig => m_MapConfig;
         Dictionary<MapVertexType, List<int>> m_SpawnMapObjectConfigDict; // 某个类型可以生成哪些地图对象配置的ID
         Dictionary<MapVertexType, List<int>> m_SpawnAIConfigDict;        // 某个类型可以生成哪些地图对象配置的ID
 
@@ -125,31 +126,38 @@ namespace Project_WildernessSurvivalGame
             int mapChunkCount = m_MapData.MapChunkIndexList.Count;
             if (mapChunkCount > 0) // 旧存档
             {
+                GameSceneManager.Instance.SetProgressMapChunkCount(mapChunkCount);
+
                 // 根据存档去恢复整个地图的状态
-                for (int i = 0; i < mapChunkCount; i++)
+                for (int i = 0; i < m_MapData.MapChunkIndexList.Count; i++)
                 {
                     SerializableVector2 chunkIndex = m_MapData.MapChunkIndexList[i];
                     MapChunkData mapChunkData = ArchiveManager.Instance.GetMapChunkData(chunkIndex);
                     GenerateMapChunk(chunkIndex.Convert2Vector2Int(), mapChunkData).gameObject.SetActive(false);
-                }
-                DoUpdateVisibleChunk();
-
-                // 进度条的时间要跟地图块的数量关联
-                for (int i = 1; i <= mapChunkCount; i++)
-                {
-                    yield return new WaitForSeconds(0.01f);
-                    GameSceneManager.Instance.UpdateMapProgress(i, mapChunkCount);
+                    for (int j = 0; j < 5; j++) yield return null;
                 }
             }
             else // 新存档
             {
-                DoUpdateVisibleChunk();
-                for (int i = 1; i <= 10; i++) // 加载九宫格
+                GameSceneManager.Instance.SetProgressMapChunkCount(GetMapChunkCountOnGameInit());
+
+                // 获取当前观察者所在的地图块
+                Vector2Int currViewerChunkIndex = GetMapChunkIndex(m_Viewer.position);
+                int startX = currViewerChunkIndex.x - m_MapConfig.ViewDistance;
+                int startY = currViewerChunkIndex.y - m_MapConfig.ViewDistance;
+                int count = 2 * m_MapConfig.ViewDistance + 1;
+
+                for (int x = 0; x < count; x++)
                 {
-                    yield return new WaitForSeconds(0.01f);
-                    GameSceneManager.Instance.UpdateMapProgress(i, 10);
+                    for (int y = 0; y < count; y++)
+                    {
+                        Vector2Int chunkIndex = new Vector2Int(startX + x, startY + y);
+                        GenerateMapChunk(chunkIndex);
+                        for (int j = 0; j < 5; j++) yield return null;
+                    }
                 }
             }
+            DoUpdateVisibleChunk();
 
             // 显示一次MapUI，做好初始化后再关闭掉
             ShowMapUI();
@@ -268,6 +276,33 @@ namespace Project_WildernessSurvivalGame
             #endregion
         }
 
+        int GetMapChunkCountOnGameInit()
+        {
+            int result = 0;
+
+            // 获取当前观察者所在的地图块
+            Vector2Int currViewerChunkIndex = GetMapChunkIndex(m_Viewer.position);
+
+            // 从左下角开始遍历地图块
+            int startX = currViewerChunkIndex.x - m_MapConfig.ViewDistance;
+            int startY = currViewerChunkIndex.y - m_MapConfig.ViewDistance;
+            int count = 2 * m_MapConfig.ViewDistance + 1;
+            for (int x = 0; x < count; x++)
+            {
+                for (int y = 0; y < count; y++)
+                {
+                    int indexX = startX + x;
+                    int indexY = startY + y;
+
+                    // 检查坐标的合法性，限制坐标在第一象限
+                    if (indexX > m_MapInitData.MapSize - 1 || indexY > m_MapInitData.MapSize - 1) continue;
+                    if (indexX < 0 || indexY < 0) continue;
+                    result++;
+                }
+            }
+            return result;
+        }
+
         /// <summary>
         /// 根据<paramref name="worldPos"/>获取地图块的索引
         /// </summary>
@@ -275,9 +310,14 @@ namespace Project_WildernessSurvivalGame
         /// <returns>返回地图块的索引</returns>
         Vector2Int GetMapChunkIndex(Vector3 worldPos)
         {
-            int x = Mathf.Clamp(value: Mathf.RoundToInt(worldPos.x / m_ChunkSizeOnWorld), 1, m_MapInitData.MapSize);
-            int z = Mathf.Clamp(value: Mathf.RoundToInt(worldPos.z / m_ChunkSizeOnWorld), 1, m_MapInitData.MapSize);
+            int x = Mathf.Clamp(value: Mathf.FloorToInt(worldPos.x / m_ChunkSizeOnWorld), 1, m_MapInitData.MapSize);
+            int z = Mathf.Clamp(value: Mathf.FloorToInt(worldPos.z / m_ChunkSizeOnWorld), 1, m_MapInitData.MapSize);
             return new Vector2Int(x, z);
+        }
+
+        public MapChunkController GetMapChunk(Vector3 worldPos)
+        {
+            return m_MapChunkDict[GetMapChunkIndex(worldPos)];
         }
 
         /// <summary>
@@ -397,6 +437,11 @@ namespace Project_WildernessSurvivalGame
         public List<MapObjectData> SpawnMapObjectDataOnMapChunkRefresh(Vector2Int chunkIndex)
         {
             return m_MapGenerator.GenerateMapObjectDataListOnMapChunkRefresh(chunkIndex);
+        }
+
+        public List<MapObjectData> SpawnMapObjectDataOnMapChunkRefresh(MapChunkData mapChunkData)
+        {
+            return m_MapGenerator.GenerateAIObjectDataList(mapChunkData);
         }
 
         #endregion
