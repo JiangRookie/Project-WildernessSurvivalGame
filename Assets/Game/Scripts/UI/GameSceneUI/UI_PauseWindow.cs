@@ -8,7 +8,7 @@ public class UI_PauseWindow : UI_WindowBase
     [SerializeField] Button m_ContinueButton;
     [SerializeField] Button m_QuitButton;
 
-    public override void Init()
+    public override void OnInit()
     {
         m_ContinueButton.onClick.AddListener(ContinueButtonClick);
         m_QuitButton.onClick.AddListener(QuitButtonClick);
@@ -21,6 +21,6 @@ public class UI_PauseWindow : UI_WindowBase
 
     void QuitButtonClick()
     {
-        GameSceneManager.Instance.CloseAndSave();
+        GameSceneManager.Instance.BackToMainMenuScene();
     }
 }

@@ -1,5 +1,3 @@
-using Project_WildernessSurvivalGame;
-
 public class ScienceMachineController : BuildingBase
 {
     public override void Init(MapChunkController chunk, ulong objectId, bool isFromBuild)

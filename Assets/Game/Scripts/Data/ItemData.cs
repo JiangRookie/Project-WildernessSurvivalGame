@@ -10,7 +10,7 @@ public class ItemData
     public int ConfigID;
     public IItemTypeData ItemTypeData;
 
-    public ItemConfig Config => ConfigManager.Instance.GetConfig<ItemConfig>(ConfigName.ITEM, ConfigID);
+    public ItemConfig Config => ConfigManager.Instance.GetConfig<ItemConfig>(ConfigName.Item, ConfigID);
 
     public static ItemData CreateItemData(int configID)
     {

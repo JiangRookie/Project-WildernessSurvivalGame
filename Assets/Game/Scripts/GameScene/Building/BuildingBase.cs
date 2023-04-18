@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Project_WildernessSurvivalGame;
 using UnityEngine;
 
 public abstract class BuildingBase : MapObjectBase, IBuilding

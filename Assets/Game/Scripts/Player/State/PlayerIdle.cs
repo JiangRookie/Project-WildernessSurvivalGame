@@ -1,4 +1,3 @@
-using Project_WildernessSurvivalGame;
 using UnityEngine;
 
 /// <summary>

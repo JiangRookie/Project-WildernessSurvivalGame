@@ -1351,6 +1351,7 @@ MonoBehaviour:
     EnableMask: 1
     MaskImage: {fileID: 687255680}
   UITips: {fileID: 778908336}
+  m_GraphicRaycaster: {fileID: 0}
   DragLayer: {fileID: 464933959}
 --- !u!1 &4733484578507733165
 GameObject:

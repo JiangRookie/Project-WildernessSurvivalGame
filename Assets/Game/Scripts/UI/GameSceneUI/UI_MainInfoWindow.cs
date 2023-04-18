@@ -13,9 +13,9 @@ public class UI_MainInfoWindow : UI_WindowBase
 
     PlayerConfig m_PlayerConfig;
 
-    public override void Init()
+    public override void OnInit()
     {
-        m_PlayerConfig = ConfigManager.Instance.GetConfig<PlayerConfig>(ConfigName.PLAYER);
+        m_PlayerConfig = ConfigManager.Instance.GetConfig<PlayerConfig>(ConfigName.Player);
     }
 
     protected override void RegisterEventListener()

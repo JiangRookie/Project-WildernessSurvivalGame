@@ -1,5 +1,4 @@
 using JKFrame;
-using Project_WildernessSurvivalGame;
 using UnityEngine;
 
 public abstract class CanHitMapObjectBase : MapObjectBase
@@ -35,7 +34,7 @@ public abstract class CanHitMapObjectBase : MapObjectBase
     {
         RemoveOnMap();
         if (m_LootConfigID == -1) return;
-        LootConfig lootConfig = ConfigManager.Instance.GetConfig<LootConfig>(ConfigName.LOOT, m_LootConfigID);
+        LootConfig lootConfig = ConfigManager.Instance.GetConfig<LootConfig>(ConfigName.Loot, m_LootConfigID);
         if (lootConfig != null)
         {
             lootConfig.GenerateMapObject(m_MapChunk, transform.position + Vector3.up);

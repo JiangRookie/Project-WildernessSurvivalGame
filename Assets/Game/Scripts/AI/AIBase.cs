@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using JKFrame;
-using Project_WildernessSurvivalGame;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.AI;
@@ -73,7 +72,7 @@ public abstract class AIBase : SerializedMonoBehaviour, IStateMachineOwner
         // 告知地图块移除自己
         m_MapChunk.RemoveAIObject(m_AIData.ID);
         if (m_LootConfigID == -1) return;
-        LootConfig lootConfig = ConfigManager.Instance.GetConfig<LootConfig>(ConfigName.LOOT, m_LootConfigID);
+        LootConfig lootConfig = ConfigManager.Instance.GetConfig<LootConfig>(ConfigName.Loot, m_LootConfigID);
         if (lootConfig != null)
         {
             lootConfig.GenerateMapObject(m_MapChunk, transform.position + Vector3.up);

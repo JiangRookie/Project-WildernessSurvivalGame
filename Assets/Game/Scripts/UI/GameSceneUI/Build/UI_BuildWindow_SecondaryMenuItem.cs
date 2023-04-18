@@ -1,5 +1,4 @@
 using JKFrame;
-using Project_WildernessSurvivalGame;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -26,7 +25,7 @@ public class UI_BuildWindow_SecondaryMenuItem : MonoBehaviour
         IsMeetCondition = isMeetCondition;
         if (buildConfig.BuildType == BuildType.Weapon)
         {
-            m_IconImage.sprite = ConfigManager.Instance.GetConfig<ItemConfig>(ConfigName.ITEM, buildConfig.TargetID).Icon;
+            m_IconImage.sprite = ConfigManager.Instance.GetConfig<ItemConfig>(ConfigName.Item, buildConfig.TargetID).Icon;
         }
         else
         {

@@ -98,7 +98,7 @@ namespace JKFrame
                     UI_WindowBase window = ResManager.InstantiateForPrefab(info.prefab, UILayers[layerNum].Root)
                                                      .GetComponent<UI_WindowBase>();
                     info.objInstance = window;
-                    window.Init();
+                    window.OnInit();
                     window.OnShow();
                 }
                 info.layerNum = layerNum;

@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using JKFrame;
-using Project_WildernessSurvivalGame;
 using UnityEngine;
 
 public class BuildManager : SingletonMono<BuildManager>

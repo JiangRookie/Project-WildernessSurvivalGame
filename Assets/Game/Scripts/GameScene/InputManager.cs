@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using JKFrame;
-using Project_WildernessSurvivalGame;
 using UnityEngine;
 using UnityEngine.EventSystems;
 

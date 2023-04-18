@@ -1,14 +1,11 @@
 using JKFrame;
 using UnityEngine;
 
-public enum CursorState
-{
-    Normal = 0, Handle = 1
-}
+public enum CursorStyle { Normal = 0, Handle = 1 }
 
 public class GameManager : SingletonMono<GameManager>
 {
-    [SerializeField] Texture2D[] m_CursorTextures;
+    #region 鼠标指针
 
     void Start()
     {
@@ -17,38 +14,44 @@ public class GameManager : SingletonMono<GameManager>
 
     void Init()
     {
-        SetCursorState(CursorState.Normal);
+        SetCursorStyle(CursorStyle.Normal);
     }
 
-    #region 鼠标指针
+    [SerializeField] Texture2D[] m_CursorTextures;
+    Texture2D m_CurrCursorTexture;
+    CursorStyle m_CurrentCursorStyle;
 
-    CursorState m_CurrentCursorState;
-
-    public void SetCursorState(CursorState cursorState)
+    public void SetCursorStyle(CursorStyle cursorStyle)
     {
-        if (cursorState == m_CurrentCursorState) return;
-        m_CurrentCursorState = cursorState;
-        Texture2D texture2D = m_CursorTextures[(int)cursorState];
-        Cursor.SetCursor(texture2D, Vector2.zero, CursorMode.Auto);
+        if (cursorStyle == m_CurrentCursorStyle) return;
+        m_CurrentCursorStyle = cursorStyle;
+        m_CurrCursorTexture = m_CursorTextures[(int)cursorStyle];
+        Cursor.SetCursor(m_CurrCursorTexture, Vector2.zero, CursorMode.Auto);
     }
 
     #endregion
 
     #region 跨场景
 
-    public void CreateNewArchiveEnterGame(int mapSize, int mapSeed, int spawnSeed, float marshLimit)
+    /// <summary>
+    /// Create a new archive and start a new game
+    /// </summary>
+    public void StartGame(int mapSize, int mapSeed, int spawnSeed, float marshLimit)
     {
         ArchiveManager.Instance.CreateNewArchive(mapSize, mapSeed, spawnSeed, marshLimit);
         SceneManager.LoadScene("Game");
     }
 
-    public void UseCurrentArchiveEnterGame()
+    /// <summary>
+    /// Use the last archive to enter the game
+    /// </summary>
+    public void ContinueGame()
     {
-        ArchiveManager.Instance.LoadCurrentArchive();
+        ArchiveManager.Instance.LoadArchive();
         SceneManager.LoadScene("Game");
     }
 
-    public void OnEnterMenuScene()
+    public void BackToMainMenuScene()
     {
         SceneManager.LoadScene("Menu");
     }

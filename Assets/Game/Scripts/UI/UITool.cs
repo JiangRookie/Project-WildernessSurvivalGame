@@ -29,7 +29,7 @@ public static class UITool
         component.RemoveMouseEnter(MouseEffect);
         component.RemoveMouseExit(MouseEffect);
 
-        GameManager.Instance.SetCursorState(CursorState.Normal);
+        GameManager.Instance.SetCursorStyle(CursorStyle.Normal);
     }
 
     static void MouseEffect(PointerEventData arg1, object[] arg2)
@@ -39,7 +39,7 @@ public static class UITool
         Vector3 originScale = (Vector3)arg2[2];
 
         // 设置鼠标指针的外观
-        GameManager.Instance.SetCursorState(useEffect ? CursorState.Handle : CursorState.Normal);
+        GameManager.Instance.SetCursorStyle(useEffect ? CursorStyle.Handle : CursorStyle.Normal);
         component.StartCoroutine(MouseEffectCoroutine(component, useEffect, originScale));
     }
 

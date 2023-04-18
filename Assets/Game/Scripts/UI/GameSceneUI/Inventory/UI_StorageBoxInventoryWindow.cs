@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using JKFrame;
-using Project_WildernessSurvivalGame;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,7 +24,7 @@ public class UI_StorageBoxInventoryWindow : UI_InventoryWindowBase
         }
     }
 
-    public override void Init()
+    public override void OnInit()
     {
         m_Slots = new List<UI_ItemSlot>(10);
         m_CloseButton.onClick.AddListener(CloseButtonClick);

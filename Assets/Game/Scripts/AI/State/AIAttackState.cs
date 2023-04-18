@@ -1,5 +1,4 @@
 using JKFrame;
-using Project_WildernessSurvivalGame;
 using UnityEngine;
 
 public class AIAttackState : AIStateBase

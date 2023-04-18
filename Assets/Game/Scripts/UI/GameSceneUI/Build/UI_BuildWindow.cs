@@ -26,7 +26,7 @@ public class UI_BuildWindow : UI_WindowBase
         m_SecondaryMenu.Close();
     }
 
-    public override void Init()
+    public override void OnInit()
     {
         // 初始化一级菜单全部选项
         for (int i = 0; i < m_MainMenuItems.Length; i++)

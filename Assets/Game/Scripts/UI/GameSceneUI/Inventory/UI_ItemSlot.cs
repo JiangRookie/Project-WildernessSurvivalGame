@@ -1,6 +1,5 @@
 using System;
 using JKFrame;
-using Project_WildernessSurvivalGame;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -109,7 +108,7 @@ public class UI_ItemSlot : MonoBehaviour
 
     void MouseEnter(PointerEventData eventData, object[] arg2)
     {
-        GameManager.Instance.SetCursorState(CursorState.Handle);
+        GameManager.Instance.SetCursorStyle(CursorStyle.Handle);
         m_BgImage.sprite = m_OwnerWindow.InventoryFrames[1];
         m_IsSelect = true;
         CurrentMouseEnterSlot = this;
@@ -117,7 +116,7 @@ public class UI_ItemSlot : MonoBehaviour
 
     void MouseExit(PointerEventData eventData, object[] arg2)
     {
-        GameManager.Instance.SetCursorState(CursorState.Normal);
+        GameManager.Instance.SetCursorStyle(CursorStyle.Normal);
         m_BgImage.sprite = m_OwnerWindow.InventoryFrames[0];
         m_IsSelect = false;
         CurrentMouseEnterSlot = null;
@@ -132,7 +131,7 @@ public class UI_ItemSlot : MonoBehaviour
     void Drag(PointerEventData eventData, object[] arg2)
     {
         if (ItemData == null) return;
-        GameManager.Instance.SetCursorState(CursorState.Handle);
+        GameManager.Instance.SetCursorStyle(CursorStyle.Handle);
         m_IconTransform.position = eventData.position;
     }
 
@@ -149,7 +148,7 @@ public class UI_ItemSlot : MonoBehaviour
             return;
         }
 
-        if (CurrentMouseEnterSlot == null) GameManager.Instance.SetCursorState(CursorState.Normal);
+        if (CurrentMouseEnterSlot == null) GameManager.Instance.SetCursorStyle(CursorStyle.Normal);
 
         // 当前拖拽中的Icon归位
         ResetIcon();

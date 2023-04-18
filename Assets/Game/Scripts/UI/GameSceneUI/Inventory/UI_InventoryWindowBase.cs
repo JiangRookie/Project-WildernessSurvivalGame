@@ -28,7 +28,7 @@ public abstract class UI_InventoryWindowBase : UI_WindowBase
 
     public bool AddItem(int itemConfigID)
     {
-        ItemConfig itemConfig = ConfigManager.Instance.GetConfig<ItemConfig>(ConfigName.ITEM, itemConfigID);
+        ItemConfig itemConfig = ConfigManager.Instance.GetConfig<ItemConfig>(ConfigName.Item, itemConfigID);
         switch (itemConfig.ItemType)
         {
             case ItemType.Weapon: return CheckAndAddItemForEmptySlot(itemConfigID);

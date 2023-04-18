@@ -1,4 +1,3 @@
-using Project_WildernessSurvivalGame;
 using UnityEngine;
 
 public class AIPursueState : AIStateBase

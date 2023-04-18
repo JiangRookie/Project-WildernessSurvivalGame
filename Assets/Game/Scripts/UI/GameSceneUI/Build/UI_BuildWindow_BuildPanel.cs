@@ -1,5 +1,4 @@
 using JKFrame;
-using Project_WildernessSurvivalGame;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -57,7 +56,7 @@ public class UI_BuildWindow_BuildPanel : MonoBehaviour
         }
         if (buildConfig.BuildType == BuildType.Weapon)
         {
-            m_DescriptionText.text = ConfigManager.Instance.GetConfig<ItemConfig>(ConfigName.ITEM, buildConfig.TargetID).Description;
+            m_DescriptionText.text = ConfigManager.Instance.GetConfig<ItemConfig>(ConfigName.Item, buildConfig.TargetID).Description;
         }
         else
         {

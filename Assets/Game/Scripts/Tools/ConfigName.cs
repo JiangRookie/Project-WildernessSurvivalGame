@@ -2,11 +2,11 @@ public static class ConfigName
 {
     public const string Campfire = "Campfire";
     public const string MapObject = "MapObject";
-    public const string MAP = "Map";
-    public const string ITEM = "Item";
-    public const string TIME = "Time";
-    public const string PLAYER = "Player";
-    public const string LOOT = "Loot";
+    public const string Map = "Map";
+    public const string Item = "Item";
+    public const string Time = "Time";
+    public const string Player = "Player";
+    public const string Loot = "Loot";
     public const string Build = "Build";
     public const string AI = "AI";
 }

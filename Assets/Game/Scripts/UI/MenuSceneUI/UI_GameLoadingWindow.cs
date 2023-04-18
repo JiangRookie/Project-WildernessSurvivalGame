@@ -11,15 +11,12 @@ public class UI_GameLoadingWindow : UI_WindowBase
     public override void OnShow()
     {
         base.OnShow();
-        UpdateProgress(0);
+        UpdateGameLoadingProgress(0);
     }
 
-    /// <summary>
-    /// 更新进度
-    /// </summary>
-    public void UpdateProgress(int progressValue)
+    public void UpdateGameLoadingProgress(float progressValue)
     {
-        m_ProgressText.text = progressValue + "%";
-        m_FillImage.fillAmount = progressValue;
+        m_ProgressText.text = (int)progressValue + "%";
+        m_FillImage.fillAmount = (int)progressValue;
     }
 }

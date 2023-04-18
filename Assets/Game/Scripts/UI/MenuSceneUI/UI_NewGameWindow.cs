@@ -12,7 +12,7 @@ public class UI_NewGameWindow : UI_WindowBase
     [SerializeField] Button m_BackButton;
     [SerializeField] Button m_StartGameButton;
 
-    public override void Init()
+    public override void OnInit()
     {
         m_BackButton.onClick.AddListener(Close);
         m_StartGameButton.onClick.AddListener(StartGame);
@@ -40,6 +40,6 @@ public class UI_NewGameWindow : UI_WindowBase
             ? Random.Range(int.MinValue, int.MaxValue)
             : int.Parse(m_SpawnSeedInputField.text);
         UIManager.Instance.CloseAll();
-        GameManager.Instance.CreateNewArchiveEnterGame(mapSize, mapSeed, spawnSeed, marshLimit);
+        GameManager.Instance.StartGame(mapSize, mapSeed, spawnSeed, marshLimit);
     }
 }

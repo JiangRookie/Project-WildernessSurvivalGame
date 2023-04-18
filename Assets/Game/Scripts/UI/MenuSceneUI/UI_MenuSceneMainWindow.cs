@@ -9,7 +9,7 @@ public class UI_MenuSceneMainWindow : UI_WindowBase
     [SerializeField] Button m_ContinueGameButton;
     [SerializeField] Button m_QuitGameButton;
 
-    public override void Init()
+    public override void OnInit()
     {
         m_NewGameButton.onClick.AddListener(NewGame);
         m_ContinueGameButton.onClick.AddListener(ContinueGame);
@@ -33,7 +33,10 @@ public class UI_MenuSceneMainWindow : UI_WindowBase
         base.OnShow();
 
         // 当前是否需要显示”继续游戏“按钮 
-        m_ContinueGameButton.gameObject.SetActive(ArchiveManager.Instance.HasArchived);
+        if (ArchiveManager.Instance.HasArchived == false)
+        {
+            m_ContinueGameButton.gameObject.SetActive(false);
+        }
     }
 
     void NewGame()
@@ -44,11 +47,11 @@ public class UI_MenuSceneMainWindow : UI_WindowBase
 
     void ContinueGame()
     {
+        GameManager.Instance.ContinueGame();
         Close();
-        GameManager.Instance.UseCurrentArchiveEnterGame();
     }
 
-    void QuitGame()
+    static void QuitGame()
     {
         Application.Quit();
     }

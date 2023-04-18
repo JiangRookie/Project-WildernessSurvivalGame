@@ -1,5 +1,4 @@
 using JKFrame;
-using Project_WildernessSurvivalGame;
 
 /// <summary>
 /// 玩家状态基类，抽象出所有玩家状态所需要的共同字段、函数等

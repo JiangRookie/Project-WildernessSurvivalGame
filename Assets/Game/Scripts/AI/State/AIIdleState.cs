@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using JKFrame;
-using Project_WildernessSurvivalGame;
 using UnityEngine;
 
 public class AIIdleState : AIStateBase

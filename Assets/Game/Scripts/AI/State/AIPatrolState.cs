@@ -1,5 +1,4 @@
-﻿using Project_WildernessSurvivalGame;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class AIPatrolState : AIStateBase
 {

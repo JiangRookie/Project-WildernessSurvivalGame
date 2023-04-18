@@ -6,7 +6,7 @@ public static class ProjectTool
 {
     public static void PlayAudio(AudioType audioType)
     {
-        AudioClip clip = ConfigManager.Instance.GetConfig<PlayerConfig>(ConfigName.PLAYER).AudioClipDict[audioType];
+        AudioClip clip = ConfigManager.Instance.GetConfig<PlayerConfig>(ConfigName.Player).AudioClipDict[audioType];
         AudioManager.Instance.PlayOneShot(clip, Vector3.zero, 1, false);
     }
 

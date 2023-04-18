@@ -26,7 +26,7 @@ public class TimeManager : LogicManagerBase<TimeManager>
     public void Init()
     {
         m_TimeData = ArchiveManager.Instance.TimeData;
-        m_TimeConfig = ConfigManager.Instance.GetConfig<TimeConfig>(ConfigName.TIME);
+        m_TimeConfig = ConfigManager.Instance.GetConfig<TimeConfig>(ConfigName.Time);
         InitState();
         EventManager.AddEventListener(EventName.SaveGame, OnGameSave);
     }

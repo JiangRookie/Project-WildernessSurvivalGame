@@ -6350,8 +6350,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0021e8d1c17645c4d8428c7df8dfa096, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BgAudio1: {fileID: 8300000, guid: 21538f6160ff48040a8488deb4ed6d5e, type: 3}
-  BgAudio2: {fileID: 8300000, guid: 1449136fb3eb5994897ffc4ab9f47de4, type: 3}
+  BgAmbientSound: {fileID: 8300000, guid: 21538f6160ff48040a8488deb4ed6d5e, type: 3}
+  CampfireBurningSound: {fileID: 8300000, guid: 1449136fb3eb5994897ffc4ab9f47de4, type: 3}
 --- !u!1001 &1419735982
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7618,14 +7618,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 906240352273719068, guid: 35592af50a118a347aef20848bfd00b8, type: 3}
-      propertyPath: m_CursorTextures.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 906240352273719068, guid: 35592af50a118a347aef20848bfd00b8, type: 3}
-      propertyPath: m_CursorTextures.Array.data[0]
-      value: 
-      objectReference: {fileID: 2800000, guid: db4c596f945bac341bd82fd52611514b, type: 3}
     - target: {fileID: 3304632367700951240, guid: 35592af50a118a347aef20848bfd00b8, type: 3}
       propertyPath: m_Name
       value: GameRoot

@@ -1,4 +1,3 @@
-using Project_WildernessSurvivalGame;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.AI;

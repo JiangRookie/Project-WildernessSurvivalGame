@@ -1,6 +1,6 @@
 using JKFrame;
-using Project_WildernessSurvivalGame;
-using UnityEngine;
+using 
+    UnityEngine;
 
 [UIElement(false, "UI/UI_MainInventoryWindow", 1)]
 public class UI_MainInventoryWindow : UI_InventoryWindowBase
@@ -20,7 +20,7 @@ public class UI_MainInventoryWindow : UI_InventoryWindowBase
         #endregion
     }
 
-    public override void Init()
+    public override void OnInit()
     {
         // 由于目前数据是由这个窗口处理的，所以这个窗口不能销毁，即使关闭，也要持续监听事件
         EventManager.AddEventListener(EventName.PlayerWeaponAttackSucceed, OnPlayerWeaponAttackSucceed);

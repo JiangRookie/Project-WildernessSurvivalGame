@@ -1,4 +1,3 @@
-using Project_WildernessSurvivalGame;
 using UnityEngine;
 
 public class StorageBoxController : BuildingBase
