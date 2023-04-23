@@ -15,10 +15,7 @@ public class AIIdleState : AIStateBase
         m_GoPatrolCoroutine = MonoManager.Instance.StartCoroutine(GoPatrolCoroutine());
 
         // 有一定概率发生叫声
-        if (Random.Range(0, 30) == 0)
-        {
-            m_AI.PlayAudio("Idle", 0.5f);
-        }
+        if (Random.Range(0, 30) == 0) m_AI.PlayAudio("Idle", 0.5f);
     }
 
     public override void Update()

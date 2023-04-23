@@ -281,7 +281,7 @@ GameObject:
   - component: {fileID: 412835115}
   - component: {fileID: 412835114}
   - component: {fileID: 412835113}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -338,8 +338,6 @@ MonoBehaviour:
   m_Animator: {fileID: 41619144262961730}
   m_Collider: {fileID: 412835115}
   m_PlayerModel: {fileID: 130327591116645115}
-  PositionXScope: {x: 0, y: 0}
-  PositionZScope: {x: 0, y: 0}
 --- !u!54 &412835114
 Rigidbody:
   m_ObjectHideFlags: 0

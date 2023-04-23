@@ -15,11 +15,11 @@ public class UI_BuildWindow_BuildPanelItem : MonoBehaviour
         m_IconImage.sprite = itemConfig.Icon;
         m_CountText.text = currCount.ToString() + "/" + needCount.ToString();
         m_CountText.color = currCount >= needCount ? s_IsMeetColor : s_NotMeetColor;
-        gameObject.SetActive(true);
+        this.Show();
     }
 
     public void Close()
     {
-        gameObject.SetActive(false);
+        this.Hide();
     }
 }

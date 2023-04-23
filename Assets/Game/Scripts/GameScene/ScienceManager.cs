@@ -14,8 +14,5 @@ public class ScienceManager : SingletonMono<ScienceManager>
 
     public void AddScience(int id) => m_ScienceData.AddScience(id);
 
-    void OnGameSave()
-    {
-        ArchiveManager.Instance.SaveScienceData();
-    }
+    static void OnGameSave() => ArchiveManager.Instance.SaveScienceData();
 }

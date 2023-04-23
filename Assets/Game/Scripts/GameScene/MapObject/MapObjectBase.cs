@@ -30,14 +30,11 @@ public abstract class MapObjectBase : MonoBehaviour
         m_ID = objectId;
     }
 
-    public virtual void RemoveOnMap()
-    {
-        m_MapChunk.RemoveMapObject(m_ID);
-    }
+    protected virtual void RemoveObjFromMap() => m_MapChunk.RemoveMapObject(m_ID);
 
     public virtual int OnPickUp()
     {
-        RemoveOnMap(); // 从地图上消失
+        RemoveObjFromMap(); // 从地图上消失
         return canPickUpItemConfigID;
     }
 

@@ -6,8 +6,8 @@ using UnityEngine;
 public class BuildManager : SingletonMono<BuildManager>
 {
     [SerializeField] float m_VirtualCellSize = 0.25f;
-    Dictionary<string, IBuilding> m_BuildingPreviewGameObjDict = new Dictionary<string, IBuilding>();
     [SerializeField] LayerMask m_BuildLayerMask;
+    Dictionary<string, IBuilding> m_BuildingPreviewGameObjDict = new Dictionary<string, IBuilding>();
 
     public void Init()
     {
@@ -22,16 +22,14 @@ public class BuildManager : SingletonMono<BuildManager>
 
     IEnumerator DoBuildBuilding(BuildConfig buildConfig)
     {
-        UIManager.Instance.DisableUIGraphicRaycaster(); // 关闭UI交互
-
-        // 进入建造状态
+        UIManager.Instance.DisableUIGraphicRaycaster();
         InputManager.Instance.SetCheckState(false);
 
         // 生成预览物体
         GameObject prefab = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, buildConfig.TargetID).Prefab;
         if (m_BuildingPreviewGameObjDict.TryGetValue(prefab.name, out IBuilding previewBuilding))
         {
-            previewBuilding.GameObject.SetActive(true);
+            previewBuilding.GameObject.Show();
         }
         else
         {
@@ -45,7 +43,7 @@ public class BuildManager : SingletonMono<BuildManager>
             // 取消建造
             if (Input.GetMouseButtonDown(1))
             {
-                previewBuilding.GameObject.SetActive(false);
+                previewBuilding.GameObject.Hide();
                 UIManager.Instance.EnableUIGraphicRaycaster();
                 InputManager.Instance.SetCheckState(true);
                 yield break;
@@ -66,30 +64,42 @@ public class BuildManager : SingletonMono<BuildManager>
 
             bool isOverlap = true;
 
-            // 碰撞检测
-            if (previewBuilding.Collider is BoxCollider)
+            switch (previewBuilding.Collider)
             {
-                BoxCollider boxCollider = (BoxCollider)previewBuilding.Collider;
-                isOverlap = Physics.CheckBox
-                    (boxCollider.transform.position + boxCollider.center, boxCollider.size / 2, transform.rotation, m_BuildLayerMask);
-            }
-            else if (previewBuilding.Collider is CapsuleCollider)
-            {
-                CapsuleCollider capsuleCollider = (CapsuleCollider)previewBuilding.Collider;
-                Vector3 colliderCenterPos = capsuleCollider.transform.position + capsuleCollider.center;
-                Vector3 startPos = colliderCenterPos;
-                Vector3 endPos = colliderCenterPos;
-                startPos.y = colliderCenterPos.y - capsuleCollider.height / 2 + capsuleCollider.radius;
-                endPos.y = colliderCenterPos.y + capsuleCollider.height / 2 - capsuleCollider.radius;
-                isOverlap = Physics.CheckCapsule(startPos, endPos, capsuleCollider.radius, m_BuildLayerMask);
-            }
-            else if (previewBuilding.Collider is SphereCollider)
-            {
-                SphereCollider sphereCollider = (SphereCollider)previewBuilding.Collider;
-                isOverlap = Physics.CheckSphere(sphereCollider.transform.position + sphereCollider.center, sphereCollider.radius, m_BuildLayerMask);
+                case BoxCollider boxCollider:
+                {
+                    var boxColliderTrans = boxCollider.transform;
+                    isOverlap = Physics.CheckBox(
+                        center: boxColliderTrans.position + boxCollider.center
+                      , halfExtents: boxCollider.size / 2
+                      , orientation: boxColliderTrans.rotation
+                      , layerMask: m_BuildLayerMask);
+                    break;
+                }
+                case CapsuleCollider capsuleCollider:
+                {
+                    float radius;
+                    Vector3 colliderCenterPos = capsuleCollider.transform.position + capsuleCollider.center;
+                    Vector3 startPos = colliderCenterPos;
+                    Vector3 endPos = colliderCenterPos;
+                    startPos.y = colliderCenterPos.y - capsuleCollider.height / 2 + capsuleCollider.radius;
+                    endPos.y = colliderCenterPos.y + capsuleCollider.height / 2 - (radius = capsuleCollider.radius);
+                    isOverlap = Physics.CheckCapsule(
+                        start: startPos
+                      , end: endPos
+                      , radius: radius
+                      , layerMask: m_BuildLayerMask);
+                    break;
+                }
+                case SphereCollider sphereCollider:
+                    isOverlap = Physics.CheckSphere(
+                        position: sphereCollider.transform.position + sphereCollider.center
+                      , radius: sphereCollider.radius
+                      , layerMask: m_BuildLayerMask);
+                    break;
             }
 
-            // 如果可以建在 材质球为绿色 否则为红色
+            // 如果可以建造 材质球为绿色 否则为红色
             if (isOverlap)
             {
                 previewBuilding.SetColorOnPreview(true);
@@ -101,7 +111,7 @@ public class BuildManager : SingletonMono<BuildManager>
                 // 确定建造 根据配置扣除物资
                 if (Input.GetMouseButtonDown(0))
                 {
-                    previewBuilding.GameObject.SetActive(false);
+                    previewBuilding.GameObject.Hide();
                     UIManager.Instance.EnableUIGraphicRaycaster();
                     InputManager.Instance.SetCheckState(true);
 
@@ -109,7 +119,7 @@ public class BuildManager : SingletonMono<BuildManager>
                     MapManager.Instance.SpawnMapObject(buildConfig.TargetID, previewBuilding.GameObject.transform.position, true);
 
                     // 物资的消耗
-                    InventoryManager.Instance.UpdateMainInventoryWindowItemsForBuild(buildConfig);
+                    InventoryManager.Instance.UpdateMainInventoryItemsForBuild(buildConfig);
                     yield break;
                 }
             }

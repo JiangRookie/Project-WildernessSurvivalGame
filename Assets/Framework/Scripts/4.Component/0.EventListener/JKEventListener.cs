@@ -94,7 +94,7 @@ namespace JKFrame
                         if (checkArgs && args.Length > 0)
                         {
                             // 参数如果相等
-                            if (args.ArraryEquals(m_EventList[i].Args))
+                            if (args.ArrayEquals(m_EventList[i].Args))
                             {
                                 // 移除
                                 m_EventList[i].Destroy();

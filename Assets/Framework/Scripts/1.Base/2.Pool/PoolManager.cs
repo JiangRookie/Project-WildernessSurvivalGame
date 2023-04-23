@@ -65,7 +65,7 @@ namespace JKFrame
         /// <summary>
         /// GameObject放进对象池
         /// </summary>
-        public void PushGameObject(GameObject obj)
+        public void PushGameObj(GameObject obj)
         {
             string name = obj.name;
 
@@ -132,7 +132,7 @@ namespace JKFrame
         /// GameObject放进对象池
         /// </summary>
         /// <param name="obj"></param>
-        public void PushObject(object obj)
+        public void PushObj(object obj)
         {
             string name = obj.GetType().FullName;
 

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using JKFrame;
+using UnityEngine;
 
 public class AIPatrolState : AIStateBase
 {
@@ -6,7 +7,7 @@ public class AIPatrolState : AIStateBase
 
     public override void Enter()
     {
-        m_AI.Agent.enabled = true;
+        m_AI.Agent.Enable();
         m_TargetPoint = m_AI.GetAIRandomPoint();
         m_AI.PlayAnimation("Move");
         m_AI.Agent.SetDestination(m_TargetPoint);
@@ -15,7 +16,7 @@ public class AIPatrolState : AIStateBase
 
     public override void Exit()
     {
-        m_AI.Agent.enabled = false;
+        m_AI.Agent.Disable();
         m_AI.RemoveAnimationEvent("FootStep", FootStep);
     }
 

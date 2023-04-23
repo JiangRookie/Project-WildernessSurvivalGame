@@ -484,11 +484,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MapObjectType: 6
-  touchDistance: 0
+  m_InteractiveDistance: 0
   canPickUp: 0
   canPickUpItemConfigID: -1
   m_Collider: {fileID: 7396393225743977150}
-  m_UnlockedScienceOnBuild: 1b000000
+  m_UnlockedScienceIDOnBuild: 1b000000
 --- !u!208 &-1369407238810698154
 NavMeshObstacle:
   m_ObjectHideFlags: 0

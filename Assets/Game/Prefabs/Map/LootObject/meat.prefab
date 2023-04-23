@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MapObjectType: 4
-  m_InteractiveDistance: 0.6
+  m_InteractiveDistance: 1
   canPickUp: 1
   canPickUpItemConfigID: 11
 --- !u!65 &1444403224547506322

@@ -79,21 +79,21 @@ public class ArchiveManager : Singleton<ArchiveManager>
 
         #region Test
 
-        // MainInventoryData.ItemDatas[0] = ItemData.CreateItemData(0);
-        // ((Item_MaterialData)MainInventoryData.ItemDatas[0].ItemTypeData).Count = 5;
-        //
-        // MainInventoryData.ItemDatas[1] = ItemData.CreateItemData(1);
-        //
-        // MainInventoryData.ItemDatas[2] = ItemData.CreateItemData(2);
-        // ((Item_WeaponData)MainInventoryData.ItemDatas[2].ItemTypeData).Durability = 60;
-        //
-        // MainInventoryData.ItemDatas[3] = ItemData.CreateItemData(3);
-        // ((Item_ConsumableData)MainInventoryData.ItemDatas[3].ItemTypeData).Count = 10;
-        //
-        // MainInventoryData.ItemDatas[4] = ItemData.CreateItemData(4);
-        // MainInventoryData.ItemDatas[5] = ItemData.CreateItemData(5);
+        MainInventoryData.ItemDatas[0] = ItemData.CreateItemData(0);
+        ((Item_MaterialData)MainInventoryData.ItemDatas[0].ItemTypeData).Count = 10;
 
-        // SaveMainInventoryData();
+        MainInventoryData.ItemDatas[1] = ItemData.CreateItemData(1);
+        ((Item_MaterialData)MainInventoryData.ItemDatas[1].ItemTypeData).Count = 10;
+
+        MainInventoryData.ItemDatas[2] = ItemData.CreateItemData(2);
+
+        MainInventoryData.ItemDatas[3] = ItemData.CreateItemData(4);
+        MainInventoryData.ItemDatas[4] = ItemData.CreateItemData(5);
+
+        MainInventoryData.ItemDatas[5] = ItemData.CreateItemData(7);
+        ((Item_MaterialData)MainInventoryData.ItemDatas[5].ItemTypeData).Count = 10;
+
+        SaveMainInventoryData();
 
         #endregion
 

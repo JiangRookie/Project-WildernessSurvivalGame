@@ -1334,7 +1334,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87d1028597305504686683785625e71c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UILayers:
+  m_UILayers:
   - Root: {fileID: 209671190}
     EnableMask: 1
     MaskImage: {fileID: 1052248273}
@@ -1350,9 +1350,9 @@ MonoBehaviour:
   - Root: {fileID: 1808348528}
     EnableMask: 1
     MaskImage: {fileID: 687255680}
-  UITips: {fileID: 778908336}
-  m_GraphicRaycaster: {fileID: 0}
-  DragLayer: {fileID: 464933959}
+  m_UITips: {fileID: 778908336}
+  m_GraphicRaycaster: {fileID: 1492594496}
+  m_DragLayer: {fileID: 464933959}
 --- !u!1 &4733484578507733165
 GameObject:
   m_ObjectHideFlags: 0

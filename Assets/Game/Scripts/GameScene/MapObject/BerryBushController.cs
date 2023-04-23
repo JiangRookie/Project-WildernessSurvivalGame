@@ -4,15 +4,12 @@ using UnityEngine;
 
 public class BerryBushController : BushController, IBuilding
 {
+    [SerializeField] Collider m_Collider;
     [SerializeField] MeshRenderer m_MeshRenderer;
     [SerializeField] Material[] m_Materials; // 0 是有果子，1是没有果子
     [SerializeField] int m_BerryGrowthDays = 2;
-    BerryBushTypeData m_TypeData;
-
-    #region IBuilding
-
-    [SerializeField] Collider m_Collider;
     List<Material> m_MaterialList;
+    BerryBushTypeData m_TypeData;
     public GameObject GameObject => gameObject;
     public Collider Collider => m_Collider;
 
@@ -23,8 +20,6 @@ public class BerryBushController : BushController, IBuilding
     }
 
     public void OnPreview() { }
-
-    #endregion
 
     public override void Init(MapChunkController chunk, ulong objectId, bool isFromBuild)
     {
@@ -42,8 +37,11 @@ public class BerryBushController : BushController, IBuilding
         }
         if (isFromBuild)
         {
-            // 来自建筑物建造的情况下，直接是为刚刚采摘（这件事情也需要持久化）
-            m_TypeData.LastPickUpDayNum = TimeManager.Instance.CurrDayNum;
+            // 来自建筑物建造的情况下，直接视为刚刚采摘（这件事情也需要持久化）
+            if (m_TypeData != null)
+            {
+                m_TypeData.LastPickUpDayNum = TimeManager.Instance.CurrDayNum;
+            }
         }
         CheckAndSetState();
         EventManager.AddEventListener(EventName.OnMorning, OnMorning);
@@ -57,9 +55,7 @@ public class BerryBushController : BushController, IBuilding
 
     public override int OnPickUp()
     {
-        // 修改外表
-        m_MeshRenderer.sharedMaterial = m_Materials[1];
-        canPickUp = false;
+        SetUnpickableState();
         m_TypeData.LastPickUpDayNum = TimeManager.Instance.CurrDayNum;
         return canPickUpItemConfigID;
     }
@@ -69,22 +65,31 @@ public class BerryBushController : BushController, IBuilding
         // 有没有采摘过
         if (m_TypeData.LastPickUpDayNum == -1)
         {
-            m_MeshRenderer.sharedMaterial = m_Materials[0];
-            canPickUp = true;
+            SetPickkableState();
         }
         else
         {
             // 根据时间决定状态
             if (TimeManager.Instance.CurrDayNum - m_TypeData.LastPickUpDayNum >= m_BerryGrowthDays)
             {
-                m_MeshRenderer.sharedMaterial = m_Materials[0];
-                canPickUp = true;
+                SetPickkableState();
             }
             else
             {
-                m_MeshRenderer.sharedMaterial = m_Materials[1];
-                canPickUp = false;
+                SetUnpickableState();
             }
         }
+    }
+
+    void SetPickkableState()
+    {
+        m_MeshRenderer.sharedMaterial = m_Materials[0];
+        canPickUp = true;
+    }
+
+    void SetUnpickableState()
+    {
+        m_MeshRenderer.sharedMaterial = m_Materials[1];
+        canPickUp = false;
     }
 }

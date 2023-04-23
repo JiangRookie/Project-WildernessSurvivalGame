@@ -94,7 +94,7 @@ public class UI_BuildWindow_SecondaryMenu : MonoBehaviour
         // 对配置进行分类，满足条件/不满足条件
         foreach (var buildConfig in m_MeetTheConditionConfigList) AddSecondMenuItem(buildConfig, true);
         foreach (var buildConfig in m_NotMeetTheConditionConfigList) AddSecondMenuItem(buildConfig, false);
-        gameObject.SetActive(true);
+        gameObject.Show();
     }
 
     void AddSecondMenuItem(BuildConfig buildConfig, bool isMeetCondition)
@@ -120,6 +120,6 @@ public class UI_BuildWindow_SecondaryMenu : MonoBehaviour
     public void Close()
     {
         m_BuildPanel.Close();
-        gameObject.SetActive(false);
+        gameObject.Hide();
     }
 }

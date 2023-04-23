@@ -32,7 +32,7 @@ public abstract class CanHitMapObjectBase : MapObjectBase
 
     void Dead()
     {
-        RemoveOnMap();
+        RemoveObjFromMap();
         if (m_LootConfigID == -1) return;
         LootConfig lootConfig = ConfigManager.Instance.GetConfig<LootConfig>(ConfigName.Loot, m_LootConfigID);
         if (lootConfig != null)

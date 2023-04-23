@@ -14,33 +14,17 @@ public class InventoryManager : SingletonMono<InventoryManager>
 
     #region 快捷栏
 
-    public int GetMainInventoryWindowItemCount(int configID)
-    {
-        return m_MainInventoryWindow.GetItemCount(configID);
-    }
+    public int GetMainInventoryItemCount(int configID) => m_MainInventoryWindow.GetItemCount(configID);
 
-    public bool AddItemAndPlayAudioToMainInventoryWindow(int itemConfigID)
-    {
-        return m_MainInventoryWindow.AddItemAndPlayAudio(itemConfigID);
-    }
+    public bool AddItemAndPlayAudio2MainInventory(int itemConfigID) => m_MainInventoryWindow.AddItemAndPlayAudio(itemConfigID);
 
-    public void UpdateMainInventoryWindowItemsForBuild(BuildConfig buildConfig)
-    {
-        m_MainInventoryWindow.UpdateItemsForBuild(buildConfig);
-    }
+    public void UpdateMainInventoryItemsForBuild(BuildConfig buildConfig) => m_MainInventoryWindow.UpdateItemsForBuild(buildConfig);
 
-    public bool AddItemToMainInventoryWindow(int itemConfigID)
-    {
-        return m_MainInventoryWindow.AddItem(itemConfigID);
-    }
+    public bool AddItemToMainInventory(int itemConfigID) => m_MainInventoryWindow.AddItem(itemConfigID);
 
     #endregion
 
-    void OnGameSave()
-    {
-        // 保存住背包数据
-        ArchiveManager.Instance.SaveMainInventoryData();
-    }
+    static void OnGameSave() => ArchiveManager.Instance.SaveMainInventoryData();
 
     public void OpenStorageBoxWindow(StorageBoxController storageBox, InventoryData data, Vector2Int size)
     {

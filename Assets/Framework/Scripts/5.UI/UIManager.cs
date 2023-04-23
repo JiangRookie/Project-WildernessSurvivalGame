@@ -46,18 +46,18 @@ namespace JKFrame
         /// </summary>
         public Dictionary<Type, UIElement> UIElementDic => GameRoot.Instance.GameSetting.UIElementDic;
 
-        [SerializeField] UILayer[] UILayers;
-        [SerializeField] UITips UITips; // 提示窗
+        [SerializeField] UILayer[] m_UILayers;
+        [SerializeField] UITips m_UITips; // 提示窗
         [SerializeField] GraphicRaycaster m_GraphicRaycaster;
         const string TipsLocalizationPackName = "Tips";
+        [SerializeField] RectTransform m_DragLayer;
+        public RectTransform DragLayer => m_DragLayer;
 
-        public RectTransform DragLayer;
-
-        public void AddTips(string info) => UITips.AddTips(info);
+        public void AddTips(string info) => m_UITips.AddTips(info);
 
         public void AddTipsByLocalization(string tipsKeyName)
         {
-            UITips.AddTips
+            m_UITips.AddTips
             (
                 LocalizationManager.Instance.GetContent<L_Text>(TipsLocalizationPackName, tipsKeyName).content
             );
@@ -88,21 +88,20 @@ namespace JKFrame
                 // 实例化实例或者获取到实例，保证窗口实例存在
                 if (info.objInstance != null)
                 {
-                    info.objInstance.gameObject.SetActive(true);
-                    info.objInstance.transform.SetParent(UILayers[layerNum].Root);
+                    info.objInstance.Show();
+                    info.objInstance.transform.SetParent(m_UILayers[layerNum].Root);
                     info.objInstance.transform.SetAsLastSibling();
                     info.objInstance.OnShow();
                 }
                 else
                 {
-                    UI_WindowBase window = ResManager.InstantiateForPrefab(info.prefab, UILayers[layerNum].Root)
-                                                     .GetComponent<UI_WindowBase>();
+                    UI_WindowBase window = ResManager.InstantiateForPrefab(info.prefab, m_UILayers[layerNum].Root).GetComponent<UI_WindowBase>();
                     info.objInstance = window;
                     window.OnInit();
                     window.OnShow();
                 }
                 info.layerNum = layerNum;
-                UILayers[layerNum].OnShow();
+                m_UILayers[layerNum].OnShow();
                 return info.objInstance;
             }
 
@@ -132,7 +131,7 @@ namespace JKFrame
                 if (info.isCache)
                 {
                     info.objInstance.transform.SetAsFirstSibling();
-                    info.objInstance.gameObject.SetActive(false);
+                    info.objInstance.Hide();
                 }
 
                 // 不缓存则销毁
@@ -141,7 +140,7 @@ namespace JKFrame
                     Destroy(info.objInstance.gameObject);
                     info.objInstance = null;
                 }
-                UILayers[info.layerNum].OnClose();
+                m_UILayers[info.layerNum].OnClose();
             }
         }
 
@@ -199,14 +198,8 @@ namespace JKFrame
             }
         }
 
-        public void EnableUIGraphicRaycaster()
-        {
-            m_GraphicRaycaster.enabled = true;
-        }
+        public void EnableUIGraphicRaycaster() => m_GraphicRaycaster.enabled = true;
 
-        public void DisableUIGraphicRaycaster()
-        {
-            m_GraphicRaycaster.enabled = false;
-        }
+        public void DisableUIGraphicRaycaster() => m_GraphicRaycaster.enabled = false;
     }
 }

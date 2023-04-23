@@ -35,7 +35,7 @@ public class UI_MenuSceneMainWindow : UI_WindowBase
         // 当前是否需要显示”继续游戏“按钮 
         if (ArchiveManager.Instance.HasArchived == false)
         {
-            m_ContinueGameButton.gameObject.SetActive(false);
+            m_ContinueGameButton.Hide();
         }
     }
 

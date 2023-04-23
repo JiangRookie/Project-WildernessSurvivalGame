@@ -45,16 +45,13 @@ public abstract class AIBase : SerializedMonoBehaviour, IStateMachineOwner
 
     StateMachine m_StateMachine;
 
-    public StateMachine StateMachine
+    protected StateMachine StateMachine
     {
         get
         {
-            if (m_StateMachine == null)
-            {
-                m_StateMachine = PoolManager.Instance.GetObject<StateMachine>();
-                m_StateMachine.Init(this);
-                return m_StateMachine;
-            }
+            if (m_StateMachine != null) return m_StateMachine;
+            m_StateMachine = PoolManager.Instance.GetObject<StateMachine>();
+            m_StateMachine.Init(this);
             return m_StateMachine;
         }
     }

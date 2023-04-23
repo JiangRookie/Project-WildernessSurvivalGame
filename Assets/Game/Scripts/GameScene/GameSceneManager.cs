@@ -11,31 +11,8 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
     public bool IsGameOver => m_IsGameOver;
     public bool IsInitialized { get; private set; }
 
-    // #region 测试逻辑
-    //
-    // public bool IsTest = true;
-    // public bool IsCreateNewArchive;
-    //
-    // #endregion
-
     void Start()
     {
-        // #region Test
-        //
-        // if (IsTest)
-        // {
-        //     if (IsCreateNewArchive)
-        //     {
-        //         ArchiveManager.Instance.CreateNewArchive(10, 1, 1, 0.6f);
-        //     }
-        //     else
-        //     {
-        //         ArchiveManager.Instance.LoadCurrentArchive();
-        //     }
-        // }
-        //
-        // #endregion
-
         UIManager.Instance.CloseAll();
         StartGame();
     }
@@ -126,7 +103,7 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
 
     void OnApplicationQuit()
     {
-        if (IsGameOver)
+        if (IsGameOver == false)
         {
             // 紧急存档
             EventManager.EventTrigger(EventName.SaveGame);
@@ -167,7 +144,7 @@ public class GameSceneManager : LogicManagerBase<GameSceneManager>
 
     void UpdateGameLoadingProgress(int current, int max)
     {
-        float currProgress = 100 / max * current;
+        float currProgress = 100f / max * current;
         if (current == max)
         {
             m_LoadingWindow.UpdateGameLoadingProgress(100);

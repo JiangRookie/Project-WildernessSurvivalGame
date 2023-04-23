@@ -15,7 +15,7 @@ public class BuildConfig : ConfigBase
     {
         foreach (var condition in BuildConfigConditionList)
         {
-            int currCount = InventoryManager.Instance.GetMainInventoryWindowItemCount(condition.ItemID);
+            int currCount = InventoryManager.Instance.GetMainInventoryItemCount(condition.ItemID);
 
             // 检查当前数量是否满足这个条件
             if (currCount < condition.Count) return false;
@@ -26,8 +26,6 @@ public class BuildConfig : ConfigBase
 
 public class BuildConfigCondition
 {
-    [LabelText("物品ID（ItemID）"), HorizontalGroup]
-    public int ItemID;
-
+    [LabelText("物品ID（ItemID）"), HorizontalGroup] public int ItemID;
     [LabelText("物品数量"), HorizontalGroup] public int Count;
 }

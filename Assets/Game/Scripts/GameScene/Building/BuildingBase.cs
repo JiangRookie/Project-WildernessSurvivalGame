@@ -4,14 +4,10 @@ using UnityEngine;
 public abstract class BuildingBase : MapObjectBase, IBuilding
 {
     [SerializeField] protected Collider m_Collider;
-    [SerializeField] List<int> m_UnlockedScienceOnBuild;
-
+    [SerializeField] List<int> m_UnlockedScienceIDOnBuild;
     List<Material> m_MaterialList = null;
-
-    #region PreviewMode
-
-    public GameObject GameObject => gameObject;
     public Collider Collider => m_Collider;
+    public GameObject GameObject => gameObject;
 
     public List<Material> MaterialList
     {
@@ -21,28 +17,21 @@ public abstract class BuildingBase : MapObjectBase, IBuilding
 
     public virtual void OnPreview() { }
 
-    #endregion
-
     public virtual void OnSelect() { }
 
     public override void Init(MapChunkController chunk, ulong objectId, bool isFromBuild)
     {
         base.Init(chunk, objectId, isFromBuild);
-        if (isFromBuild)
+        if (isFromBuild == false) return;
+        foreach (int id in m_UnlockedScienceIDOnBuild)
         {
-            for (var i = 0; i < m_UnlockedScienceOnBuild.Count; i++)
-            {
-                // 同步科技数据
-                ScienceManager.Instance.AddScience(m_UnlockedScienceOnBuild[i]);
-            }
+            // 同步科技数据
+            ScienceManager.Instance.AddScience(id);
         }
     }
 
     /// <summary>
     /// 当前物品格子结束拖拽时选中
     /// </summary>
-    public virtual bool OnSlotEndDragSelect(int itemID)
-    {
-        return false;
-    }
+    public virtual bool OnSlotEndDragSelect(int itemID) => false;
 }

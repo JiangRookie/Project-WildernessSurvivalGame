@@ -21,10 +21,10 @@ public class UI_BuildWindow_BuildPanel : MonoBehaviour
     {
         if (m_BuildConfig.BuildType == BuildType.Weapon)
         {
-            if (InventoryManager.Instance.AddItemAndPlayAudioToMainInventoryWindow(m_BuildConfig.TargetID))
+            if (InventoryManager.Instance.AddItemAndPlayAudio2MainInventory(m_BuildConfig.TargetID))
             {
                 // 根据建造配置减少材料
-                InventoryManager.Instance.UpdateMainInventoryWindowItemsForBuild(m_BuildConfig);
+                InventoryManager.Instance.UpdateMainInventoryItemsForBuild(m_BuildConfig);
 
                 // 刷新当前界面状态
                 RefreshView();
@@ -50,7 +50,7 @@ public class UI_BuildWindow_BuildPanel : MonoBehaviour
         for (var i = 0; i < buildConfig.BuildConfigConditionList.Count; i++)
         {
             int id = buildConfig.BuildConfigConditionList[i].ItemID;
-            int currCount = InventoryManager.Instance.GetMainInventoryWindowItemCount(id);
+            int currCount = InventoryManager.Instance.GetMainInventoryItemCount(id);
             int needCount = buildConfig.BuildConfigConditionList[i].Count;
             m_BuildPanelItems[i].Show(id, currCount, needCount);
         }
@@ -64,7 +64,7 @@ public class UI_BuildWindow_BuildPanel : MonoBehaviour
         }
 
         m_BuildButton.interactable = buildConfig.CheckBuildConfigCondition();
-        gameObject.SetActive(true);
+        gameObject.Show();
     }
 
     public void RefreshView()
@@ -79,6 +79,6 @@ public class UI_BuildWindow_BuildPanel : MonoBehaviour
         {
             buildPanelItem.Close();
         }
-        gameObject.SetActive(false);
+        gameObject.Hide();
     }
 }

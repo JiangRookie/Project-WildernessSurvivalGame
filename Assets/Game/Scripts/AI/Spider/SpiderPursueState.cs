@@ -13,7 +13,7 @@ public class SpiderPursueState : AIPursueState
 
     public override void Enter()
     {
-        m_AI.Agent.enabled = true;
+        m_AI.Agent.Enable();
         m_AI.PlayAnimation("Run");
         m_AI.AddAnimationEvent("FootStep", FootStep);
         m_AI.Agent.speed = m_SpiderController.RunSpeed;

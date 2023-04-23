@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
+using JKFrame;
 using UnityEngine;
 
 public interface IBuilding
 {
-    public GameObject GameObject { get; }
-    public Collider Collider { get; }
     public static Color Red = new Color(1, 0, 0, 0.5f);
     public static Color Green = new Color(0, 1, 0, 0.5f);
+    public GameObject GameObject { get; }
+    public Collider Collider { get; }
     public List<Material> MaterialList { get; set; }
     public void OnPreview();
 
     public void InitOnPreview()
     {
-        Collider.enabled = false;
+        Collider.Disable();
         MeshRenderer[] meshRenderers = GameObject.GetComponentsInChildren<MeshRenderer>();
         MaterialList = new List<Material>(10);
         foreach (var meshRenderer in meshRenderers)

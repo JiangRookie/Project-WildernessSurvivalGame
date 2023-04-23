@@ -71,13 +71,13 @@ public class UI_ItemSlot : MonoBehaviour
         if (ItemData == null)
         {
             m_BgImage.color = Color.white;
-            m_CountText.gameObject.SetActive(false);
+            m_CountText.Hide();
             m_IconImage.sprite = null;
-            m_IconImage.gameObject.SetActive(false);
+            m_IconImage.Hide();
             return;
         }
-        m_CountText.gameObject.SetActive(true);
-        m_IconImage.gameObject.SetActive(true);
+        m_CountText.Show();
+        m_IconImage.Show();
         m_IconImage.sprite = ItemData.Config.Icon;
 
         UpdateCountTextView();

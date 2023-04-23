@@ -182,7 +182,7 @@ public class PlayerController : SingletonMono<PlayerController>, IStateMachineOw
         // 如果新旧武器相同，直接返回
         if (m_CurrWeaponData == newWeaponData)
         {
-            // m_CurrWeaponData = newWeaponData;
+            m_CurrWeaponData = newWeaponData;
             return;
         }
 
@@ -262,9 +262,11 @@ public class PlayerController : SingletonMono<PlayerController>, IStateMachineOw
                 if (itemConfigID == -1) return;
 
                 // 背包里面如果数据添加成功 则销毁地图物体
-                if (InventoryManager.Instance.AddItemToMainInventoryWindow(itemConfigID))
+                if (InventoryManager.Instance.AddItemToMainInventory(itemConfigID))
                 {
                     mapObject.OnPickUp();
+                    transform.LookAt(mapObject.transform.position);
+
                     PlayerAnimation("PickUp");
                     ProjectTool.PlayAudio(AudioType.Bag);
                 }
