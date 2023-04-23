@@ -11,10 +11,10 @@ public abstract class AIBase : SerializedMonoBehaviour, IStateMachineOwner
 
     [SerializeField] protected Animator m_Animator;
     [SerializeField] protected NavMeshAgent m_Agent;
-    [SerializeField] protected Collider m_InputCheckCollider;
-    [SerializeField] protected Transform m_Weapon;
     public NavMeshAgent Agent => m_Agent;
+    [SerializeField] protected Collider m_InputCheckCollider;
     public Collider InputCheckCollider => m_InputCheckCollider;
+    [SerializeField] protected Transform m_Weapon;
     public Transform Weapon => m_Weapon;
 
     #endregion
@@ -22,25 +22,28 @@ public abstract class AIBase : SerializedMonoBehaviour, IStateMachineOwner
     #region Other
 
     [SerializeField] protected MapVertexType m_MapVertexType;
-    [SerializeField] protected float m_Radius;      // 交互距离
-    [SerializeField] protected float m_AttackRange; // 交互距离
-    [SerializeField] protected float m_MaxHp = 10;
+
+    [SerializeField] protected float m_Radius; // 交互距离
+    public float Radius => m_Radius;
+    [SerializeField] protected float m_AttackRange;
+    public float AttackRange => m_AttackRange;
     [SerializeField] protected float m_AttackValue = 10;
-    [SerializeField] protected int m_LootConfigID = -1;      // 死亡时掉落的配置ID
+    public float AttackValue => m_AttackValue;
     [SerializeField] protected float m_HostileDistance = -1; // 敌对距离，-1代表无效
+    public float HostileDistance => m_HostileDistance;
+
+    [SerializeField] protected float m_MaxHp = 10;
+    float m_Hp;
+    protected AIState m_CurrState;
+    [SerializeField] protected int m_LootConfigID = -1; // 死亡时掉落的配置ID
     [SerializeField] protected Dictionary<string, AudioClip> m_AudioClipDict = new Dictionary<string, AudioClip>();
 
-    protected MapChunkController m_MapChunk;
-    protected MapObjectData m_AIData;
-    protected StateMachine m_StateMachine;
-    protected AIState m_CurrState;
-    protected float m_Hp;
-
-    public float Radius => m_Radius;
-    public float AttackRange => m_AttackRange;
-    public float AttackValue => m_AttackValue;
+    MapChunkController m_MapChunk;
     public MapChunkController MapChunk => m_MapChunk;
+    MapObjectData m_AIData;
     public MapObjectData AIData => m_AIData;
+
+    StateMachine m_StateMachine;
 
     public StateMachine StateMachine
     {
@@ -56,30 +59,9 @@ public abstract class AIBase : SerializedMonoBehaviour, IStateMachineOwner
         }
     }
 
-    public float HostileDistance => m_HostileDistance;
-
     #endregion
 
-    public void Destroy()
-    {
-        this.JKGameObjectPushPool();
-        m_CurrState = AIState.None;
-        m_StateMachine.Stop();
-    }
-
-    public void Dead()
-    {
-        // 告知地图块移除自己
-        m_MapChunk.RemoveAIObject(m_AIData.ID);
-        if (m_LootConfigID == -1) return;
-        LootConfig lootConfig = ConfigManager.Instance.GetConfig<LootConfig>(ConfigName.Loot, m_LootConfigID);
-        if (lootConfig != null)
-        {
-            lootConfig.GenerateMapObject(m_MapChunk, transform.position + Vector3.up);
-        }
-    }
-
-    public virtual void Init(MapChunkController mapChunk, MapObjectData aiData)
+    public void Init(MapChunkController mapChunk, MapObjectData aiData)
     {
         m_MapChunk = mapChunk;
         m_AIData = aiData;
@@ -88,10 +70,7 @@ public abstract class AIBase : SerializedMonoBehaviour, IStateMachineOwner
         ChangeState(AIState.Idle);
     }
 
-    public virtual void InitOnTransfer(MapChunkController mapChunk)
-    {
-        m_MapChunk = mapChunk;
-    }
+    public void InitOnTransfer(MapChunkController mapChunk) => m_MapChunk = mapChunk;
 
     public virtual void ChangeState(AIState state)
     {
@@ -120,28 +99,7 @@ public abstract class AIBase : SerializedMonoBehaviour, IStateMachineOwner
     }
 
     public void PlayAnimation(string animationName, float fixedTransitionDuration = 0.25f)
-    {
-        m_Animator.CrossFadeInFixedTime(animationName, fixedTransitionDuration);
-    }
-
-    public Vector3 GetAIRandomPoint()
-    {
-        return m_MapChunk.GetAIRandomPoint(m_MapVertexType);
-    }
-
-    public void SavePosition()
-    {
-        m_AIData.Position = transform.position;
-    }
-
-    public virtual void Hurt(float damage)
-    {
-        if (m_Hp == 0) return;
-        m_Hp -= damage;
-
-        // 死亡
-        ChangeState(m_Hp <= 0 ? AIState.Dead : AIState.Hurt);
-    }
+        => m_Animator.CrossFadeInFixedTime(animationName, fixedTransitionDuration);
 
     public void PlayAudio(string audioName, float volumeScale = 1)
     {
@@ -151,23 +109,55 @@ public abstract class AIBase : SerializedMonoBehaviour, IStateMachineOwner
         }
     }
 
-    #region 动画事件
+    public Vector3 GetAIRandomPoint() => m_MapChunk.GetAIRandomPoint(m_MapVertexType);
 
-    Dictionary<string, Action> m_AnimationEventDict = new Dictionary<string, Action>();
+    public void SavePosition() => m_AIData.Position = transform.position;
 
-    void AnimationEvent(string eventName)
+    public void Hurt(float damage)
     {
-        if (m_AnimationEventDict.TryGetValue(eventName, out Action action))
+        if (m_Hp <= 0) return;
+        m_Hp -= damage;
+        ChangeState(m_Hp <= 0 ? AIState.Dead : AIState.Hurt);
+    }
+
+    public void Destroy()
+    {
+        this.PushGameObj2Pool();
+        m_CurrState = AIState.None;
+        m_StateMachine.Stop();
+    }
+
+    public void Dead()
+    {
+        // 告知地图块移除自己
+        m_MapChunk.RemoveAIObject(m_AIData.ID);
+        if (m_LootConfigID == -1) return;
+        LootConfig lootConfig = ConfigManager.Instance.GetConfig<LootConfig>(ConfigName.Loot, m_LootConfigID);
+        if (lootConfig != null)
         {
-            action?.Invoke();
+            lootConfig.GenerateMapObject(m_MapChunk, transform.position + Vector3.up);
         }
     }
 
+    #region 动画事件
+
+    Dictionary<string, Action> m_AnimationEventDict = new Dictionary<string, Action>(5);
+
+    void AnimationEvent(string eventName)
+    {
+        if (m_AnimationEventDict.TryGetValue(eventName, out Action action)) action?.Invoke();
+    }
+
+    /// <summary>
+    /// 添加动画事件
+    /// </summary>
     public void AddAnimationEvent(string eventName, Action animationAction)
     {
         if (m_AnimationEventDict.TryGetValue(eventName, out Action action))
         {
-            action += animationAction;
+            // 如果eventName已经存在，先移除原有的eventName对应的Action
+            action -= animationAction;
+            m_AnimationEventDict[eventName] = action + animationAction;
         }
         else
         {
@@ -175,6 +165,9 @@ public abstract class AIBase : SerializedMonoBehaviour, IStateMachineOwner
         }
     }
 
+    /// <summary>
+    /// 移除指定的动画事件
+    /// </summary>
     public void RemoveAnimationEvent(string eventName, Action animationAction)
     {
         if (m_AnimationEventDict.TryGetValue(eventName, out Action action))
@@ -183,15 +176,22 @@ public abstract class AIBase : SerializedMonoBehaviour, IStateMachineOwner
         }
     }
 
+    /// <summary>
+    /// 移除指定的动画事件
+    /// </summary>
     public void RemoveAnimationEvent(string eventName)
     {
-        m_AnimationEventDict.Remove(eventName);
+        if (m_AnimationEventDict.ContainsKey(eventName))
+        {
+            // 如果eventName存在，移除对应的Action
+            m_AnimationEventDict.Remove(eventName);
+        }
     }
 
-    public void CleanAllAnimationEvent()
-    {
-        m_AnimationEventDict.Clear();
-    }
+    /// <summary>
+    /// 清空所有的动画事件
+    /// </summary>
+    public void CleanAllAnimationEvent() => m_AnimationEventDict.Clear();
 
     #endregion
 }

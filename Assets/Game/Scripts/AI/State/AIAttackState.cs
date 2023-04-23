@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class AIAttackState : AIStateBase
 {
+    bool m_IsAttacked = false;
+
     public override void Enter()
     {
         // 随机播放一个攻击动作
@@ -25,32 +27,22 @@ public class AIAttackState : AIStateBase
         m_AI.Weapon.RemoveTriggerStay(CheckHitOnTriggerStay);
     }
 
-    void StartHit()
-    {
-        m_AI.Weapon.gameObject.SetActive(true);
-    }
-
-    bool m_IsAttacked = false;
+    void StartHit() => m_AI.Weapon.Show();
 
     void CheckHitOnTriggerStay(Collider other, object[] args)
     {
         if (m_IsAttacked) return; // 避免一次攻击产生多次伤害
-        if (other.gameObject.CompareTag("Player"))
-        {
-            m_IsAttacked = true;
-            m_AI.PlayAudio("Hit");
-            PlayerController.Instance.Hurt(m_AI.AttackValue);
-        }
+        if (other.gameObject.CompareTag("Player") == false) return;
+        m_IsAttacked = true;
+        m_AI.PlayAudio("Hit");
+        PlayerController.Instance.Hurt(m_AI.AttackValue);
     }
 
     void StopHit()
     {
         m_IsAttacked = false;
-        m_AI.Weapon.gameObject.SetActive(false);
+        m_AI.Weapon.Hide();
     }
 
-    void AttackOver()
-    {
-        m_AI.ChangeState(AIState.Pursue);
-    }
+    void AttackOver() => m_AI.ChangeState(AIState.Pursue);
 }

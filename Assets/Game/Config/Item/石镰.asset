@@ -65,9 +65,6 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: PrefabOnWorld
-      Entry: 6
-      Data: 
     - Name: AnimatorOverrideController
       Entry: 10
       Data: 1
@@ -95,5 +92,5 @@ MonoBehaviour:
   Name: "\u77F3\u9570"
   ItemType: 0
   MapObjectConfigID: 23
-  Description: "\u53EF\u4EE5\u5272\u8349"
+  Description: "\u53EF\u4EE5\u5272\u8349\uFF0C\u53EF\u4EE5\u653B\u51FB\u91CE\u751F\u52A8\u7269\u3002"
   Icon: {fileID: 21300000, guid: 6f6057ea5ee5bf4498651d34d6a25bf4, type: 3}

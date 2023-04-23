@@ -135,7 +135,7 @@ Transform:
   m_GameObject: {fileID: 7605094095409680922}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 19.12835, y: 0, z: 13.008957}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1004089144514078280}
@@ -182,7 +182,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MapObjectType: 0
-  touchDistance: 1.8
+  m_InteractiveDistance: 1.8
   canPickUp: 0
   canPickUpItemConfigID: -1
   m_Animator: {fileID: 1565300677939714739}

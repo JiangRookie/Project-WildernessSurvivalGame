@@ -166,7 +166,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MapObjectType: 2
-  touchDistance: 1
+  m_InteractiveDistance: 1
   canPickUp: 0
   canPickUpItemConfigID: -1
   m_Animator: {fileID: 3703632462068013808}

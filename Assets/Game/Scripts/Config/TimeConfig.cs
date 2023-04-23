@@ -50,10 +50,7 @@ public class TimeStateConfig
         color = Color.Lerp(SunColor, nextPhase.SunColor, ratio);
         sunIntensity = Mathf.Lerp(SunIntensity, nextPhase.SunIntensity, ratio);
 
-        if (Fog)
-        {
-            RenderSettings.fogDensity = 0.1f * (1 - ratio);
-        }
+        if (Fog) RenderSettings.fogDensity = 0.05f * (1 - ratio);
 
         return currPhaseRemainingTime > 0;
     }

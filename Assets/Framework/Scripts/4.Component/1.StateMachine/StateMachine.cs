@@ -113,7 +113,7 @@ namespace JKFrame
             m_Owner = null;
 
             // 放进对象池
-            this.JKObjectPushPool();
+            this.PushObj2Pool();
         }
     }
 }

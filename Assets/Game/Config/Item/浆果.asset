@@ -32,12 +32,12 @@ MonoBehaviour:
       Data: 0
     - Name: RecoverHungry
       Entry: 4
-      Data: 20
+      Data: 10
     - Name: 
       Entry: 8
       Data: 
   Name: "\u6D46\u679C"
   ItemType: 1
   MapObjectConfigID: 20
-  Description: "\u53EF\u4EE5\u9971\u8179"
+  Description: "\u53EF\u4EE5\u9971\u8179\uFF0C\u8865\u5145\u9971\u98DF\u5EA6\u3002"
   Icon: {fileID: 21300000, guid: ba7f6896f0d01cb4db65cafba6424bac, type: 3}

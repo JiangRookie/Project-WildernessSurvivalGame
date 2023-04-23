@@ -28,8 +28,8 @@ public class MapManager : SingletonMono<MapManager>
 
     MapConfig m_MapConfig;
     public MapConfig MapConfig => m_MapConfig;
-    Dictionary<MapVertexType, List<int>> m_SpawnMapObjectConfigDict; // 某个类型可以生成的地图对象配置ID列表
-    Dictionary<MapVertexType, List<int>> m_SpawnAIConfigDict;        // 某个类型可以生成的AI对象配置的ID列表
+    [Tooltip("某个类型可以生成的地图对象配置ID列表")] Dictionary<MapVertexType, List<int>> m_SpawnMapObjectConfigDict;
+    [Tooltip("某个类型可以生成的AI对象配置的ID列表")] Dictionary<MapVertexType, List<int>> m_SpawnAIConfigDict;
 
     #endregion
 
@@ -68,25 +68,26 @@ public class MapManager : SingletonMono<MapManager>
 
     public void Init()
     {
-        EventManager.AddEventListener(EventName.SaveGame, OnGameSave);
         StartCoroutine(DoInit());
+        EventManager.AddEventListener(EventName.SaveGame, OnGameSave);
     }
 
     IEnumerator DoInit()
     {
-        // 确定存档
+        // 读取存档
         m_MapInitData = ArchiveManager.Instance.MapInitData;
         m_MapData = ArchiveManager.Instance.MapData;
 
         // 确定配置 获取地图物品配置，初始化地图生成对象配置字典
         m_MapConfig = ConfigManager.Instance.GetConfig<MapConfig>(ConfigName.Map);
-        Dictionary<int, ConfigBase> mapConfigDict = ConfigManager.Instance.GetConfigs(ConfigName.MapObject);
         m_SpawnMapObjectConfigDict = new Dictionary<MapVertexType, List<int>>();
         m_SpawnMapObjectConfigDict.Add(MapVertexType.Forest, new List<int>());
         m_SpawnMapObjectConfigDict.Add(MapVertexType.Marsh, new List<int>());
+
+        var mapConfigDict = ConfigManager.Instance.GetConfigs(ConfigName.MapObject);
         foreach ((int id, ConfigBase config) in mapConfigDict)
         {
-            MapVertexType mapVertexType = ((MapObjectConfig)config).MapVertexType;
+            var mapVertexType = ((MapObjectConfig)config).MapVertexType;
             if (mapVertexType == MapVertexType.None) continue;
             m_SpawnMapObjectConfigDict[mapVertexType].Add(id); // 将相同的顶点类型的Id放在同一个列表中
         }
@@ -95,9 +96,10 @@ public class MapManager : SingletonMono<MapManager>
         m_SpawnAIConfigDict = new Dictionary<MapVertexType, List<int>>();
         m_SpawnAIConfigDict.Add(MapVertexType.Forest, new List<int>());
         m_SpawnAIConfigDict.Add(MapVertexType.Marsh, new List<int>());
+
         foreach ((int id, ConfigBase config) in mapConfigDict)
         {
-            MapVertexType mapVertexType = ((AIConfig)config).MapVertexType;
+            var mapVertexType = ((AIConfig)config).MapVertexType;
             if (mapVertexType == MapVertexType.None) continue;
             m_SpawnAIConfigDict[mapVertexType].Add(id); // 将相同的顶点类型的Id放在同一个列表中
         }
@@ -118,17 +120,16 @@ public class MapManager : SingletonMono<MapManager>
         // 烘焙导航网格
         BakeNavMesh();
 
-        int mapChunkCount = m_MapData.MapChunkIndexList.Count;
+        var mapChunkCount = m_MapData.MapChunkIndexList.Count;
         if (mapChunkCount > 0) // 旧存档
         {
             GameSceneManager.Instance.SetProgressBarMaxValue(mapChunkCount);
 
             // 根据存档去恢复整个地图的状态
-            for (int i = 0; i < m_MapData.MapChunkIndexList.Count; i++)
+            foreach (var chunkIndex in m_MapData.MapChunkIndexList)
             {
-                SerializableVector2 chunkIndex = m_MapData.MapChunkIndexList[i];
-                MapChunkData mapChunkData = ArchiveManager.Instance.GetMapChunkData(chunkIndex);
-                GenerateMapChunk(chunkIndex.Convert2Vector2Int(), mapChunkData).gameObject.SetActive(false);
+                var chunkData = ArchiveManager.Instance.GetMapChunkData(chunkIndex);
+                GenerateMapChunk(chunkIndex.Convert2Vector2Int(), chunkData).Hide();
                 for (int j = 0; j < 5; j++) yield return null;
             }
         }
@@ -137,7 +138,7 @@ public class MapManager : SingletonMono<MapManager>
             GameSceneManager.Instance.SetProgressBarMaxValue(GetMapChunkCountOnGameInit());
 
             // 获取当前观察者所在的地图块
-            Vector2Int currViewerChunkIndex = GetMapChunkIndex(m_Viewer.position);
+            var currViewerChunkIndex = GetMapChunkIndex(m_Viewer.position);
             int startX = currViewerChunkIndex.x - m_MapConfig.ViewDistance;
             int startY = currViewerChunkIndex.y - m_MapConfig.ViewDistance;
             int count = 2 * m_MapConfig.ViewDistance + 1;
@@ -146,7 +147,7 @@ public class MapManager : SingletonMono<MapManager>
             {
                 for (int y = 0; y < count; y++)
                 {
-                    Vector2Int chunkIndex = new Vector2Int(startX + x, startY + y);
+                    var chunkIndex = new Vector2Int(startX + x, startY + y);
                     GenerateMapChunk(chunkIndex);
                     for (int j = 0; j < 5; j++) yield return null;
                 }
@@ -164,12 +165,12 @@ public class MapManager : SingletonMono<MapManager>
         Mesh mesh = new Mesh();
 
         // 确定顶点在哪里
-        mesh.vertices = new[]
+        mesh.vertices = new Vector3[]
         {
-            new Vector3(0, 0, 0)
-          , new Vector3(0, 0, height)
-          , new Vector3(width, 0, height)
-          , new Vector3(width, 0, 0)
+            new(0, 0, 0)
+          , new(0, 0, height)
+          , new(width, 0, height)
+          , new(width, 0, 0)
         };
 
         // 确定哪些点形成三角形
@@ -182,21 +183,18 @@ public class MapManager : SingletonMono<MapManager>
         // 设置 UV
         mesh.uv = new Vector2[]
         {
-            new Vector3(0, 0)
-          , new Vector3(0, 1)
-          , new Vector3(1, 1)
-          , new Vector3(1, 0)
+            new(0, 0)
+          , new(0, 1)
+          , new(1, 1)
+          , new(1, 0)
         };
 
         return mesh;
     }
 
-    #region MapChunk
+    public void UpdateViewer(Transform player) => m_Viewer = player;
 
-    public void UpdateViewer(Transform player)
-    {
-        m_Viewer = player;
-    }
+    #region Map chunk
 
     /// <summary>
     /// 根据观察者的位置更新可视地图块
@@ -218,20 +216,19 @@ public class MapManager : SingletonMono<MapManager>
     void DoUpdateVisibleChunk()
     {
         // 获取当前观察者所在的地图块
-        Vector2Int currViewerChunkIndex = GetMapChunkIndex(m_Viewer.position);
+        var currViewerChunkIndex = GetMapChunkIndex(m_Viewer.position);
 
         #region 关闭全部不需要显示的地图块
 
         for (int i = m_FinallyDisplayChunkList.Count - 1; i >= 0; i--)
         {
-            Vector2Int chunkIndex = m_FinallyDisplayChunkList[i].ChunkIndex;
+            var chunkIndex = m_FinallyDisplayChunkList[i].ChunkIndex;
 
-            if (Mathf.Abs(chunkIndex.x - currViewerChunkIndex.x) > m_MapConfig.ViewDistance
-             || Mathf.Abs(chunkIndex.y - currViewerChunkIndex.y) > m_MapConfig.ViewDistance)
-            {
-                m_FinallyDisplayChunkList[i].SetActive(false);
-                m_FinallyDisplayChunkList.RemoveAt(i);
-            }
+            if (Mathf.Abs(chunkIndex.x - currViewerChunkIndex.x) <= m_MapConfig.ViewDistance
+             && Mathf.Abs(chunkIndex.y - currViewerChunkIndex.y) <= m_MapConfig.ViewDistance)
+                continue;
+            m_FinallyDisplayChunkList[i].SetActive(false);
+            m_FinallyDisplayChunkList.RemoveAt(i);
         }
 
         #endregion
@@ -247,17 +244,14 @@ public class MapManager : SingletonMono<MapManager>
         {
             for (int y = 0; y < count; y++)
             {
-                Vector2Int chunkIndex = new Vector2Int(startX + x, startY + y);
+                var chunkIndex = new Vector2Int(startX + x, startY + y);
 
                 // 在地图字典中，也就是之前加载过，但是不一定加载完成了，因为贴图会在协程中执行，执行完成后才算初始化完毕
                 if (m_MapChunkDict.TryGetValue(chunkIndex, out MapChunkController chunk))
                 {
-                    // 上一次显示的地图列表中并不包含这个地图块 && 同时它已经完成了初始化
-                    if (m_FinallyDisplayChunkList.Contains(chunk) == false && chunk.IsInitializedMapUI)
-                    {
-                        m_FinallyDisplayChunkList.Add(chunk);
-                        chunk.SetActive(true);
-                    }
+                    if (m_FinallyDisplayChunkList.Contains(chunk) || chunk.IsInitialized == false) continue;
+                    m_FinallyDisplayChunkList.Add(chunk);
+                    chunk.SetActive(true);
                 }
                 else // MapChunkDict.TryGetValue(chunkIndex, out var chunk) == false 之前没有加载过
                 {
@@ -269,50 +263,6 @@ public class MapManager : SingletonMono<MapManager>
         Invoke(nameof(ResetCanUpdateChunkFlag), m_UpdateVisualMapChunkTimeInterval);
 
         #endregion
-    }
-
-    int GetMapChunkCountOnGameInit()
-    {
-        int result = 0;
-
-        // 获取当前观察者所在的地图块
-        Vector2Int currViewerChunkIndex = GetMapChunkIndex(m_Viewer.position);
-
-        // 从左下角开始遍历地图块
-        int startX = currViewerChunkIndex.x - m_MapConfig.ViewDistance;
-        int startY = currViewerChunkIndex.y - m_MapConfig.ViewDistance;
-        int count = 2 * m_MapConfig.ViewDistance + 1;
-        for (int x = 0; x < count; x++)
-        {
-            for (int y = 0; y < count; y++)
-            {
-                int indexX = startX + x;
-                int indexY = startY + y;
-
-                // 检查坐标的合法性，限制坐标在第一象限
-                if (indexX > m_MapInitData.MapSize - 1 || indexY > m_MapInitData.MapSize - 1) continue;
-                if (indexX < 0 || indexY < 0) continue;
-                result++;
-            }
-        }
-        return result;
-    }
-
-    /// <summary>
-    /// 根据<paramref name="worldPos"/>获取地图块的索引
-    /// </summary>
-    /// <param name="worldPos">世界坐标</param>
-    /// <returns>返回地图块的索引</returns>
-    Vector2Int GetMapChunkIndex(Vector3 worldPos)
-    {
-        int x = Mathf.Clamp(value: Mathf.FloorToInt(worldPos.x / m_ChunkSizeOnWorld), 1, m_MapInitData.MapSize);
-        int z = Mathf.Clamp(value: Mathf.FloorToInt(worldPos.z / m_ChunkSizeOnWorld), 1, m_MapInitData.MapSize);
-        return new Vector2Int(x, z);
-    }
-
-    public MapChunkController GetMapChunk(Vector3 worldPos)
-    {
-        return m_MapChunkDict[GetMapChunkIndex(worldPos)];
     }
 
     /// <summary>
@@ -335,19 +285,78 @@ public class MapManager : SingletonMono<MapManager>
         return chunk;
     }
 
-    void ResetCanUpdateChunkFlag()
+    int GetMapChunkCountOnGameInit()
     {
-        m_CanUpdateChunk = true;
+        int result = 0;
+
+        // 获取当前观察者所在的地图块
+        var currViewerChunkIndex = GetMapChunkIndex(m_Viewer.position);
+
+        // 从左下角开始遍历地图块
+        int startX = currViewerChunkIndex.x - m_MapConfig.ViewDistance;
+        int startY = currViewerChunkIndex.y - m_MapConfig.ViewDistance;
+        int count = 2 * m_MapConfig.ViewDistance + 1;
+        for (int x = 0; x < count; x++)
+        {
+            for (int y = 0; y < count; y++)
+            {
+                int indexX = startX + x;
+                int indexY = startY + y;
+
+                // 检查坐标的合法性，限制坐标在第一象限
+                if (indexX > m_MapInitData.MapSize - 1 || indexY > m_MapInitData.MapSize - 1) continue;
+                if (indexX < 0 || indexY < 0) continue;
+                result++;
+            }
+        }
+        return result;
     }
+
+    /// <summary>
+    /// 根据 <paramref name="worldPos"/> 获取地图块的索引
+    /// </summary>
+    /// <param name="worldPos">世界坐标</param>
+    /// <returns>返回地图块的索引</returns>
+    Vector2Int GetMapChunkIndex(Vector3 worldPos)
+    {
+        int x = Mathf.Clamp(value: Mathf.FloorToInt(worldPos.x / m_ChunkSizeOnWorld), 1, m_MapInitData.MapSize);
+        int y = Mathf.Clamp(value: Mathf.FloorToInt(worldPos.z / m_ChunkSizeOnWorld), 1, m_MapInitData.MapSize);
+        return new Vector2Int(x, y);
+    }
+
+    /// <summary>
+    /// 根据传入的 <paramref name="worldPos"/> 获取地图块
+    /// </summary>
+    /// <param name="worldPos">世界坐标</param>
+    /// <returns></returns>
+    public MapChunkController GetMapChunk(Vector3 worldPos) => m_MapChunkDict[GetMapChunkIndex(worldPos)];
+
+    void ResetCanUpdateChunkFlag() => m_CanUpdateChunk = true;
+
+    /// <summary>
+    /// 当地图块刷新时生成地图对象数据列表
+    /// </summary>
+    /// <param name="chunkIndex">地图块索引</param>
+    /// <returns></returns>
+    public List<MapObjectData> GenerateMapObjectDataListOnMapChunkRefresh(Vector2Int chunkIndex)
+        => m_MapGenerator.GenerateMapObjectDataListOnMapChunkRefresh(chunkIndex);
+
+    /// <summary>
+    /// 当地图块刷新时生成AI对象数据列表
+    /// </summary>
+    /// <param name="mapChunkData"></param>
+    /// <returns></returns>
+    public List<MapObjectData> GenerateAIObjectDataListOnMapChunkRefresh(MapChunkData mapChunkData)
+        => m_MapGenerator.GenerateAIObjectDataListOnMapChunkRefresh(mapChunkData);
 
     #endregion
 
-    #region Map UI
+    #region Map ui
 
     UI_MapWindow m_MapUI;
     bool m_IsInitializedMapUI = false;
     bool m_IsShowingMap = false;
-    List<Vector2Int> m_WaitForUpdateMapChunkUIList = new(); // 等待更新的地图块UI列表
+    List<Vector2Int> m_WaitForUpdateMapChunkUIList = new List<Vector2Int>(); // 等待更新的地图块UI列表
 
     void ShowMapUI()
     {
@@ -360,17 +369,14 @@ public class MapManager : SingletonMono<MapManager>
         UpdateMapUI();
     }
 
-    static void CloseMapUI()
-    {
-        UIManager.Instance.Close<UI_MapWindow>();
-    }
+    static void CloseMapUI() => UIManager.Instance.Close<UI_MapWindow>();
 
     void UpdateMapUI()
     {
         foreach (var chunkIndex in m_WaitForUpdateMapChunkUIList)
         {
             Texture2D texture = null;
-            MapChunkController mapChunk = m_MapChunkDict[chunkIndex];
+            var mapChunk = m_MapChunkDict[chunkIndex];
             if (mapChunk.IsAllForest == false)
             {
                 texture = (Texture2D)mapChunk.GetComponent<MeshRenderer>().material.mainTexture;
@@ -383,13 +389,13 @@ public class MapManager : SingletonMono<MapManager>
 
     #endregion
 
-    #region MapObject
+    #region Map object
 
     /// <summary>
-    /// 移除一个地图对象
+    /// 移除一个地图对象Icon
     /// </summary>
     /// <param name="mapObjectID">地图对象ID</param>
-    public void RemoveMapObject(ulong mapObjectID)
+    public void RemoveMapObjectIcon(ulong mapObjectID)
     {
         if (m_MapUI != null) m_MapUI.RemoveMapObjectIcon(mapObjectID);
     }
@@ -397,64 +403,49 @@ public class MapManager : SingletonMono<MapManager>
     /// <summary>
     /// 生成一个地图对象
     /// </summary>
-    /// <param name="mapChunkController"></param>
-    /// <param name="mapObjectConfigID"></param>
-    /// <param name="spawnPos"></param>
-    /// <param name="isFromBuild"></param>
+    /// <param name="mapChunkController">地图对象所属地图块</param>
+    /// <param name="mapObjectConfigID">地图对象配置ID</param>
+    /// <param name="spawnPos">生成位置</param>
+    /// <param name="isFromBuild">是否从建造系统生成</param>
     public void SpawnMapObject(MapChunkController mapChunkController, int mapObjectConfigID, Vector3 spawnPos, bool isFromBuild)
     {
         // 生成数据
-        MapObjectData mapObjectData = m_MapGenerator.GenerateMapObjectData(mapObjectConfigID, spawnPos);
+        var mapObjectData = m_MapGenerator.GenerateMapObjectData(mapObjectConfigID, spawnPos);
         if (mapObjectData == null) return;
 
         // 交给地图块
         mapChunkController.AddMapObject(mapObjectData, isFromBuild);
 
         // 处理Icon
-        if (m_MapUI != null)
-        {
-            m_MapUI.AddMapObjectIcon(mapObjectData);
-        }
+        if (m_MapUI != null) m_MapUI.AddMapObjectIcon(mapObjectData);
     }
 
     /// <summary>
     /// 生成一个地图对象
     /// </summary>
-    /// <param name="mapObjectConfigID"></param>
-    /// <param name="spawnPos"></param>
-    /// <param name="isFromBuild"></param>
+    /// <param name="mapObjectConfigID">地图对象配置ID</param>
+    /// <param name="spawnPos">生成位置</param>
+    /// <param name="isFromBuild">是否从建造系统生成</param>
     public void SpawnMapObject(int mapObjectConfigID, Vector3 spawnPos, bool isFromBuild)
     {
-        Vector2Int chunkIndex = GetMapChunkIndex(spawnPos);
+        var chunkIndex = GetMapChunkIndex(spawnPos);
         SpawnMapObject(m_MapChunkDict[chunkIndex], mapObjectConfigID, spawnPos, isFromBuild);
-    }
-
-    public List<MapObjectData> SpawnMapObjectDataOnMapChunkRefresh(Vector2Int chunkIndex)
-    {
-        return m_MapGenerator.GenerateMapObjectDataListOnMapChunkRefresh(chunkIndex);
-    }
-
-    public List<MapObjectData> SpawnMapObjectDataOnMapChunkRefresh(MapChunkData mapChunkData)
-    {
-        return m_MapGenerator.GenerateAIObjectDataList(mapChunkData);
     }
 
     #endregion
 
-    void OnGameSave()
-    {
-        ArchiveManager.Instance.SaveMapData();
-    }
+    #region Archive
 
-    // 保留当前场景中的资源
+    void OnGameSave() => ArchiveManager.Instance.SaveMapData();
+
     public void OnCloseGameScene()
     {
         m_MapUI.ResetWindow();
-
-        // chunk
         foreach (MapChunkController mapChunk in m_MapChunkDict.Values)
         {
             mapChunk.OnCloseGameScene();
         }
     }
+
+    #endregion
 }

@@ -27,7 +27,7 @@ MonoBehaviour:
         mscorlib
     - Name: 
       Entry: 12
-      Data: 1
+      Data: 2
     - Name: 
       Entry: 7
       Data: 1|LootConfigModel, Assembly-CSharp
@@ -37,6 +37,18 @@ MonoBehaviour:
     - Name: Probability
       Entry: 3
       Data: 100
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 2|LootConfigModel, Assembly-CSharp
+    - Name: LootObjectConfigID
+      Entry: 3
+      Data: 19
+    - Name: Probability
+      Entry: 3
+      Data: 80
     - Name: 
       Entry: 8
       Data: 

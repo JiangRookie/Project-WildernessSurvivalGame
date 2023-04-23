@@ -24,4 +24,4 @@ MonoBehaviour:
   IsEmpty: 0
   MapVertexType: 1
   Prefab: {fileID: 8174777376365972146, guid: 97e0e0cac992a114a803586dacca935d, type: 3}
-  Probability: 5
+  Probability: 1

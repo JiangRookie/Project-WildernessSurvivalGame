@@ -27,38 +27,20 @@ public class PlayerModel : MonoBehaviour
 
     #region 动画事件
 
-    void Footstep(int index)
-    {
-        m_FootstepAction?.Invoke(index);
-    }
+    void Footstep(int index) => m_FootstepAction?.Invoke(index);
 
     // 开始有伤害
-    void StartHit()
-    {
-        m_StartHitAction?.Invoke();
-    }
+    void StartHit() => m_StartHitAction?.Invoke();
 
     // 这里之后没有伤害
-    void StopHit()
-    {
-        m_StopHitAction?.Invoke();
-    }
+    void StopHit() => m_StopHitAction?.Invoke();
 
     // 整个攻击的结束
-    void AttackOver()
-    {
-        m_AttackOverAction?.Invoke();
-    }
+    void AttackOver() => m_AttackOverAction?.Invoke();
 
-    void HurtOver()
-    {
-        m_HurtOverAction?.Invoke();
-    }
+    void HurtOver() => m_HurtOverAction?.Invoke();
 
-    void DeadOver()
-    {
-        m_DeadOverAction?.Invoke();
-    }
+    void DeadOver() => m_DeadOverAction?.Invoke();
 
     #endregion
 }

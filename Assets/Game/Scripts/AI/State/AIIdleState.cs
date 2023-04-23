@@ -12,7 +12,7 @@ public class AIIdleState : AIStateBase
         m_AI.PlayAnimation("Idle");
 
         // 休息一段时间然后去巡逻
-        MonoManager.Instance.StartCoroutine(GoPatrolCoroutine());
+        m_GoPatrolCoroutine = MonoManager.Instance.StartCoroutine(GoPatrolCoroutine());
 
         // 有一定概率发生叫声
         if (Random.Range(0, 30) == 0)
@@ -28,7 +28,6 @@ public class AIIdleState : AIStateBase
             // 判断敌对距离
             if (Vector3.Distance(m_AI.transform.position, PlayerController.Instance.transform.position) < m_AI.HostileDistance)
             {
-                // 进入追击状态
                 m_AI.ChangeState(AIState.Pursue);
             }
         }

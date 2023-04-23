@@ -7,13 +7,7 @@
         m_AI.AddAnimationEvent("HurtOver", HurtOver);
     }
 
-    public override void Exit()
-    {
-        m_AI.RemoveAnimationEvent("HurtOver", HurtOver);
-    }
+    public override void Exit() => m_AI.RemoveAnimationEvent("HurtOver", HurtOver);
 
-    void HurtOver()
-    {
-        m_AI.ChangeState(AIState.Pursue);
-    }
+    void HurtOver() => m_AI.ChangeState(AIState.Pursue);
 }

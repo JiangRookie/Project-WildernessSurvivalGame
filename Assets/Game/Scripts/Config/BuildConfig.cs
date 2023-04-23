@@ -7,9 +7,9 @@ using UnityEngine;
 public class BuildConfig : ConfigBase
 {
     [LabelText("合成类型")] public BuildType BuildType;
-    [LabelText("前置科技")] public List<int> PreconditionScienceIDList;
-    [LabelText("合成条件")] public List<BuildConfigCondition> BuildConfigConditionList = new List<BuildConfigCondition>();
-    [LabelText("合成产物")] public int TargetID;
+    [LabelText("前置科技（MapObjectID）")] public List<int> PreconditionScienceIDList;
+    [LabelText("合成条件列表")] public List<BuildConfigCondition> BuildConfigConditionList = new();
+    [LabelText("合成产物（MapObjectID）")] public int TargetID;
 
     public bool CheckBuildConfigCondition()
     {
@@ -26,6 +26,8 @@ public class BuildConfig : ConfigBase
 
 public class BuildConfigCondition
 {
-    [LabelText("物品ID"), HorizontalGroup] public int ItemID;
+    [LabelText("物品ID（ItemID）"), HorizontalGroup]
+    public int ItemID;
+
     [LabelText("物品数量"), HorizontalGroup] public int Count;
 }

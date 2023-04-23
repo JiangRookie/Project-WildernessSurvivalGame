@@ -4,24 +4,18 @@ using UnityEngine;
 
 public class TimeManager : LogicManagerBase<TimeManager>
 {
-    public int CurrentDayNum => m_TimeData.DayNum;
     [SerializeField] Light m_MainLight; // 主灯光
     [SerializeField, Range(0f, 30f)] public float TimeScale = 1f;
     TimeConfig m_TimeConfig;
     TimeData m_TimeData;
     int m_NextStateIndex;
-
-    void OnGameSave() => ArchiveManager.Instance.SaveTimeData();
+    public int CurrDayNum => m_TimeData.DayNum;
 
     void Update()
     {
         if (GameSceneManager.Instance.IsInitialized == false) return;
         UpdateTime();
     }
-
-    protected override void RegisterEventListener() { }
-
-    protected override void CancelEventListener() { }
 
     public void Init()
     {
@@ -31,20 +25,18 @@ public class TimeManager : LogicManagerBase<TimeManager>
         EventManager.AddEventListener(EventName.SaveGame, OnGameSave);
     }
 
-    public void InitState()
+    void InitState()
     {
         m_NextStateIndex = m_TimeData.StateIndex + 1 >= m_TimeConfig.TimeStateConfigs.Length ? 0 : m_TimeData.StateIndex + 1;
         RenderSettings.fog = m_TimeConfig.TimeStateConfigs[m_TimeData.StateIndex].Fog;
         if (m_TimeConfig.TimeStateConfigs[m_TimeData.StateIndex].BgAudioClip != null)
-        {
             StartCoroutine(ChangeBgAudio(m_TimeConfig.TimeStateConfigs[m_TimeData.StateIndex].BgAudioClip));
-        }
 
         // 发送是否为太阳的事件
-        EventManager.EventTrigger<bool>(EventName.UpdateTimeState, m_TimeData.StateIndex <= 1);
+        EventManager.EventTrigger(EventName.UpdateTimeState, m_TimeData.StateIndex <= 1);
 
         // 发送当前是第几天的事件
-        EventManager.EventTrigger<int>(EventName.UpdateDayNum, m_TimeData.DayNum);
+        EventManager.EventTrigger(EventName.UpdateDayNum, m_TimeData.DayNum);
     }
 
     void UpdateTime()
@@ -73,7 +65,7 @@ public class TimeManager : LogicManagerBase<TimeManager>
             m_TimeData.DayNum++;
 
             // 发送当前是第几天的事件
-            EventManager.EventTrigger<int>(EventName.UpdateDayNum, m_TimeData.DayNum);
+            EventManager.EventTrigger(EventName.UpdateDayNum, m_TimeData.DayNum);
 
             // 发送当前是早晨的事件
             EventManager.EventTrigger(EventName.OnMorning);
@@ -84,12 +76,10 @@ public class TimeManager : LogicManagerBase<TimeManager>
         RenderSettings.fog = m_TimeConfig.TimeStateConfigs[m_TimeData.StateIndex].Fog;
 
         if (m_TimeConfig.TimeStateConfigs[m_TimeData.StateIndex].BgAudioClip != null)
-        {
             StartCoroutine(ChangeBgAudio(m_TimeConfig.TimeStateConfigs[m_TimeData.StateIndex].BgAudioClip));
-        }
 
         // 发送是否为太阳的事件
-        EventManager.EventTrigger<bool>(EventName.UpdateTimeState, m_TimeData.StateIndex <= 1);
+        EventManager.EventTrigger(EventName.UpdateTimeState, m_TimeData.StateIndex <= 1);
     }
 
     void SetLight(float intensity, Quaternion rotation, Color color)
@@ -122,4 +112,10 @@ public class TimeManager : LogicManagerBase<TimeManager>
         }
         AudioManager.Instance.BGVolume = oldVolume;
     }
+
+    void OnGameSave() => ArchiveManager.Instance.SaveTimeData();
+
+    protected override void RegisterEventListener() { }
+
+    protected override void CancelEventListener() { }
 }

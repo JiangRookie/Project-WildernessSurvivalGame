@@ -18,8 +18,8 @@ MonoBehaviour:
     ReferencedUnityObjects:
     - {fileID: 5828132043207799916, guid: 57ab68b7e4ff33d4785663a8f09fb888, type: 3}
     - {fileID: 22100000, guid: b942d88cab91c0547be22d168c85c04f, type: 2}
-    - {fileID: 8300000, guid: 779fe7d4c7f9574469d9645a1317c646, type: 3}
-    - {fileID: 8300000, guid: e876ff33b395c0e449e3c51fc8889a4b, type: 3}
+    - {fileID: 8300000, guid: 20b9d47e01cf80e46b13f4631191b1dc, type: 3}
+    - {fileID: 8300000, guid: f009e1439807d4b42adcd44d56186a31, type: 3}
     - {fileID: 3563542151018711910, guid: 7299f30151da25b44b79c8ecb8aeb6e0, type: 3}
     SerializedBytesString: 
     Prefab: {fileID: 0}
@@ -31,7 +31,7 @@ MonoBehaviour:
       Data: 0|Item_WeaponInfo, Assembly-CSharp
     - Name: WeaponType
       Entry: 3
-      Data: 1
+      Data: 0
     - Name: PrefabOnPlayer
       Entry: 10
       Data: 0
@@ -65,9 +65,6 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: PrefabOnWorld
-      Entry: 6
-      Data: 
     - Name: AnimatorOverrideController
       Entry: 10
       Data: 1
@@ -95,5 +92,5 @@ MonoBehaviour:
   Name: "\u77F3\u9550"
   ItemType: 0
   MapObjectConfigID: 22
-  Description: "\u53EF\u4EE5\u7838\u77F3\u5934"
+  Description: "\u53EF\u4EE5\u7838\u77F3\u5934\uFF0C\u53EF\u4EE5\u653B\u51FB\u91CE\u751F\u52A8\u7269\u3002"
   Icon: {fileID: 21300000, guid: 8415fef83242a0140adea0803baed56d, type: 3}

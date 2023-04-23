@@ -33,5 +33,5 @@ MonoBehaviour:
   Name: "\u77F3\u5934"
   ItemType: 2
   MapObjectConfigID: 8
-  Description: "\u4E00\u5757\u77F3\u5934"
+  Description: "\u53EF\u4EE5\u7528\u4E8E\u5EFA\u9020\u5176\u4ED6\u7269\u54C1\uFF0C\u7528\u9014\u5E7F\u6CDB\u3002"
   Icon: {fileID: 21300000, guid: d15d31e4b3b66488ca551c3250c556a3, type: 3}

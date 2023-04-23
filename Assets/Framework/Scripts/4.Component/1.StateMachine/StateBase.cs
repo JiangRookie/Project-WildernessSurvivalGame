@@ -27,7 +27,7 @@
         public virtual void UnInit()
         {
             // 放回对象池
-            this.JKObjectPushPool();
+            this.PushObj2Pool();
         }
 
         /// <summary>

@@ -47,7 +47,7 @@ namespace JKFrame
             {
                 Action = null;
                 Args = null;
-                this.JKObjectPushPool();
+                this.PushObj2Pool();
             }
 
             public void TriggerEvent(T eventData)
@@ -123,7 +123,7 @@ namespace JKFrame
                     eventInfo.Destroy();
                 }
                 m_EventList.Clear();
-                this.JKObjectPushPool();
+                this.PushObj2Pool();
             }
 
             public void TriggerEvent(T eventData)

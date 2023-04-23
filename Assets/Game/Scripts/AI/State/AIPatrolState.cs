@@ -41,6 +41,6 @@ public class AIPatrolState : AIStateBase
     void FootStep()
     {
         int index = Random.Range(1, 3);
-        m_AI.PlayAudio("FootStep" + index.ToString());
+        m_AI.PlayAudio("FootStep" + index.ToString(), 0.15f);
     }
 }

@@ -39,5 +39,5 @@ MonoBehaviour:
   Name: "\u70E7\u70E4\u540E\u7684\u8611\u83C7"
   ItemType: 1
   MapObjectConfigID: 30
-  Description: "\u70E7\u70E4\u8FC7\u540E\u7684\u8611\u83C7\u6CA1\u6709\u6BD2\u6027\uFF01\uFF01\uFF01"
+  Description: "\u70E7\u70E4\u8FC7\u540E\u7684\u8611\u83C7\u6CA1\u6709\u6BD2\u6027\uFF0C\u53EF\u4EE5\u5C3D\u60C5\u7684\u5403\uFF01"
   Icon: {fileID: 21300000, guid: 33c3cfb55ff290d4b92246039edff202, type: 3}

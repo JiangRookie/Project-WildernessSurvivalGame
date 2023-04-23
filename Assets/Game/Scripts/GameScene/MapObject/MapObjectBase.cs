@@ -13,14 +13,14 @@ public enum MapObjectType
 public abstract class MapObjectBase : MonoBehaviour
 {
     [SerializeField] MapObjectType m_MapObjectType;
-    [SerializeField] protected float touchDistance; // 交互距离
+    [SerializeField] protected float m_InteractiveDistance; // 交互距离
     [SerializeField] protected bool canPickUp;
     [SerializeField] protected int canPickUpItemConfigID = -1;
     protected ulong m_ID;
     protected MapChunkController m_MapChunk;
 
     public MapObjectType MapObjectType => m_MapObjectType;
-    public float TouchDistance => touchDistance;
+    public float InteractiveDistance => m_InteractiveDistance;
     public bool CanPickUp => canPickUp;
     public int CanPickUpItemConfigID => canPickUpItemConfigID;
 

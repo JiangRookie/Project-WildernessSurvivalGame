@@ -19,9 +19,10 @@ public class MapGenerator
     Mesh m_ChunkMesh;
     int m_MapObjectForestWeightTotal; // 森林生成物品的权重总和
     int m_MapObjectMarshWeightTotal;  // 沼泽生成物品的权重总和
-    int m_AIForestWeightTotal;        // 森林生成物品的权重总和
-    int m_AIMarshWeightTotal;         // 沼泽生成物品的权重总和
+    int m_AIForestWeightTotal;        // 森林生成AI的权重总和
+    int m_AIMarshWeightTotal;         // 沼泽生成AI的权重总和
     static readonly int s_MainTex = Shader.PropertyToID("_MainTex");
+    List<MapObjectData> m_MapObjectDataList = new List<MapObjectData>(); // 用来避免每次都返回一个新的 List 对象
 
     #endregion
 
@@ -64,12 +65,13 @@ public class MapGenerator
         Random.InitState(m_MapInitData.MapGenerationSeed);
 
         int rowTotalCellNum = m_MapInitData.MapSize * m_MapConfig.MapChunkSize; // 一行/列总格子数
-        float[,] noiseMap = GenerateNoiseMap(rowTotalCellNum, rowTotalCellNum, m_MapConfig.NoiseLacunarity);
+        var noiseMap = GenerateNoiseMap(rowTotalCellNum, rowTotalCellNum, m_MapConfig.NoiseLacunarity);
 
         // 生成网格数据
         m_MapGrid = new MapGrid(rowTotalCellNum, rowTotalCellNum, m_MapConfig.CellSize);
         m_MapGrid.CalculateMapVertexType(noiseMap, m_MapInitData.MarshLimit);
 
+        // 初始化默认材质及大小
         m_MapConfig.MapMaterial.mainTexture = m_MapConfig.ForestTexture;
         float mapChunkLength = m_MapConfig.MapChunkSize * m_MapConfig.CellSize;
         m_MapConfig.MapMaterial.SetTextureScale(s_MainTex, new Vector2(mapChunkLength, mapChunkLength)); // 设置纹理缩放
@@ -115,14 +117,13 @@ public class MapGenerator
     /// </summary>
     /// <param name="chunkIndex">地图块索引</param>
     /// <param name="parent">父物体</param>
-    /// <param name="mapChunkData"></param>
+    /// <param name="mapChunkData">地图块数据</param>
     /// <param name="callBackForMapTexture"></param>
     /// <returns></returns>
     public MapChunkController GenerateMapChunk(Vector2Int chunkIndex, Transform parent, MapChunkData mapChunkData, Action callBackForMapTexture)
     {
-        // 生成地图块物体
-        GameObject mapChunkGameObj = new GameObject("Chunk_" + chunkIndex.ToString());
-        MapChunkController mapChunk = mapChunkGameObj.AddComponent<MapChunkController>();
+        var mapChunkGameObj = new GameObject("Chunk_" + chunkIndex.ToString());
+        var mapChunk = mapChunkGameObj.AddComponent<MapChunkController>();
 
         // 为地图块生成 Mesh
         mapChunkGameObj.AddComponent<MeshFilter>().mesh = m_ChunkMesh;
@@ -130,7 +131,7 @@ public class MapGenerator
         Texture2D mapTexture;
         bool allForest;
 
-        // 生成地图块的贴图
+        // 生成地图块的贴图、设置地图块的位置以及父物体、设置地图块的数据
         this.StartCoroutine(GenerateMapTexture(chunkIndex, (texture, isAllForest) =>
         {
             allForest = isAllForest;
@@ -147,8 +148,8 @@ public class MapGenerator
             }
             callBackForMapTexture?.Invoke();
 
-            float chunkSize = m_MapConfig.MapChunkSize * m_MapConfig.CellSize; // 地图块大小
-            Vector3 position = new Vector3(chunkIndex.x * chunkSize, 0, chunkIndex.y * chunkSize);
+            var chunkSize = m_MapConfig.MapChunkSize * m_MapConfig.CellSize; // 地图块大小
+            var position = new Vector3(chunkIndex.x * chunkSize, 0, chunkIndex.y * chunkSize);
             mapChunk.transform.position = position;
             mapChunkGameObj.transform.SetParent(parent);
 
@@ -164,20 +165,68 @@ public class MapGenerator
             else
             {
                 // 恢复VertexList
-                RecoverMapChunkData(chunkIndex, mapChunkData);
+                RestoreMapChunkData(chunkIndex, mapChunkData);
             }
 
             // 生成场景物体
             mapChunk.Init(chunkIndex, new Vector3(chunkSize / 2, 0, chunkSize / 2), allForest, mapChunkData);
 
             // 如果目前游戏没有完成初始化，要告诉GameSceneManager更新进度
-            if (GameSceneManager.Instance.IsInitialized == false)
-            {
-                GameSceneManager.Instance.UpdateGameLoadingProgress();
-            }
+            if (GameSceneManager.Instance.IsInitialized == false) GameSceneManager.Instance.UpdateGameLoadingProgress();
         }));
 
         return mapChunk;
+    }
+
+    /// <summary>
+    /// 生成地图对象数据，为了地图块初始化准备的
+    /// </summary>
+    /// <remarks>遍历地图顶点，根据spawnConfig中的配置信息及其概率进行随机生成，并在对应位置实例化物体</remarks>
+    MapChunkData GenerateMapChunkData(Vector2Int chunkIndex)
+    {
+        MapChunkData mapChunkData = new MapChunkData();
+        mapChunkData.MapObjectDict = new SerializableDictionary<ulong, MapObjectData>();
+        mapChunkData.AIDataDict = new SerializableDictionary<ulong, MapObjectData>();
+        mapChunkData.ForestVertexList = new List<MapVertex>(m_MapConfig.MapChunkSize * m_MapConfig.MapChunkSize);
+        mapChunkData.MarshVertexList = new List<MapVertex>(m_MapConfig.MapChunkSize * m_MapConfig.MapChunkSize);
+
+        int offsetX = chunkIndex.x * m_MapConfig.MapChunkSize;
+        int offsetZ = chunkIndex.y * m_MapConfig.MapChunkSize;
+
+        for (int x = 1; x < m_MapConfig.MapChunkSize; x++)
+        {
+            for (int y = 1; y < m_MapConfig.MapChunkSize; y++)
+            {
+                MapVertex mapVertex = m_MapGrid.GetVertex(x + offsetX, y + offsetZ);
+                switch (mapVertex.VertexType)
+                {
+                    case MapVertexType.Forest:
+                        mapChunkData.ForestVertexList.Add(mapVertex);
+                        break;
+                    case MapVertexType.Marsh:
+                        mapChunkData.MarshVertexList.Add(mapVertex);
+                        break;
+                }
+
+                // 通过权重获取一个地图对象的配置ID
+                var configID = GetMapObjectConfigIDByWeight(mapVertex.VertexType);
+                var config = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, configID);
+                if (config.IsEmpty) continue;
+
+                var position =
+                    mapVertex.Position +
+                    new Vector3(Random.Range(-m_MapGrid.CellSize / 2, m_MapGrid.CellSize / 2), 0
+                              , Random.Range(-m_MapGrid.CellSize / 2, m_MapGrid.CellSize / 2));
+
+                mapVertex.MapObjectID = m_MapData.CurrentID;
+
+                mapChunkData.MapObjectDict.Dictionary.Add(m_MapData.CurrentID, GenerateMapObjectData(configID, position, config.DestroyDays));
+            }
+        }
+
+        List<MapObjectData> aiDataList = GenerateAIObjectDataListOnMapChunkRefresh(mapChunkData);
+        foreach (var aiData in aiDataList) mapChunkData.AIDataDict.Dictionary.Add(aiData.ID, aiData);
+        return mapChunkData;
     }
 
     /// <summary>
@@ -192,12 +241,12 @@ public class MapGenerator
         Mesh mesh = new Mesh();
 
         // 确定顶点在哪里
-        mesh.vertices = new[]
+        mesh.vertices = new Vector3[]
         {
-            new Vector3(0, 0, 0)
-          , new Vector3(0, 0, height * cellSize)
-          , new Vector3(width * cellSize, 0, height * cellSize)
-          , new Vector3(width * cellSize, 0, 0)
+            new(0, 0, 0)
+          , new(0, 0, height * cellSize)
+          , new(width * cellSize, 0, height * cellSize)
+          , new(width * cellSize, 0, 0)
         };
 
         // 确定哪些点形成三角形
@@ -210,10 +259,10 @@ public class MapGenerator
         // 设置 UV
         mesh.uv = new Vector2[]
         {
-            new Vector3(0, 0)
-          , new Vector3(0, 1)
-          , new Vector3(1, 1)
-          , new Vector3(1, 0)
+            new(0, 0)
+          , new(0, 1)
+          , new(1, 1)
+          , new(1, 0)
         };
 
         // 重新计算法线
@@ -232,16 +281,15 @@ public class MapGenerator
     {
         lacunarity += 0.1f;
 
-        // 这里的噪声图是为了顶点服务的，而顶点是不包含地图四周的边界的，所以要在原有宽高的基础上 -1
         float[,] noiseMap = new float[width, height];
         float offsetX = Random.Range(-10000f, 10000f);
-        float offsetZ = Random.Range(-10000f, 10000f);
+        float offsetY = Random.Range(-10000f, 10000f);
 
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                noiseMap[x, y] = Mathf.PerlinNoise(x * lacunarity + offsetX, y * lacunarity + offsetZ);
+                noiseMap[x, y] = Mathf.PerlinNoise(x * lacunarity + offsetX, y * lacunarity + offsetY);
             }
         }
         return noiseMap;
@@ -257,22 +305,20 @@ public class MapGenerator
     {
         // 当前地图块的偏移量 找到这个地图块具体的每一个格子
         var cellOffsetX = chunkIndex.x * m_MapConfig.MapChunkSize + 1;
-        var cellOffsetZ = chunkIndex.y * m_MapConfig.MapChunkSize + 1;
+        var cellOffsetY = chunkIndex.y * m_MapConfig.MapChunkSize + 1;
         bool isAllForest = true; // 是不是一张完整的森林地图块
 
         // 遍历地图快检查是否只有森林类型的格子
-        for (int z = 0; z < m_MapConfig.MapChunkSize; z++)
+        for (int y = 0; y < m_MapConfig.MapChunkSize; y++)
         {
             if (isAllForest == false) break;
 
             for (int x = 0; x < m_MapConfig.MapChunkSize; x++)
             {
-                var cell = m_MapGrid.GetCell(x + cellOffsetX, z + cellOffsetZ);
-                if (cell != null && cell.TextureIndex != 0)
-                {
-                    isAllForest = false;
-                    break;
-                }
+                var cell = m_MapGrid.GetCell(x + cellOffsetX, y + cellOffsetY);
+                if (cell == null || cell.TextureIndex == 0) continue;
+                isAllForest = false;
+                break;
             }
         }
 
@@ -296,7 +342,7 @@ public class MapGenerator
                     int pixelOffsetX = x * textureCellSize;
 
                     // <0 是森林，>=0 是 沼泽
-                    int textureIndex = m_MapGrid.GetCell(x + cellOffsetX, y + cellOffsetZ).TextureIndex - 1;
+                    int textureIndex = m_MapGrid.GetCell(x + cellOffsetX, y + cellOffsetY).TextureIndex - 1;
 
                     // 绘制每一个格子内的像素
                     // 访问每一个像素点
@@ -341,8 +387,8 @@ public class MapGenerator
     /// <summary>
     /// 生成一个地图对象的数据
     /// </summary>
-    /// <param name="mapObjectConfigID"></param>
-    /// <param name="spawnPos"></param>
+    /// <param name="mapObjectConfigID">地图对象配置ID</param>
+    /// <param name="spawnPos">生成位置</param>
     /// <returns></returns>
     public MapObjectData GenerateMapObjectData(int mapObjectConfigID, Vector3 spawnPos)
     {
@@ -358,36 +404,104 @@ public class MapGenerator
     /// <summary>
     /// 生成一个地图对象数据
     /// </summary>
-    /// <param name="mapObjectConfigID"></param>
-    /// <param name="position"></param>
-    /// <param name="destroyDays"></param>
+    /// <param name="mapObjectConfigID">地图对象配置ID</param>
+    /// <param name="spawnPos">生成位置</param>
+    /// <param name="destroyDays">保质期（多少天后进行销毁）</param>
     /// <returns></returns>
-    MapObjectData GenerateMapObjectData(int mapObjectConfigID, Vector3 position, int destroyDays)
+    MapObjectData GenerateMapObjectData(int mapObjectConfigID, Vector3 spawnPos, int destroyDays)
     {
         MapObjectData mapObjectData = PoolManager.Instance.GetObject<MapObjectData>();
         mapObjectData.ConfigID = mapObjectConfigID;
         mapObjectData.ID = m_MapData.CurrentID;
         m_MapData.CurrentID++;
-        mapObjectData.Position = position;
+        mapObjectData.Position = spawnPos;
         mapObjectData.DestroyDays = destroyDays;
         return mapObjectData;
+    }
+
+    /// <summary>
+    /// 游戏中每天早晨通过地图块索引返回这个地图块多出来（新生成）的物品数据
+    /// </summary>
+    /// <param name="chunkIndex"></param>
+    /// <returns></returns>
+    public List<MapObjectData> GenerateMapObjectDataListOnMapChunkRefresh(Vector2Int chunkIndex)
+    {
+        m_MapObjectDataList.Clear();
+        int chunkSize = m_MapConfig.MapChunkSize;
+        int offsetX = chunkIndex.x * chunkSize;
+        int offsetZ = chunkIndex.y * chunkSize;
+        for (int x = 1; x < chunkSize; x++)
+        {
+            for (int y = 1; y < chunkSize; y++)
+            {
+                if (Random.Range(0, m_MapConfig.RefreshProbability) != 0) continue; // 如果概率没命中，则这一个顶点不刷新
+
+                MapVertex mapVertex = m_MapGrid.GetVertex(x + offsetX, y + offsetZ);
+                if (mapVertex.MapObjectID != 0) continue; // 不为0则不能生成
+
+                // 通过权重获取一个地图对象的配置ID
+                int configID = GetMapObjectConfigIDByWeight(mapVertex.VertexType);
+                var config = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, configID);
+
+                if (config.IsEmpty) continue;
+                var position = mapVertex.Position + new Vector3(Random.Range(-m_MapGrid.CellSize / 2, m_MapGrid.CellSize / 2), 0
+                                                              , Random.Range(-m_MapGrid.CellSize / 2, m_MapGrid.CellSize / 2));
+
+                mapVertex.MapObjectID = m_MapData.CurrentID;
+                m_MapObjectDataList.Add(GenerateMapObjectData(configID, position, config.DestroyDays));
+            }
+        }
+        return m_MapObjectDataList;
+    }
+
+    public List<MapObjectData> GenerateAIObjectDataListOnMapChunkRefresh(MapChunkData mapChunkData)
+    {
+        m_MapObjectDataList.Clear();
+
+        // 最多生成的数量
+        int maxSpawnCount = m_MapConfig.MaxAiCountOnChunk - mapChunkData.AIDataDict.Dictionary.Count;
+
+        // 生成Ai数据 一个地图块 森林或沼泽的顶点数要超过配置的才生成
+        if (mapChunkData.ForestVertexList.Count > m_MapConfig.GenerateAiMinVertexCountOnChunk)
+        {
+            for (int i = 0; i < maxSpawnCount; i++)
+            {
+                int configID = GetAIConfigIDForWeight(MapVertexType.Forest);
+                AIConfig config = ConfigManager.Instance.GetConfig<AIConfig>(ConfigName.AI, configID);
+                if (config.IsEmpty) continue;
+                m_MapObjectDataList.Add(GenerateMapObjectData(configID, Vector3.zero, -1));
+                maxSpawnCount--;
+            }
+        }
+        if (mapChunkData.MarshVertexList.Count > m_MapConfig.GenerateAiMinVertexCountOnChunk)
+        {
+            for (int i = 0; i < maxSpawnCount; i++)
+            {
+                int configID = GetAIConfigIDForWeight(MapVertexType.Marsh);
+                AIConfig config = ConfigManager.Instance.GetConfig<AIConfig>(ConfigName.AI, configID);
+                if (config.IsEmpty) continue;
+                m_MapObjectDataList.Add(GenerateMapObjectData(configID, Vector3.zero, -1));
+            }
+        }
+
+        return m_MapObjectDataList;
     }
 
     /// <summary>
     /// 通过权重获取一个地图对象的配置ID
     /// </summary>
     /// <returns></returns>
-    int GetMapObjectConfigIDForWeight(MapVertexType mapVertexType)
+    int GetMapObjectConfigIDByWeight(MapVertexType mapVertexType)
     {
         // 根据概率配置随机
-        List<int> spawnConfigIdList = m_MapObjectConfigDict[mapVertexType];
+        List<int> mapObjectConfigIDList = m_MapObjectConfigDict[mapVertexType];
 
         // 确定权重的总和
         int weightTotal = mapVertexType == MapVertexType.Forest ? m_MapObjectForestWeightTotal : m_MapObjectMarshWeightTotal;
 
         int randomValue = Random.Range(1, weightTotal + 1);
         float probabilitySum = 0; // 概率和
-        foreach (int id in spawnConfigIdList)
+        foreach (int id in mapObjectConfigIDList)
         {
             probabilitySum += ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, id).Probability;
 
@@ -407,14 +521,14 @@ public class MapGenerator
     int GetAIConfigIDForWeight(MapVertexType mapVertexType)
     {
         // 根据概率配置随机
-        List<int> spawnConfigIdList = m_AIConfigDict[mapVertexType];
+        List<int> aiConfigIdList = m_AIConfigDict[mapVertexType];
 
         // 确定权重的总和
         int weightTotal = mapVertexType == MapVertexType.Forest ? m_AIForestWeightTotal : m_AIMarshWeightTotal;
 
         int randomValue = Random.Range(1, weightTotal + 1);
         float probabilitySum = 0; // 概率和
-        foreach (int id in spawnConfigIdList)
+        foreach (int id in aiConfigIdList)
         {
             probabilitySum += ConfigManager.Instance.GetConfig<AIConfig>(ConfigName.AI, id).Probability;
 
@@ -427,160 +541,31 @@ public class MapGenerator
         return 0;
     }
 
-    /// <summary>
-    /// 生成地图对象数据，为了地图块初始化准备的
-    /// </summary>
-    /// <remarks>遍历地图顶点，根据spawnConfig中的配置信息及其概率进行随机生成，并在对应位置实例化物体</remarks>
-    MapChunkData GenerateMapChunkData(Vector2Int chunkIndex)
+    void RestoreMapChunkData(Vector2Int chunkIndex, MapChunkData mapChunkData)
     {
-        MapChunkData mapChunkData = new MapChunkData();
-        mapChunkData.MapObjectDict = new SerializableDictionary<ulong, MapObjectData>();
-        mapChunkData.AIDataDict = new SerializableDictionary<ulong, MapObjectData>();
-        mapChunkData.ForestVertexList = new List<MapVertex>(m_MapConfig.MapChunkSize * m_MapConfig.MapChunkSize);
-        mapChunkData.MarshVertexList = new List<MapVertex>(m_MapConfig.MapChunkSize * m_MapConfig.MapChunkSize);
+        int mapChunkSize = m_MapConfig.MapChunkSize;
+        mapChunkData.ForestVertexList = new List<MapVertex>(mapChunkSize * mapChunkSize);
+        mapChunkData.MarshVertexList = new List<MapVertex>(mapChunkSize * mapChunkSize);
 
-        int offsetX = chunkIndex.x * m_MapConfig.MapChunkSize;
-        int offsetZ = chunkIndex.y * m_MapConfig.MapChunkSize;
+        int offsetX = chunkIndex.x * mapChunkSize;
+        int offsetZ = chunkIndex.y * mapChunkSize;
 
-        for (int x = 1; x < m_MapConfig.MapChunkSize; x++)
+        for (int x = 1; x < mapChunkSize; x++)
         {
-            for (int y = 1; y < m_MapConfig.MapChunkSize; y++)
+            for (int y = 1; y < mapChunkSize; y++)
             {
                 MapVertex mapVertex = m_MapGrid.GetVertex(x + offsetX, y + offsetZ);
-                if (mapVertex.VertexType == MapVertexType.Forest)
+                switch (mapVertex.VertexType)
                 {
-                    mapChunkData.ForestVertexList.Add(mapVertex);
-                }
-                else if (mapVertex.VertexType == MapVertexType.Marsh)
-                {
-                    mapChunkData.MarshVertexList.Add(mapVertex);
-                }
-
-                // 通过权重获取一个地图对象的配置ID
-                int configID = GetMapObjectConfigIDForWeight(mapVertex.VertexType);
-                MapObjectConfig objectConfig = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, configID);
-                if (objectConfig.IsEmpty == false)
-                {
-                    var position = mapVertex.Position + new Vector3(Random.Range(-m_MapGrid.CellSize / 2, m_MapGrid.CellSize / 2), 0
-                                                                  , Random.Range(-m_MapGrid.CellSize / 2, m_MapGrid.CellSize / 2));
-
-                    mapVertex.MapObjectID = m_MapData.CurrentID;
-
-                    mapChunkData.MapObjectDict.Dictionary.Add(m_MapData.CurrentID
-                                                            , GenerateMapObjectData(configID, position, objectConfig.DestroyDays));
+                    case MapVertexType.Forest:
+                        mapChunkData.ForestVertexList.Add(mapVertex);
+                        break;
+                    case MapVertexType.Marsh:
+                        mapChunkData.MarshVertexList.Add(mapVertex);
+                        break;
                 }
             }
         }
-
-        List<MapObjectData> aiDataList = GenerateAIObjectDataList(mapChunkData);
-
-        foreach (var aiData in aiDataList)
-        {
-            mapChunkData.AIDataDict.Dictionary.Add(aiData.ID, aiData);
-        }
-
-        return mapChunkData;
-    }
-
-    void RecoverMapChunkData(Vector2Int chunkIndex, MapChunkData mapChunkData)
-    {
-        mapChunkData.ForestVertexList = new List<MapVertex>(m_MapConfig.MapChunkSize * m_MapConfig.MapChunkSize);
-        mapChunkData.MarshVertexList = new List<MapVertex>(m_MapConfig.MapChunkSize * m_MapConfig.MapChunkSize);
-
-        int offsetX = chunkIndex.x * m_MapConfig.MapChunkSize;
-        int offsetZ = chunkIndex.y * m_MapConfig.MapChunkSize;
-
-        for (int x = 1; x < m_MapConfig.MapChunkSize; x++)
-        {
-            for (int y = 1; y < m_MapConfig.MapChunkSize; y++)
-            {
-                MapVertex mapVertex = m_MapGrid.GetVertex(x + offsetX, y + offsetZ);
-                if (mapVertex.VertexType == MapVertexType.Forest)
-                {
-                    mapChunkData.ForestVertexList.Add(mapVertex);
-                }
-                else if (mapVertex.VertexType == MapVertexType.Marsh)
-                {
-                    mapChunkData.MarshVertexList.Add(mapVertex);
-                }
-            }
-        }
-    }
-
-    List<MapObjectData> m_MapObjectDataList = new List<MapObjectData>(); // 用来避免每次都返回一个新的 List 对象
-
-    /// <summary>
-    /// 游戏中每天早晨通过地图块索引返回这个地图块多出来（新生成）的物品数据
-    /// </summary>
-    /// <param name="chunkIndex"></param>
-    /// <returns></returns>
-    public List<MapObjectData> GenerateMapObjectDataListOnMapChunkRefresh(Vector2Int chunkIndex)
-    {
-        m_MapObjectDataList.Clear();
-        int offsetX = chunkIndex.x * m_MapConfig.MapChunkSize;
-        int offsetZ = chunkIndex.y * m_MapConfig.MapChunkSize;
-        for (int x = 1; x < m_MapConfig.MapChunkSize; x++)
-        {
-            for (int y = 1; y < m_MapConfig.MapChunkSize; y++)
-            {
-                if (Random.Range(0, m_MapConfig.RefreshProbability) != 0) continue; // 如果概率没命中，则这一个顶点不刷新
-
-                MapVertex mapVertex = m_MapGrid.GetVertex(x + offsetX, y + offsetZ);
-                if (mapVertex.MapObjectID != 0) continue; // 不为0则不能生成
-
-                // 通过权重获取一个地图对象的配置ID
-                int configID = GetMapObjectConfigIDForWeight(mapVertex.VertexType);
-                MapObjectConfig objectConfig = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, configID);
-
-                if (objectConfig.IsEmpty == false)
-                {
-                    var position = mapVertex.Position + new Vector3(Random.Range(-m_MapGrid.CellSize / 2, m_MapGrid.CellSize / 2)
-                                                                  , 0
-                                                                  , Random.Range(-m_MapGrid.CellSize / 2, m_MapGrid.CellSize / 2));
-
-                    mapVertex.MapObjectID = m_MapData.CurrentID;
-                    m_MapObjectDataList.Add(GenerateMapObjectData(configID, position, objectConfig.DestroyDays));
-                }
-            }
-        }
-        return m_MapObjectDataList;
-    }
-
-    public List<MapObjectData> GenerateAIObjectDataList(MapChunkData mapChunkData)
-    {
-        m_MapObjectDataList.Clear();
-
-        // 最多生成的数量
-        int maxCount = m_MapConfig.MaxAiCountOnChunk - mapChunkData.AIDataDict.Dictionary.Count;
-
-        // 生成Ai数据 一个地图块 森林或沼泽的顶点数要超过配置的才生成
-        if (mapChunkData.ForestVertexList.Count > m_MapConfig.GenerateAiMinVertexCountOnChunk)
-        {
-            for (int i = 0; i < maxCount; i++)
-            {
-                int configID = GetAIConfigIDForWeight(MapVertexType.Forest);
-                AIConfig config = ConfigManager.Instance.GetConfig<AIConfig>(ConfigName.AI, configID);
-                if (config.IsEmpty == false)
-                {
-                    m_MapObjectDataList.Add(GenerateMapObjectData(configID, Vector3.zero, -1));
-                    maxCount--;
-                }
-            }
-        }
-        if (mapChunkData.MarshVertexList.Count > m_MapConfig.GenerateAiMinVertexCountOnChunk)
-        {
-            for (int i = 0; i < maxCount; i++)
-            {
-                int configID = GetAIConfigIDForWeight(MapVertexType.Marsh);
-                AIConfig config = ConfigManager.Instance.GetConfig<AIConfig>(ConfigName.AI, configID);
-                if (config.IsEmpty == false)
-                {
-                    m_MapObjectDataList.Add(GenerateMapObjectData(configID, Vector3.zero, -1));
-                }
-            }
-        }
-
-        return m_MapObjectDataList;
     }
 
     #endregion

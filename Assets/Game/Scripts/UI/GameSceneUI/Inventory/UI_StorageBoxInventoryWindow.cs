@@ -17,7 +17,7 @@ public class UI_StorageBoxInventoryWindow : UI_InventoryWindowBase
     {
         if (PlayerController.Instance != null)
         {
-            if (Vector3.Distance(PlayerController.Instance.transform.position, m_StorageBox.transform.position) > m_StorageBox.TouchDistance)
+            if (Vector3.Distance(PlayerController.Instance.transform.position, m_StorageBox.transform.position) > m_StorageBox.InteractiveDistance)
             {
                 CloseButtonClick();
             }
@@ -67,7 +67,7 @@ public class UI_StorageBoxInventoryWindow : UI_InventoryWindowBase
         ProjectTool.PlayAudio(AudioType.Bag);
         for (var i = 0; i < m_Slots.Count; i++)
         {
-            m_Slots[i].JKGameObjectPushPool();
+            m_Slots[i].PushGameObj2Pool();
         }
         m_Slots.Clear();
         m_InventoryData = null;

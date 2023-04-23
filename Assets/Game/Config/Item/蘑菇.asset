@@ -29,7 +29,7 @@ MonoBehaviour:
       Data: 10
     - Name: RecoverHp
       Entry: 4
-      Data: -10
+      Data: -5
     - Name: RecoverHungry
       Entry: 4
       Data: 10

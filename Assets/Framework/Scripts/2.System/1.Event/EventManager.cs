@@ -27,7 +27,7 @@ namespace JKFrame
             public void Destory()
             {
                 action = null;
-                this.JKObjectPushPool();
+                this.PushObj2Pool();
             }
         }
         /// <summary>
@@ -43,7 +43,7 @@ namespace JKFrame
             public void Destory()
             {
                 action = null;
-                this.JKObjectPushPool();
+                this.PushObj2Pool();
             }
         }
         /// <summary>
@@ -59,7 +59,7 @@ namespace JKFrame
             public void Destory()
             {
                 action = null;
-                this.JKObjectPushPool();
+                this.PushObj2Pool();
             }
         }
         /// <summary>
@@ -75,7 +75,7 @@ namespace JKFrame
             public void Destory()
             {
                 action = null;
-                this.JKObjectPushPool();
+                this.PushObj2Pool();
             }
         }
         #endregion

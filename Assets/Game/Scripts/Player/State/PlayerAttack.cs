@@ -6,7 +6,7 @@ public class PlayerAttack : PlayerStateBase
 
     public override void Enter()
     {
-        AttackDirection = m_PlayerCtrl.AttackDirection;
+        AttackDirection = m_PlayerCtrl.AttackDir;
         m_PlayerCtrl.PlayerAnimation("Attack");
     }
 

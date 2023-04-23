@@ -77,7 +77,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MapObjectType: 4
-  touchDistance: 1
+  m_InteractiveDistance: 1
   canPickUp: 1
   canPickUpItemConfigID: 10
 --- !u!1 &8460903932388375700

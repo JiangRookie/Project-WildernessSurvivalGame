@@ -119,7 +119,7 @@ public class UI_MapWindow : UI_WindowBase
     {
         if (m_MapObjectIconDict.TryGetValue(mapObjectID, out Image icon))
         {
-            icon.JKGameObjectPushPool();
+            icon.PushGameObj2Pool();
             m_MapObjectIconDict.Remove(mapObjectID);
         }
     }
@@ -166,7 +166,7 @@ public class UI_MapWindow : UI_WindowBase
     {
         foreach (Image image in m_MapObjectIconDict.Values)
         {
-            image.JKGameObjectPushPool();
+            image.PushGameObj2Pool();
         }
 
         foreach (Image image in m_MapChunkImageDict.Values)

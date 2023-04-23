@@ -1,8 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
+#if UNITY_EDITOR
 public class JKMenuItem
 {
     [MenuItem("JKFrame/打开存档路径")]
@@ -10,9 +9,11 @@ public class JKMenuItem
     {
         EditorUtility.RevealInFinder(Application.persistentDataPath);
     }
+
     [MenuItem("JKFrame/打开框架文档")]
     public static void OpenDoc()
     {
         Application.OpenURL("http://www.yfjoker.com/JKFrame/index.html");
     }
 }
+#endif

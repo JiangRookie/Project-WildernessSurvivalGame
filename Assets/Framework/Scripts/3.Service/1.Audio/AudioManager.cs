@@ -245,7 +245,7 @@ namespace JKFrame
             // 放回池子
             if (audioSource != null)
             {
-                audioSource.JKGameObjectPushPool();
+                audioSource.PushGameObj2Pool();
                 // 回调 延迟 time（秒）时间
                 yield return new WaitForSeconds(time);
                 callBak?.Invoke();

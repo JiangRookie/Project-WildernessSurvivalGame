@@ -6,8 +6,15 @@ using UnityEngine;
 /// </summary>
 public class MapGrid
 {
+    readonly Dictionary<Vector2Int, MapVertex> m_VertexDic = new Dictionary<Vector2Int, MapVertex>();
+    readonly Dictionary<Vector2Int, MapCell> m_CellDic = new Dictionary<Vector2Int, MapCell>();
+
+    public int MapHeight { get; }
+    public int MapWidth { get; }
+    public float CellSize { get; }
+
     /// <summary>
-    /// Generating grid data.
+    /// 生成地图网格数据
     /// </summary>
     /// <param name="mapWidth">宽（地图行总格子数）</param>
     /// <param name="mapHeight">高（地图列总格子数）</param>
@@ -32,10 +39,6 @@ public class MapGrid
         for (int z = 1; z < mapWidth; z++) AddCell(mapWidth, z);   // 不取等号的原因是行列有一个是重叠的
     }
 
-    public int MapHeight { get; private set; }
-    public int MapWidth { get; private set; }
-    public float CellSize { get; private set; }
-
     /// <summary>
     /// 计算地图顶点类型
     /// </summary>
@@ -46,33 +49,26 @@ public class MapGrid
         int width = noiseMap.GetLength(0);
         int height = noiseMap.GetLength(1);
 
-        // 遍历的是格子所以要加上 “=” 号
         for (int x = 1; x < width; x++)
         {
             for (int y = 1; y < height; y++)
             {
                 // 基于噪声中的值确定这个顶点的类型；减1是因为数组要从0开始。
-                SetVertexType(x, y, noiseMap[x - 1, y - 1] >= marshLimit ? MapVertexType.Marsh : MapVertexType.Forest);
+                SetVertexType(x, y, noiseMap[x, y] >= marshLimit ? MapVertexType.Marsh : MapVertexType.Forest);
             }
         }
     }
 
     #region Vertex
 
-    /// <summary>
-    /// 顶点数据<br/>
-    /// key: 顶点坐标 value: 地图顶点类
-    /// </summary>
-    public readonly Dictionary<Vector2Int, MapVertex> VertexDic = new();
-
     void AddVertex(int x, int z)
     {
-        VertexDic.Add(new Vector2Int(x, z), new MapVertex { Position = new Vector3(x * CellSize, 0, z * CellSize) });
+        m_VertexDic.Add(new Vector2Int(x, z), new MapVertex { Position = new Vector3(x * CellSize, 0, z * CellSize) });
     }
 
     public MapVertex GetVertex(Vector2Int index)
     {
-        VertexDic.TryGetValue(index, out MapVertex vertex);
+        m_VertexDic.TryGetValue(index, out MapVertex vertex);
         return vertex;
     }
 
@@ -114,22 +110,16 @@ public class MapGrid
 
     #region Cell
 
-    /// <summary>
-    /// 格子数据<br/>
-    /// key: 顶点坐标 value: 地图格子类
-    /// </summary>
-    public readonly Dictionary<Vector2Int, MapCell> CellDic = new();
-
     void AddCell(int x, int y)
     {
         var offset = CellSize / 2;
-        CellDic.Add(new Vector2Int(x, y)
-                  , new MapCell { Position = new Vector3(x * CellSize - offset, 0, y * CellSize - offset) });
+        m_CellDic.Add(new Vector2Int(x, y)
+                    , new MapCell { Position = new Vector3(x * CellSize - offset, 0, y * CellSize - offset) });
     }
 
     public MapCell GetCell(Vector2Int pos)
     {
-        CellDic.TryGetValue(pos, out MapCell cell);
+        m_CellDic.TryGetValue(pos, out MapCell cell);
         return cell;
     }
 

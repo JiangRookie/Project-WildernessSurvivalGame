@@ -56,7 +56,7 @@ public class UI_BuildWindow_SecondaryMenu : MonoBehaviour
         // 旧列表中的所有选项先放进对象池
         foreach (var secondaryMenuItem in m_CurrEffectAllSecondaryMenuItemList)
         {
-            secondaryMenuItem.JKGameObjectPushPool();
+            secondaryMenuItem.PushGameObj2Pool();
         }
         m_CurrEffectAllSecondaryMenuItemList.Clear();
 

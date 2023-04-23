@@ -27,6 +27,6 @@ public class LootConfig : ConfigBase
 
 public class LootConfigModel
 {
-    [LabelText("掉落物品ID")] public int LootObjectConfigID;
+    [LabelText("掉落物品ID（MapObjectID）")] public int LootObjectConfigID;
     [LabelText("掉落概率 %")] public int Probability;
 }

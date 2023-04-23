@@ -6,10 +6,7 @@ public class ScienceData
 {
     public List<int> UnlockedScienceList = new List<int>(10); // 已解锁科技列表
 
-    public bool CheckUnlock(int id)
-    {
-        return UnlockedScienceList.Contains(id);
-    }
+    public bool CheckUnlock(int id) => UnlockedScienceList.Contains(id);
 
     public void AddScience(int id)
     {

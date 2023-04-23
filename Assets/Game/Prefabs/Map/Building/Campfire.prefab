@@ -137,7 +137,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MapObjectType: 6
-  touchDistance: 2
+  m_InteractiveDistance: 2
   canPickUp: 0
   canPickUpItemConfigID: -1
   m_Collider: {fileID: 4543590397158396696}

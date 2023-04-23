@@ -43,7 +43,7 @@ public class BerryBushController : BushController, IBuilding
         if (isFromBuild)
         {
             // 来自建筑物建造的情况下，直接是为刚刚采摘（这件事情也需要持久化）
-            m_TypeData.LastPickUpDayNum = TimeManager.Instance.CurrentDayNum;
+            m_TypeData.LastPickUpDayNum = TimeManager.Instance.CurrDayNum;
         }
         CheckAndSetState();
         EventManager.AddEventListener(EventName.OnMorning, OnMorning);
@@ -60,7 +60,7 @@ public class BerryBushController : BushController, IBuilding
         // 修改外表
         m_MeshRenderer.sharedMaterial = m_Materials[1];
         canPickUp = false;
-        m_TypeData.LastPickUpDayNum = TimeManager.Instance.CurrentDayNum;
+        m_TypeData.LastPickUpDayNum = TimeManager.Instance.CurrDayNum;
         return canPickUpItemConfigID;
     }
 
@@ -75,7 +75,7 @@ public class BerryBushController : BushController, IBuilding
         else
         {
             // 根据时间决定状态
-            if (TimeManager.Instance.CurrentDayNum - m_TypeData.LastPickUpDayNum >= m_BerryGrowthDays)
+            if (TimeManager.Instance.CurrDayNum - m_TypeData.LastPickUpDayNum >= m_BerryGrowthDays)
             {
                 m_MeshRenderer.sharedMaterial = m_Materials[0];
                 canPickUp = true;

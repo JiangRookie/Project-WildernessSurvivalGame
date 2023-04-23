@@ -1,6 +1,6 @@
 using JKFrame;
 
-public class AIStateBase : StateBase
+public abstract class AIStateBase : StateBase
 {
     protected AIBase m_AI;
 

@@ -13,8 +13,5 @@ public class AIDeadState : AIStateBase
         m_AI.InputCheckCollider.enabled = true;
     }
 
-    void DeadOver()
-    {
-        m_AI.Dead();
-    }
+    void DeadOver() => m_AI.Dead();
 }

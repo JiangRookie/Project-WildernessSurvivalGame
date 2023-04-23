@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 public class InputManager : SingletonMono<InputManager>
 {
     [SerializeField] LayerMask m_BigMapObjectLayer;
-    [SerializeField] LayerMask m_MapObjectLayerForMouseCanInteract; // Map object layer that the mouse can interact with
+    [SerializeField] LayerMask m_MapObjectLayerForMouseCanInteract;
     [SerializeField] LayerMask m_GroundLayer;
     [SerializeField] LayerMask m_BuildingLayer;
     bool m_NeedToCheck = false;
@@ -18,16 +18,13 @@ public class InputManager : SingletonMono<InputManager>
         CheckSelectMapObject();
     }
 
-    public void Init()
-    {
-        SetCheckState(true);
-    }
+    public void Init() => SetCheckState(true);
 
-    public void SetCheckState(bool needToCheck)
-    {
-        m_NeedToCheck = needToCheck;
-    }
+    public void SetCheckState(bool needToCheck) => m_NeedToCheck = needToCheck;
 
+    /// <summary>
+    /// 检查选中的地图对象
+    /// </summary>
     void CheckSelectMapObject()
     {
         if (m_NeedToCheck == false) return;
@@ -37,33 +34,37 @@ public class InputManager : SingletonMono<InputManager>
 
         if (mouseButtonDown || mouseButton)
         {
-            // 如果检测到UI则无视
             if (CheckMouseOnUI()) return;
+
+            #region Check MapObjet
 
             Ray ray = CameraController.Instance.Camera.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hitInfo, 100, m_MapObjectLayerForMouseCanInteract))
             {
                 // 发给PlayerController去处理
-                PlayerController.Instance.OnSelectMapObject(hitInfo, mouseButtonDown);
+                PlayerController.Instance.OnSelectMapObjectOrAI(hitInfo, mouseButtonDown);
             }
 
-            // 处理建筑物逻辑
-            if (mouseButtonDown && Physics.Raycast(ray, out hitInfo, 100, m_BuildingLayer))
+            #endregion
+
+            #region Check Building
+
+            if (!mouseButtonDown || !Physics.Raycast(ray, out hitInfo, 100, m_BuildingLayer)) return;
+
+            var building = hitInfo.collider.GetComponent<BuildingBase>();
+            if (building.InteractiveDistance <= 0) return; // 科学机器无法交互，只能建造
+
+            if (Vector3.Distance(PlayerController.Instance.transform.position, building.transform.position) < building.InteractiveDistance)
             {
-                BuildingBase building = hitInfo.collider.GetComponent<BuildingBase>();
-                if (building.TouchDistance > 0)
-                {
-                    if (Vector3.Distance(PlayerController.Instance.transform.position, building.transform.position) < building.TouchDistance)
-                    {
-                        building.OnSelect();
-                    }
-                    else
-                    {
-                        UIManager.Instance.AddTips("离近一点");
-                        ProjectTool.PlayAudio(AudioType.Fail);
-                    }
-                }
+                building.OnSelect();
             }
+            else
+            {
+                UIManager.Instance.AddTips("离近一点");
+                ProjectTool.PlayAudio(AudioType.Fail);
+            }
+
+            #endregion
         }
     }
 
@@ -74,19 +75,15 @@ public class InputManager : SingletonMono<InputManager>
     {
         PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
         pointerEventData.position = Input.mousePosition;
-
-        // 射线检测除了Mast外是否有其他UI物体
         EventSystem.current.RaycastAll(pointerEventData, m_RaycastResultList);
+
+        // 检测除了Mask外是否还有其他UI物体
         for (int i = 0; i < m_RaycastResultList.Count; i++)
         {
             RaycastResult raycastResult = m_RaycastResultList[i];
-
-            // 是UI同时不是Mast作用的物体
-            if (raycastResult.gameObject.GetComponent<RectTransform>() && raycastResult.gameObject.name != "Mask")
-            {
-                m_RaycastResultList.Clear();
-                return true;
-            }
+            if (raycastResult.gameObject.GetComponent<RectTransform>() == false || raycastResult.gameObject.name == "Mask") continue;
+            m_RaycastResultList.Clear();
+            return true;
         }
         m_RaycastResultList.Clear();
         return false;
@@ -98,7 +95,7 @@ public class InputManager : SingletonMono<InputManager>
     /// <returns></returns>
     public bool GetMouseWorldPosOnGround(Vector3 mousePos, out Vector3 mouseWorldPos)
     {
-        if (Physics.Raycast(Camera.main.ScreenPointToRay(mousePos), out RaycastHit hitInfo, 1000, m_GroundLayer))
+        if (Physics.Raycast(CameraController.Instance.Camera.ScreenPointToRay(mousePos), out RaycastHit hitInfo, 1000, m_GroundLayer))
         {
             mouseWorldPos = hitInfo.point;
             return true;
@@ -107,24 +104,24 @@ public class InputManager : SingletonMono<InputManager>
         return false;
     }
 
-    public bool CheckMouseOnBigMapObject()
-    {
-        return Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), 1000, m_BigMapObjectLayer);
-    }
+    /// <summary>
+    /// 检测鼠标是否在较大的地图对象上
+    /// </summary>
+    /// <returns></returns>
+    public bool CheckMouseOnBigMapObject() =>
+        Physics.Raycast(CameraController.Instance.Camera.ScreenPointToRay(Input.mousePosition), 1000, m_BigMapObjectLayer);
 
     /// <summary>
-    /// 检查当格子停止拖拽时是否在建筑物上
+    /// 当格子停止拖拽时检查是否处于建筑物上
     /// </summary>
     /// <param name="itemID"></param>
     /// <returns></returns>
     public bool CheckSlotEndDragOnBuilding(int itemID)
     {
         Ray ray = CameraController.Instance.Camera.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hitInfo, 100, m_BuildingLayer))
-        {
-            BuildingBase building = hitInfo.collider.GetComponent<BuildingBase>();
-            return building.OnSlotEndDragSelect(itemID);
-        }
-        return false;
+        if (Physics.Raycast(ray, out RaycastHit hitInfo, 100, m_BuildingLayer) == false) return false;
+        
+        var building = hitInfo.collider.GetComponent<BuildingBase>();
+        return building.OnSlotEndDragSelect(itemID);
     }
 }

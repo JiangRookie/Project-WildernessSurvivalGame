@@ -10,7 +10,7 @@ namespace JKFrame
     /// <summary>
     /// JKFrame 框架主要的拓展方法
     /// </summary>
-    public static class Extension
+    public static class JokerFrameworkExtension
     {
         #region 通用
 
@@ -67,7 +67,7 @@ namespace JKFrame
         /// <summary>
         /// GameObject放入对象池
         /// </summary>
-        public static void JKGameObjectPushPool(this GameObject go)
+        public static void PushGameObj2Pool(this GameObject go)
         {
             PoolManager.Instance.PushGameObject(go);
         }
@@ -75,16 +75,16 @@ namespace JKFrame
         /// <summary>
         /// GameObject放入对象池
         /// </summary>
-        public static void JKGameObjectPushPool(this Component com)
+        public static void PushGameObj2Pool(this Component com)
         {
-            JKGameObjectPushPool(com.gameObject);
+            PushGameObj2Pool(com.gameObject);
         }
 
         /// <summary>
         /// 普通类放进池子
         /// </summary>
         /// <param name="obj"></param>
-        public static void JKObjectPushPool(this object obj)
+        public static void PushObj2Pool(this object obj)
         {
             PoolManager.Instance.PushObject(obj);
         }
@@ -201,5 +201,32 @@ namespace JKFrame
         }
 
         #endregion
+    }
+
+    public static class GameObjectExtension
+    {
+        public static GameObject Show(this GameObject selfObj)
+        {
+            selfObj.SetActive(true);
+            return selfObj;
+        }
+
+        public static T Show<T>(this T selfComponent) where T : Component
+        {
+            selfComponent.gameObject.SetActive(true);
+            return selfComponent;
+        }
+
+        public static GameObject Hide(this GameObject selfObj)
+        {
+            selfObj.SetActive(false);
+            return selfObj;
+        }
+
+        public static T Hide<T>(this T selfComponent) where T : Component
+        {
+            selfComponent.gameObject.SetActive(false);
+            return selfComponent;
+        }
     }
 }

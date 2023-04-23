@@ -4,5 +4,5 @@ using UnityEngine;
 [Pool]
 public class HitEffect : MonoBehaviour
 {
-    void OnParticleSystemStopped() => this.JKGameObjectPushPool();
+    void OnParticleSystemStopped() => this.PushGameObj2Pool();
 }

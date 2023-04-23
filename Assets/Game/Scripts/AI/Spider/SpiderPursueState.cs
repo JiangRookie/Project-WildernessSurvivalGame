@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class SpiderPursueState : AIPursueState
 {
-    protected SpiderController m_SpiderController;
+    SpiderController m_SpiderController;
 
     public override void Init(IStateMachineOwner owner, int stateType, StateMachine stateMachine)
     {
@@ -21,28 +21,26 @@ public class SpiderPursueState : AIPursueState
 
     public override void Update()
     {
-        if (GameSceneManager.Instance.IsGameOver == false)
+        if (GameSceneManager.Instance.IsGameOver) return;
+        var distance = Vector3.Distance(m_AI.transform.position, PlayerController.Instance.transform.position);
+        if (distance < m_AI.Radius + m_AI.AttackRange) // 在攻击范围
         {
-            var distance = Vector3.Distance(m_AI.transform.position, PlayerController.Instance.transform.position);
-            if (distance < m_AI.Radius + m_AI.AttackRange)
-            {
-                m_AI.ChangeState(AIState.Attack);
-            }
-            else
-            {
-                m_AI.Agent.SetDestination(PlayerController.Instance.transform.position);
-                m_AI.SavePosition();
+            m_AI.ChangeState(AIState.Attack);
+        }
+        else
+        {
+            m_AI.Agent.SetDestination(PlayerController.Instance.transform.position);
+            m_AI.SavePosition();
 
-                // 如果远离则待机
-                if (distance > m_SpiderController.RetreatDistance)
-                {
-                    m_AI.ChangeState(AIState.Idle);
-                    return;
-                }
-
-                // 检测AI的归属地图快
-                CheckAndTransferMapChunk();
+            // 如果远离则待机
+            if (distance > m_SpiderController.RetreatDistance)
+            {
+                m_AI.ChangeState(AIState.Idle);
+                return;
             }
+
+            // 检测AI的归属地图快
+            CheckAndTransferMapChunk();
         }
     }
 

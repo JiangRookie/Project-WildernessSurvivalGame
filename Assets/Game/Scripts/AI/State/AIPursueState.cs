@@ -31,7 +31,7 @@ public class AIPursueState : AIStateBase
     protected void CheckAndTransferMapChunk()
     {
         // 通过 AI 所在坐标的地图块 和 AI 归属的地图块做比较
-        MapChunkController newMapChunk = MapManager.Instance.GetMapChunk(m_AI.transform.position);
+        var newMapChunk = MapManager.Instance.GetMapChunk(m_AI.transform.position);
         if (newMapChunk != m_AI.MapChunk)
         {
             // 从当前地图块移除
@@ -42,15 +42,15 @@ public class AIPursueState : AIStateBase
         }
     }
 
-    protected void FootStep()
-    {
-        int index = Random.Range(1, 3);
-        m_AI.PlayAudio("FootStep" + index.ToString());
-    }
-
     public override void Exit()
     {
         m_AI.Agent.enabled = false;
         m_AI.RemoveAnimationEvent("FootStep", FootStep);
+    }
+
+    protected void FootStep()
+    {
+        int index = Random.Range(1, 3);
+        m_AI.PlayAudio("FootStep" + index.ToString(), 0.15f);
     }
 }
