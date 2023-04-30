@@ -22,10 +22,7 @@ namespace JKFrame
             LastSaveTime = lastSaveTime;
         }
 
-        public void UpdateTime(DateTime lastSaveTime)
-        {
-            LastSaveTime = lastSaveTime;
-        }
+        public void UpdateTime(DateTime lastSaveTime) => LastSaveTime = lastSaveTime;
     }
 
     /// <summary>
@@ -39,11 +36,9 @@ namespace JKFrame
         [Serializable]
         class SaveManagerData
         {
-            // 当前的存档ID
-            public int CurrID = 0;
+            public int CurrID = 0; // 当前的存档ID
 
-            // 所有存档的列表
-            public List<SaveItem> SaveItemList = new List<SaveItem>();
+            public List<SaveItem> SaveItemList = new List<SaveItem>(); // 所有存档的列表
         }
 
         static SaveManagerData s_SaveManagerData;

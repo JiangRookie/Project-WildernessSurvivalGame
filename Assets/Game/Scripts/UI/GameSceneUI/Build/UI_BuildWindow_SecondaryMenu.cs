@@ -101,7 +101,7 @@ public class UI_BuildWindow_SecondaryMenu : MonoBehaviour
     {
         // 从对象池中获取菜单选项
         UI_BuildWindow_SecondaryMenuItem secondaryMenuItem
-            = PoolManager.Instance.GetGameObject<UI_BuildWindow_SecondaryMenuItem>(m_SecondaryMenuItemPrefab, m_ItemParent);
+            = PoolManager.Instance.Get<UI_BuildWindow_SecondaryMenuItem>(m_SecondaryMenuItemPrefab, m_ItemParent);
         m_CurrEffectAllSecondaryMenuItemList.Add(secondaryMenuItem);
         secondaryMenuItem.Init(buildConfig, this, isMeetCondition);
     }

@@ -97,7 +97,7 @@ public class MapChunkController : MonoBehaviour
     void InstantiateMapObject(MapObjectData mapObjectData, bool isFromBuild)
     {
         MapObjectConfig config = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, mapObjectData.ConfigID);
-        MapObjectBase mapObj = PoolManager.Instance.GetGameObject(config.Prefab, transform).GetComponent<MapObjectBase>();
+        MapObjectBase mapObj = PoolManager.Instance.Get(config.Prefab, transform).GetComponent<MapObjectBase>();
         mapObj.transform.position = mapObjectData.Position;
         mapObj.Init(this, mapObjectData.ID, isFromBuild);
         m_MapObjectDict.Add(mapObjectData.ID, mapObj);
@@ -129,7 +129,7 @@ public class MapChunkController : MonoBehaviour
     void InstantiateAIObject(MapObjectData aiData)
     {
         AIConfig aiConfig = ConfigManager.Instance.GetConfig<AIConfig>(ConfigName.AI, aiData.ConfigID);
-        AIBase aiObj = PoolManager.Instance.GetGameObject(aiConfig.Prefab, transform).GetComponent<AIBase>();
+        AIBase aiObj = PoolManager.Instance.Get(aiConfig.Prefab, transform).GetComponent<AIBase>();
         if (aiData.Position == Vector3.zero)
         {
             aiData.Position = GetAIRandomPoint(aiConfig.MapVertexType);

@@ -31,7 +31,7 @@ MonoBehaviour:
       Data: 0|Item_WeaponInfo, Assembly-CSharp
     - Name: WeaponType
       Entry: 3
-      Data: 0
+      Data: 1
     - Name: PrefabOnPlayer
       Entry: 10
       Data: 0

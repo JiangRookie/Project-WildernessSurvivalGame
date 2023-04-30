@@ -75,7 +75,7 @@ namespace JKFrame
             /// </summary>
             public void AddListener(Action<T, object[]> action, params object[] args)
             {
-                JKEventListenerEventInfo<T> info = PoolManager.Instance.GetObject<JKEventListenerEventInfo<T>>();
+                JKEventListenerEventInfo<T> info = PoolManager.Instance.Get<JKEventListenerEventInfo<T>>();
                 info.Init(action, args);
                 m_EventList.Add(info);
             }
@@ -168,7 +168,7 @@ namespace JKFrame
             }
             else
             {
-                JKEventListenerEventInfos<T> infos = PoolManager.Instance.GetObject<JKEventListenerEventInfos<T>>();
+                JKEventListenerEventInfos<T> infos = PoolManager.Instance.Get<JKEventListenerEventInfos<T>>();
                 infos.AddListener(action, args);
                 m_EventInfoDict.Add(eventType, infos);
             }

@@ -7,76 +7,59 @@ namespace JKFrame
 {
     public class PoolManager : ManagerBase<PoolManager>
     {
-        // 根节点
-        [SerializeField] GameObject poolRootObj;
+        [SerializeField] GameObject poolRootObj; // 对象池根节点
+
+        public Dictionary<string, GameObjectPoolData> GameObjectPoolDict = new Dictionary<string, GameObjectPoolData>(); // GameObject对象容器
+
+        public Dictionary<string, ObjectPoolData> ObjectPoolDict = new Dictionary<string, ObjectPoolData>(); // 普通类对象容器
+
+        #region GameObject
 
         /// <summary>
-        /// GameObject对象容器
+        /// 获取GameObject对象上的T组件
         /// </summary>
-        public Dictionary<string, GameObjectPoolData> gameObjectPoolDic = new Dictionary<string, GameObjectPoolData>();
-
-        /// <summary>
-        /// 普通类 对象容器
-        /// </summary>
-        public Dictionary<string, ObjectPoolData> objectPoolDic = new Dictionary<string, ObjectPoolData>();
-
-        #region GameObject对象相关操作
-
-        /// <summary>
-        /// 获取GameObject
-        /// </summary>
-        /// <typeparam name="T">你最终组件</typeparam>
-        public T GetGameObject<T>(GameObject prefab, Transform parent = null) where T : Object
+        /// <typeparam name="T">需要获取的组件</typeparam>
+        public T Get<T>(GameObject prefab, Transform parent = null) where T : Object
         {
-            GameObject obj = GetGameObject(prefab, parent);
-            if (obj != null)
-            {
-                return obj.GetComponent<T>();
-            }
-
+            GameObject obj = Get(prefab, parent);
+            if (obj != null) return obj.GetComponent<T>();
             return null;
         }
 
         /// <summary>
-        /// 获取GameObject
+        /// 获取GameObject对象
         /// </summary>
-        public GameObject GetGameObject(GameObject prefab, Transform parent = null)
+        public GameObject Get(GameObject prefab, Transform parent = null)
         {
-            GameObject obj = null;
-            string name = prefab.name;
-
-            // 检查有没有这一层
+            GameObject obj;
+            string prefabName = prefab.name;
             if (CheckGameObjectCache(prefab))
             {
-                obj = gameObjectPoolDic[name].GetObj(parent);
+                obj = GameObjectPoolDict[prefabName].Get(parent); // 从对象池获取对象
             }
-
-            // 没有的话给你实例化一个
             else
             {
-                // 确保实例化后的游戏物体和预制体名称一致
-                obj = Instantiate(prefab, parent);
-                obj.name = name;
+                obj = Instantiate(prefab, parent); // 创建新对象
+                obj.name = prefabName;
             }
-
             return obj;
         }
 
         /// <summary>
-        /// GameObject放进对象池
+        /// 将GameObject放进对象池
         /// </summary>
-        public void PushGameObj(GameObject obj)
+        public void Push(GameObject gameObj)
         {
-            string name = obj.name;
+            string gameObjName = gameObj.name;
 
             // 现在有没有这一层
-            if (gameObjectPoolDic.ContainsKey(name))
+            if (GameObjectPoolDict.ContainsKey(gameObjName))
             {
-                gameObjectPoolDic[name].PushObj(obj);
+                GameObjectPoolDict[gameObjName].Push(gameObj); // 放进已有的对象池
             }
             else
             {
-                gameObjectPoolDic.Add(name, new GameObjectPoolData(obj, poolRootObj));
+                GameObjectPoolDict.Add(gameObjName, new GameObjectPoolData(gameObj, poolRootObj)); // 创建新的对象池
             }
         }
 
@@ -85,24 +68,24 @@ namespace JKFrame
         /// </summary>
         bool CheckGameObjectCache(GameObject prefab)
         {
-            string name = prefab.name;
-            return gameObjectPoolDic.ContainsKey(name) && gameObjectPoolDic[name].poolQueue.Count > 0;
+            string prefabName = prefab.name;
+            return GameObjectPoolDict.ContainsKey(prefabName) && GameObjectPoolDict[prefabName].PoolQueue.Count > 0;
         }
 
         /// <summary>
-        /// 检查缓存 如果成功 则加载游戏物体 不成功返回Null
+        /// 检查缓存，如果成功则加载游戏物体，不成功返回Null
         /// </summary>
         /// <returns></returns>
         public GameObject CheckCacheAndLoadGameObject(string path, Transform parent = null)
         {
             // 通过路径获取最终预制体的名称 "UI/LoginWindow"
             string[] pathSplit = path.Split('/');
-            string prefabName = pathSplit[pathSplit.Length - 1];
+            string prefabName = pathSplit[^1];
 
             // 对象池有数据
-            if (gameObjectPoolDic.ContainsKey(prefabName) && gameObjectPoolDic[prefabName].poolQueue.Count > 0)
+            if (GameObjectPoolDict.ContainsKey(prefabName) && GameObjectPoolDict[prefabName].PoolQueue.Count > 0)
             {
-                return gameObjectPoolDic[prefabName].GetObj(parent);
+                return GameObjectPoolDict[prefabName].Get(parent);
             }
 
             return null;
@@ -113,15 +96,14 @@ namespace JKFrame
         #region 普通对象相关操作
 
         /// <summary>
-        /// 获取普通对象
+        /// 获取普通类对象
         /// </summary>
-        public T GetObject<T>() where T : class, new()
+        public T Get<T>() where T : class, new()
         {
-            T obj;
             if (CheckObjectCache<T>())
             {
-                string name = typeof(T).FullName;
-                obj = (T)objectPoolDic[name].GetObj();
+                string fullName = typeof(T).FullName;
+                var obj = (T)ObjectPoolDict[fullName].Get();
                 return obj;
             }
 
@@ -129,28 +111,31 @@ namespace JKFrame
         }
 
         /// <summary>
-        /// GameObject放进对象池
+        /// 将普通类对象放进对象池
         /// </summary>
-        /// <param name="obj"></param>
-        public void PushObj(object obj)
+        /// <param name="obj">需要放进对象池的对象</param>
+        public void Push(object obj)
         {
-            string name = obj.GetType().FullName;
+            string fullName = obj.GetType().FullName;
 
             // 现在有没有这一层
-            if (objectPoolDic.ContainsKey(name))
+            if (ObjectPoolDict.ContainsKey(fullName))
             {
-                objectPoolDic[name].PushObj(obj);
+                ObjectPoolDict[fullName].Push(obj);
             }
             else
             {
-                objectPoolDic.Add(name, new ObjectPoolData(obj));
+                ObjectPoolDict.Add(fullName, new ObjectPoolData(obj));
             }
         }
 
-        private bool CheckObjectCache<T>()
+        /// <summary>
+        /// 检查有没有某一层对象池数据
+        /// </summary>
+        bool CheckObjectCache<T>()
         {
-            string name = typeof(T).FullName;
-            return objectPoolDic.ContainsKey(name) && objectPoolDic[name].poolQueue.Count > 0;
+            string fullName = typeof(T).FullName;
+            return ObjectPoolDict.ContainsKey(fullName) && ObjectPoolDict[fullName].poolQueue.Count > 0;
         }
 
         #endregion
@@ -170,20 +155,12 @@ namespace JKFrame
                 {
                     Destroy(poolRootObj.transform.GetChild(i).gameObject);
                 }
-
-                gameObjectPoolDic.Clear();
+                GameObjectPoolDict.Clear();
             }
-
-            if (clearCObject)
-            {
-                objectPoolDic.Clear();
-            }
+            if (clearCObject) ObjectPoolDict.Clear();
         }
 
-        public void ClearAllGameObject()
-        {
-            Clear(true, false);
-        }
+        public void ClearAllGameObject() => Clear(true, false);
 
         public void ClearGameObject(string prefabName)
         {
@@ -191,29 +168,14 @@ namespace JKFrame
             if (go != null)
             {
                 Destroy(go);
-                gameObjectPoolDic.Remove(prefabName);
+                GameObjectPoolDict.Remove(prefabName);
             }
         }
 
-        public void ClearGameObject(GameObject prefab)
-        {
-            ClearGameObject(prefab.name);
-        }
-
-        public void ClearAllObject()
-        {
-            Clear(false, true);
-        }
-
-        public void ClearObject<T>()
-        {
-            objectPoolDic.Remove(typeof(T).FullName);
-        }
-
-        public void ClearObject(Type type)
-        {
-            objectPoolDic.Remove(type.FullName);
-        }
+        public void ClearGameObject(GameObject prefab) => ClearGameObject(prefab.name);
+        public void ClearAllObject() => Clear(false, true);
+        public void ClearObject<T>() => ObjectPoolDict.Remove(typeof(T).FullName);
+        public void ClearObject(Type type) => ObjectPoolDict.Remove(type.FullName);
 
         #endregion
     }

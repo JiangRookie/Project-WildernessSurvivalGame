@@ -61,7 +61,7 @@ namespace JKFrame
         /// </summary>
         public static void PushGameObj2Pool(this GameObject gameObj)
         {
-            PoolManager.Instance.PushGameObj(gameObj);
+            PoolManager.Instance.Push(gameObj);
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace JKFrame
         /// <param name="obj"></param>
         public static void PushObj2Pool(this object obj)
         {
-            PoolManager.Instance.PushObj(obj);
+            PoolManager.Instance.Push(obj);
         }
 
         #endregion

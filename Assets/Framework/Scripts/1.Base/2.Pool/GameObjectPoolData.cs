@@ -8,33 +8,31 @@ namespace JKFrame
     /// </summary>
     public class GameObjectPoolData
     {
-        // 对象池中 父节点
-        public GameObject fatherObj;
+        public GameObject FatherObj; // 对象池中 父节点
 
-        // 对象容器
-        public Queue<GameObject> poolQueue;
+        public Queue<GameObject> PoolQueue; // 对象容器
 
         public GameObjectPoolData(GameObject obj, GameObject poolRootObj)
         {
             // 创建父节点 并设置到对象池根节点下方
-            fatherObj = new GameObject(obj.name);
-            fatherObj.transform.SetParent(poolRootObj.transform);
-            poolQueue = new Queue<GameObject>();
+            FatherObj = new GameObject(obj.name);
+            FatherObj.transform.SetParent(poolRootObj.transform);
+            PoolQueue = new Queue<GameObject>();
 
             // 把首次创建时候 需要放入的对象 放进容器
-            PushObj(obj);
+            Push(obj);
         }
 
         /// <summary>
         /// 将对象放进对象池
         /// </summary>
-        public void PushObj(GameObject obj)
+        public void Push(GameObject obj)
         {
             // 对象进容器
-            poolQueue.Enqueue(obj);
+            PoolQueue.Enqueue(obj);
 
             // 设置父物体
-            obj.transform.SetParent(fatherObj.transform);
+            obj.transform.SetParent(FatherObj.transform);
 
             // 设置隐藏
             obj.SetActive(false);
@@ -44,9 +42,9 @@ namespace JKFrame
         /// 从对象池中获取对象
         /// </summary>
         /// <returns></returns>
-        public GameObject GetObj(Transform parent = null)
+        public GameObject Get(Transform parent = null)
         {
-            GameObject obj = poolQueue.Dequeue();
+            GameObject obj = PoolQueue.Dequeue();
 
             // 显示对象
             obj.SetActive(true);

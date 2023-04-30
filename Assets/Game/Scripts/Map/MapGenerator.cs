@@ -410,7 +410,7 @@ public class MapGenerator
     /// <returns></returns>
     MapObjectData GenerateMapObjectData(int mapObjectConfigID, Vector3 spawnPos, int destroyDays)
     {
-        MapObjectData mapObjectData = PoolManager.Instance.GetObject<MapObjectData>();
+        MapObjectData mapObjectData = PoolManager.Instance.Get<MapObjectData>();
         mapObjectData.ConfigID = mapObjectConfigID;
         mapObjectData.ID = m_MapData.CurrentID;
         m_MapData.CurrentID++;

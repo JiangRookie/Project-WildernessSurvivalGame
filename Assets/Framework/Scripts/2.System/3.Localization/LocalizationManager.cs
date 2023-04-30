@@ -1,5 +1,6 @@
 ﻿using Sirenix.OdinInspector;
 using UnityEngine;
+
 namespace JKFrame
 {
     /// <summary>
@@ -46,9 +47,9 @@ namespace JKFrame
 #if UNITY_EDITOR
             GameRoot.InitForEditor();
 #endif
+
             // 触发更新语言 事件
             EventManager.EventTrigger("UpdateLanguage");
         }
-
     }
 }

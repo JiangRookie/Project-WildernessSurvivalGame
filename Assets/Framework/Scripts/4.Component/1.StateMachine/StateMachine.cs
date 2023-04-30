@@ -10,26 +10,15 @@ namespace JKFrame
     [Pool]
     public class StateMachine
     {
-        // 当前生效中的状态
-        StateBase m_CurrStateObj;
+        StateBase m_CurrState; // 当前生效中的状态
 
-        // 宿主
-        IStateMachineOwner m_Owner;
+        IStateMachineOwner m_Owner; // 宿主
 
-        // 所有的状态 Key:状态枚举的值 Value:具体的状态
-        Dictionary<int, StateBase> m_StateDic = new Dictionary<int, StateBase>();
+        Dictionary<int, StateBase> m_StateDic = new Dictionary<int, StateBase>(); // 所有的状态 Key:状态枚举的值 Value:具体的状态
 
-        // 当前状态
-        public int CurrStateType { get; private set; } = -1;
+        public int CurrStateType { get; private set; } = -1; // 当前状态
 
-        /// <summary>
-        /// 初始化
-        /// </summary>
-        /// <param name="owner">宿主</param>
-        public void Init(IStateMachineOwner owner)
-        {
-            m_Owner = owner;
-        }
+        public void Init(IStateMachineOwner owner) => m_Owner = owner;
 
         /// <summary>
         /// 切换状态
@@ -44,21 +33,21 @@ namespace JKFrame
             if (newStateType == CurrStateType && !reCurrState) return false;
 
             // 退出当前状态
-            if (m_CurrStateObj != null)
+            if (m_CurrState != null)
             {
-                m_CurrStateObj.Exit();
-                m_CurrStateObj.RemoveUpdate(m_CurrStateObj.Update);
-                m_CurrStateObj.RemoveLateUpdate(m_CurrStateObj.LateUpdate);
-                m_CurrStateObj.RemoveFixedUpdate(m_CurrStateObj.FixedUpdate);
+                m_CurrState.Exit();
+                m_CurrState.RemoveUpdate(m_CurrState.Update);
+                m_CurrState.RemoveLateUpdate(m_CurrState.LateUpdate);
+                m_CurrState.RemoveFixedUpdate(m_CurrState.FixedUpdate);
             }
 
             // 进入新状态
-            m_CurrStateObj = GetState<T>(newStateType);
+            m_CurrState = GetState<T>(newStateType);
             CurrStateType = newStateType;
-            m_CurrStateObj.Enter();
-            m_CurrStateObj.OnUpdate(m_CurrStateObj.Update);
-            m_CurrStateObj.OnLateUpdate(m_CurrStateObj.LateUpdate);
-            m_CurrStateObj.OnFixedUpdate(m_CurrStateObj.FixedUpdate);
+            m_CurrState.Enter();
+            m_CurrState.OnUpdate(m_CurrState.Update);
+            m_CurrState.OnLateUpdate(m_CurrState.LateUpdate);
+            m_CurrState.OnFixedUpdate(m_CurrState.FixedUpdate);
             return true;
         }
 
@@ -80,15 +69,15 @@ namespace JKFrame
         /// </summary>
         public void Stop()
         {
-            if (m_CurrStateObj != null)
+            if (m_CurrState != null)
             {
                 // 处理当前状态的额外逻辑
-                m_CurrStateObj.Exit();
-                m_CurrStateObj.RemoveUpdate(m_CurrStateObj.Update);
-                m_CurrStateObj.RemoveLateUpdate(m_CurrStateObj.LateUpdate);
-                m_CurrStateObj.RemoveFixedUpdate(m_CurrStateObj.FixedUpdate);
+                m_CurrState.Exit();
+                m_CurrState.RemoveUpdate(m_CurrState.Update);
+                m_CurrState.RemoveLateUpdate(m_CurrState.LateUpdate);
+                m_CurrState.RemoveFixedUpdate(m_CurrState.FixedUpdate);
                 CurrStateType = -1;
-                m_CurrStateObj = null;
+                m_CurrState = null;
             }
 
             // 处理缓存中所有状态的逻辑

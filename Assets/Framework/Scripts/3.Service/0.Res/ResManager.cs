@@ -42,7 +42,7 @@ namespace JKFrame
             // 需要缓存
             if (CheckCacheDic(typeof(T)))
             {
-                return PoolManager.Instance.GetObject<T>();
+                return PoolManager.Instance.Get<T>();
             }
             else
             {
@@ -61,7 +61,7 @@ namespace JKFrame
         {
             if (CheckCacheDic(typeof(T)))
             {
-                return PoolManager.Instance.GetGameObject<T>(GetPrefab(path), parent);
+                return PoolManager.Instance.Get<T>(GetPrefab(path), parent);
             }
             else
             {

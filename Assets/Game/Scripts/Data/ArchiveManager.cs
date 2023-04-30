@@ -86,9 +86,12 @@ public class ArchiveManager : Singleton<ArchiveManager>
         ((Item_MaterialData)MainInventoryData.ItemDatas[1].ItemTypeData).Count = 10;
 
         MainInventoryData.ItemDatas[2] = ItemData.CreateItemData(2);
+        ((Item_WeaponData)MainInventoryData.ItemDatas[2].ItemTypeData).Durability = 50;
 
         MainInventoryData.ItemDatas[3] = ItemData.CreateItemData(4);
+        ((Item_WeaponData)MainInventoryData.ItemDatas[3].ItemTypeData).Durability = 50;
         MainInventoryData.ItemDatas[4] = ItemData.CreateItemData(5);
+        ((Item_WeaponData)MainInventoryData.ItemDatas[4].ItemTypeData).Durability = 50;
 
         MainInventoryData.ItemDatas[5] = ItemData.CreateItemData(7);
         ((Item_MaterialData)MainInventoryData.ItemDatas[5].ItemTypeData).Count = 10;

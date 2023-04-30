@@ -128,7 +128,7 @@ public class UI_MapWindow : UI_WindowBase
     {
         MapObjectConfig config = ConfigManager.Instance.GetConfig<MapObjectConfig>(ConfigName.MapObject, mapObjectData.ConfigID);
         if (config.MapIconSprite == null || config.IconSize <= 0) return;
-        GameObject gameObj = PoolManager.Instance.GetGameObject(m_MapIconPrefab, m_Content);
+        GameObject gameObj = PoolManager.Instance.Get(m_MapIconPrefab, m_Content);
         Image iconImage = gameObj.GetComponent<Image>();
         iconImage.sprite = config.MapIconSprite;
         iconImage.transform.localScale = Vector3.one * config.IconSize;

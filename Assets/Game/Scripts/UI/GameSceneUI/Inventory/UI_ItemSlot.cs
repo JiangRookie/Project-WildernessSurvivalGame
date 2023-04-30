@@ -16,11 +16,11 @@ public class UI_ItemSlot : MonoBehaviour
     [SerializeField] Image m_IconImage;
     [SerializeField] Text m_CountText;
     Transform m_IconTransform;
+    Func<int, AudioType> m_OnUseAction;
     UI_InventoryWindowBase m_OwnerWindow;
     Transform m_SlotTransform;
     public ItemData ItemData { get; private set; }
     public int Index { get; private set; }
-    Func<int, AudioType> m_OnUseAction;
 
     void Start()
     {
@@ -36,15 +36,9 @@ public class UI_ItemSlot : MonoBehaviour
         this.BindMouseEffect();
     }
 
-    void OnEnable()
-    {
-        this.OnUpdate(CheckMouseRightClick);
-    }
+    void OnEnable() => this.OnUpdate(CheckMouseRightClick);
 
-    void OnDisable()
-    {
-        this.RemoveUpdate(CheckMouseRightClick);
-    }
+    void OnDisable() => this.RemoveUpdate(CheckMouseRightClick);
 
     void CheckMouseRightClick()
     {

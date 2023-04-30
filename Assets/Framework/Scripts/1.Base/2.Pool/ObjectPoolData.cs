@@ -7,29 +7,9 @@ namespace JKFrame
     /// </summary>
     public class ObjectPoolData
     {
-        // 对象容器
-        public Queue<object> poolQueue = new Queue<object>();
-
-        public ObjectPoolData(object obj)
-        {
-            PushObj(obj);
-        }
-
-        /// <summary>
-        /// 将对象放进对象池
-        /// </summary>
-        public void PushObj(object obj)
-        {
-            poolQueue.Enqueue(obj);
-        }
-
-        /// <summary>
-        /// 从对象池中获取对象
-        /// </summary>
-        /// <returns></returns>
-        public object GetObj()
-        {
-            return poolQueue.Dequeue();
-        }
+        public Queue<object> poolQueue = new Queue<object>(); // 对象容器
+        public ObjectPoolData(object obj) => Push(obj);
+        public void Push(object obj) => poolQueue.Enqueue(obj);
+        public object Get() => poolQueue.Dequeue();
     }
 }

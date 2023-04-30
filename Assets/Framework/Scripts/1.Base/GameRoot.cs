@@ -8,9 +8,10 @@ namespace JKFrame
         /// <summary>
         /// 框架设置
         /// </summary>
-        [SerializeField]
-        private GameSetting gameSetting;
-        public GameSetting GameSetting { get { return gameSetting; } }
+        [SerializeField] GameSetting gameSetting;
+
+        public GameSetting GameSetting => gameSetting;
+
         protected override void Awake()
         {
             if (Instance != null)
@@ -22,15 +23,15 @@ namespace JKFrame
             DontDestroyOnLoad(gameObject);
 
             // 初始化所有管理器
-            InitManager();
+            InitManagers();
         }
 
-        private void InitManager()
+        void InitManagers()
         {
             ManagerBase[] managers = GetComponents<ManagerBase>();
-            for (int i = 0; i < managers.Length; i++)
+            foreach (ManagerBase manager in managers)
             {
-                managers[i].Init();
+                manager.Init();
             }
         }
 
@@ -46,11 +47,12 @@ namespace JKFrame
             if (Instance == null && GameObject.Find("GameRoot") != null)
             {
                 Instance = GameObject.Find("GameRoot").GetComponent<GameRoot>();
+
                 // 清空事件
                 EventManager.Clear();
-                Instance.InitManager();
+                Instance.InitManagers();
                 Instance.GameSetting.InitForEditor();
-                
+
                 // 场景的所有窗口都进行一次Show
                 UI_WindowBase[] window = Instance.transform.GetComponentsInChildren<UI_WindowBase>();
                 foreach (UI_WindowBase win in window)
@@ -60,12 +62,5 @@ namespace JKFrame
             }
         }
 #endif
-
-
-
     }
-
-
-
 }
-

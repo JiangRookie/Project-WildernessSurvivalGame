@@ -202,7 +202,7 @@ public class PlayerController : SingletonMono<PlayerController>, IStateMachineOw
         // 生成或回收武器对象
         if (newWeaponInfo != null)
         {
-            m_CurrWeaponGameObj = PoolManager.Instance.GetGameObject(newWeaponInfo.PrefabOnPlayer, m_PlayerModel.WeaponRoot);
+            m_CurrWeaponGameObj = PoolManager.Instance.Get(newWeaponInfo.PrefabOnPlayer, m_PlayerModel.WeaponRoot);
             m_CurrWeaponGameObj.transform.localPosition = newWeaponInfo.PositionOnPlayer;
             m_CurrWeaponGameObj.transform.localRotation = Quaternion.Euler(newWeaponInfo.RotationOnPlayer);
             m_Animator.runtimeAnimatorController = newWeaponInfo.AnimatorOverrideController;
@@ -403,7 +403,7 @@ public class PlayerController : SingletonMono<PlayerController>, IStateMachineOw
         {
             if (m_CurrWeaponData.Config.ItemTypeInfo is not Item_WeaponInfo weaponInfo) return;
             AudioManager.Instance.PlayOneShot(weaponInfo.HitAudio, transform.position);
-            GameObject hitEffect = PoolManager.Instance.GetGameObject(weaponInfo.HitEffect);
+            GameObject hitEffect = PoolManager.Instance.Get(weaponInfo.HitEffect);
             hitEffect.transform.position = other.ClosestPoint(m_CurrWeaponGameObj.transform.position);
             ai.Hurt(weaponInfo.AttackValue);
             m_AttackSucceedCount += 1;
