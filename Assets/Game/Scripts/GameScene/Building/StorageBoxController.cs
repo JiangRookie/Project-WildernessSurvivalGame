@@ -1,9 +1,10 @@
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 public class StorageBoxController : BuildingBase
 {
     StorageBoxData m_StorageBoxData;
-    [SerializeField] Vector2Int m_UIWindowGridSize;
+    [LabelText("物品操数量"), SerializeField] Vector2Int m_UIWindowGridSize;
 
     public override void Init(MapChunkController chunk, ulong objectId, bool isFromBuild)
     {

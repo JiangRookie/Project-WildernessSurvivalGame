@@ -123,7 +123,7 @@ public class PlayerController : SingletonMono<PlayerController>, IStateMachineOw
         }
     }
 
-    public void PlayerAnimation(string animationName, float fixedTransitionDuration = 0.25f) =>
+    public void PlayAnimation(string animationName, float fixedTransitionDuration = 0.25f) =>
         m_Animator.CrossFadeInFixedTime(animationName, fixedTransitionDuration);
 
     #endregion
@@ -267,7 +267,7 @@ public class PlayerController : SingletonMono<PlayerController>, IStateMachineOw
                     mapObject.OnPickUp();
                     transform.LookAt(mapObject.transform.position);
 
-                    PlayerAnimation("PickUp");
+                    PlayAnimation("PickUp");
                     ProjectTool.PlayAudio(AudioType.Bag);
                 }
                 else

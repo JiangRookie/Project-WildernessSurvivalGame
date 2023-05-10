@@ -29,7 +29,7 @@ public class InventoryManager : SingletonMono<InventoryManager>
     public void OpenStorageBoxWindow(StorageBoxController storageBox, InventoryData data, Vector2Int size)
     {
         ProjectTool.PlayAudio(AudioType.Bag);
-        UIManager.Instance.Close<UI_StorageBoxInventoryWindow>();
-        UIManager.Instance.Show<UI_StorageBoxInventoryWindow>().Init(storageBox, data, size);
+        UIManager.Instance.Close<UI_StorageBoxWindow>();
+        UIManager.Instance.Show<UI_StorageBoxWindow>().Init(storageBox, data, size);
     }
 }

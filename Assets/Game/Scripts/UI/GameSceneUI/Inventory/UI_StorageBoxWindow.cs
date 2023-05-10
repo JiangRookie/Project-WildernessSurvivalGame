@@ -7,7 +7,7 @@ using UnityEngine.UI;
 /// 储物箱UI窗口
 /// </summary>
 [UIElement(true, "UI/UI_StorageBoxInventoryWindow", 1)]
-public class UI_StorageBoxInventoryWindow : UI_InventoryWindowBase
+public class UI_StorageBoxWindow : UI_InventoryWindowBase
 {
     [SerializeField] Transform m_ItemParent;
     [SerializeField] Button m_CloseButton;

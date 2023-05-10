@@ -80,6 +80,9 @@ public class MapManager : SingletonMono<MapManager>
 
         // 确定配置 获取地图物品配置，初始化地图生成对象配置字典
         m_MapConfig = ConfigManager.Instance.GetConfig<MapConfig>(ConfigName.Map);
+
+        #region 初始化地图生成对象配置字典
+
         m_SpawnMapObjectConfigDict = new Dictionary<MapVertexType, List<int>>();
         m_SpawnMapObjectConfigDict.Add(MapVertexType.Forest, new List<int>());
         m_SpawnMapObjectConfigDict.Add(MapVertexType.Marsh, new List<int>());
@@ -104,6 +107,8 @@ public class MapManager : SingletonMono<MapManager>
             m_SpawnAIConfigDict[mapVertexType].Add(id); // 将相同的顶点类型的Id放在同一个列表中
         }
 
+        #endregion
+
         // 初始化地图生成器
         m_MapGenerator = new MapGenerator(m_MapConfig, m_MapInitData, m_MapData, m_SpawnMapObjectConfigDict, m_SpawnAIConfigDict);
         m_MapGenerator.GenerateMapData();
@@ -119,6 +124,8 @@ public class MapManager : SingletonMono<MapManager>
 
         // 烘焙导航网格
         BakeNavMesh();
+
+        #region 生成地图块
 
         var mapChunkCount = m_MapData.MapChunkIndexList.Count;
         if (mapChunkCount > 0) // 旧存档
@@ -153,6 +160,9 @@ public class MapManager : SingletonMono<MapManager>
                 }
             }
         }
+
+        #endregion
+
         DoUpdateVisibleChunk();
 
         // 显示一次MapUI，做好初始化后再关闭掉

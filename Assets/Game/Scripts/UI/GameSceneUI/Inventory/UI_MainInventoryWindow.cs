@@ -1,6 +1,5 @@
 using JKFrame;
-using 
-    UnityEngine;
+using UnityEngine;
 
 [UIElement(false, "UI/UI_MainInventoryWindow", 1)]
 public class UI_MainInventoryWindow : UI_InventoryWindowBase
@@ -120,7 +119,7 @@ public class UI_MainInventoryWindow : UI_InventoryWindowBase
         }
     }
 
-    public AudioType UseItem(int index)
+    AudioType UseItem(int index)
     {
         // 玩家的状态也许并不能使用物品
         if (PlayerController.Instance.CanUseItem == false) return AudioType.PlayerCannotUse;

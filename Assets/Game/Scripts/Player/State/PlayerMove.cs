@@ -13,7 +13,7 @@ public class PlayerMove : PlayerStateBase
 
     public override void Enter()
     {
-        m_PlayerCtrl.PlayerAnimation("Move");
+        m_PlayerCtrl.PlayAnimation("Move");
     }
 
     public override void Update()
