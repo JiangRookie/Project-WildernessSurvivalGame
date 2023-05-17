@@ -25,8 +25,6 @@ public class StorageBoxController : BuildingBase
 
     public override void OnSelect()
     {
-        Debug.Log(m_StorageBoxData.InventoryData);
-
         // 打开储物箱的UI窗口
         InventoryManager.Instance.OpenStorageBoxWindow(this, m_StorageBoxData.InventoryData, m_UIWindowGridSize);
     }

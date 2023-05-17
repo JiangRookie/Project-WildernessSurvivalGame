@@ -209,7 +209,6 @@ public class UI_ItemSlot : MonoBehaviour
                 else
                 {
                     ProjectTool.PlayAudio(AudioType.TakeUpWeapon);
-                    Debug.Log("可以装备物品：" + ItemData.Config.Name);
                     SwapSlotItem(this, CurrentMouseEnterSlot);
                 }
             }

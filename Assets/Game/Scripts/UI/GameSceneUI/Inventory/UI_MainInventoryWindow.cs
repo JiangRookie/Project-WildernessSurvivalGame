@@ -11,10 +11,12 @@ public class UI_MainInventoryWindow : UI_InventoryWindowBase
     {
         #region Test
 
-        if (Input.GetKeyDown(KeyCode.Alpha0)) AddItemAndPlayAudio(0);
-        if (Input.GetKeyDown(KeyCode.Alpha1)) AddItemAndPlayAudio(1);
-        if (Input.GetKeyDown(KeyCode.Alpha2)) AddItemAndPlayAudio(2);
-        if (Input.GetKeyDown(KeyCode.Alpha3)) AddItemAndPlayAudio(3);
+        if (Input.GetKeyDown(KeyCode.Alpha1)) AddItemAndPlayAudio(0); // 木头
+        if (Input.GetKeyDown(KeyCode.Alpha2)) AddItemAndPlayAudio(1); // 石头
+        if (Input.GetKeyDown(KeyCode.Alpha3)) AddItemAndPlayAudio(7); // 树枝
+        if (Input.GetKeyDown(KeyCode.Alpha4)) AddItemAndPlayAudio(2);
+        if (Input.GetKeyDown(KeyCode.Alpha5)) AddItemAndPlayAudio(4);
+        if (Input.GetKeyDown(KeyCode.Alpha6)) AddItemAndPlayAudio(5);
 
         #endregion
     }

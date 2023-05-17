@@ -243,7 +243,7 @@ public class MapManager : SingletonMono<MapManager>
 
         #endregion
 
-        #region 开启需要显示的地图块
+        #region 开启需要显示的地图块 - 以九宫格方式加载地图
 
         // 从左下角开始遍历地图块
         int startX = currViewerChunkIndex.x - m_MapConfig.ViewDistance;

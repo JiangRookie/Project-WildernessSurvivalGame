@@ -4,5 +4,6 @@ public class PlayerDead : PlayerStateBase
     {
         m_PlayerCtrl.PlayAnimation("Dead");
         m_PlayerCtrl.Collider.enabled = false;
+        GameSceneManager.Instance.GameOver();
     }
 }
